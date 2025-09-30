@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planejagro - Auxílio ao Produtor Rural</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🌤️ Planejagro</h1>
+        <p class="subtitle">Auxílio completo para o produtor rural</p>
+        
+        <div class="nav-buttons">
+            <a href="estoque.html" class="nav-btn">
+                📦 Gestão de Estoque
+            </a>
+            <a href="financeiro.html" class="nav-btn">
+                💰 Controle Financeiro
+            </a>
+        </div>
+        
+        <div class="input-group">
+            <label for="location">Digite sua cidade ou use a localização automática:</label>
+            <input type="text" id="location" placeholder="Ex: São Paulo, Rio de Janeiro, Brasília...">
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="getLocation()">📍 Minha Localização</button>
+            <button class="btn-secondary" onclick="searchWeather()">🔍 Buscar</button>
+        </div>
+
+        <div class="loading" id="loading">Carregando dados meteorológicos...</div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="weather-card" id="weatherCard">
+            <div class="location" id="weatherLocation"></div>
+            <div class="temperature" id="weatherTemp"></div>
+            <div class="description" id="weatherDesc"></div>
+            <div class="details">
+                <div class="detail-item">
+                    <div class="detail-label">Sensação Térmica</div>
+                    <div class="detail-value" id="weatherFeelsLike"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Umidade</div>
+                    <div class="detail-value" id="weatherHumidity"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Velocidade do Vento</div>
+                    <div class="detail-value" id="weatherWind"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Pressão</div>
+                    <div class="detail-value" id="weatherPressure"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

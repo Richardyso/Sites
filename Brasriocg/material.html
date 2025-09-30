@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRASRIO CAMPO GRANDE - Método de Cálculo</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/jpeg" href="Isolino.jpg">
+</head>
+<body>
+
+<header>
+  <img src="Isolino.jpg" alt="Isolino Mascote" class="mascote-topo">
+  <div>
+    <h1>BRASRIO CAMPO GRANDE</h1>
+    <small>Orçamento Rápido</small>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2>Como deseja calcular?</h2>
+    <p id="material-info"></p>
+    <div class="btn-group">
+      <button onclick="selectMethod('metragem')">Informar metragem</button>
+      <button onclick="selectMethod('lista')">Selecionar da lista</button>
+    </div>
+    <button class="btn-back" onclick="goBack()">Voltar</button>
+  </div>
+</div>
+
+<script>
+// Pega os parâmetros da URL
+const urlParams = new URLSearchParams(window.location.search);
+const material = urlParams.get('material');
+const subtype = urlParams.get('subtype');
+
+// Exibe informações do material selecionado
+document.addEventListener('DOMContentLoaded', function() {
+  const materialInfo = document.getElementById('material-info');
+  if (material && subtype) {
+    materialInfo.textContent = `Material: ${material} - ${subtype}`;
+  } else if (material) {
+    materialInfo.textContent = `Material: ${material}`;
+  }
+});
+
+function selectMethod(method) {
+  let url = '';
+  if (method === 'metragem') {
+    url = `metragem.html?material=${encodeURIComponent(material)}`;
+    if (subtype) {
+      url += `&subtype=${encodeURIComponent(subtype)}`;
+    }
+  } else {
+    url = `lista.html?material=${encodeURIComponent(material)}`;
+    if (subtype) {
+      url += `&subtype=${encodeURIComponent(subtype)}`;
+    }
+  }
+  window.location.href = url;
+}
+
+function goBack() {
+  if (material === 'Drywall') {
+    window.location.href = 'drywall.html';
+  } else if (material === 'Cimenticia') {
+    window.location.href = 'cimenticia.html';
+  } else if (material === 'PVC') {
+    window.location.href = 'pvc.html';
+  } else if (material === 'Piso') {
+    window.location.href = 'piso.html';
+  } else if (material === 'Forro Mineral' || material === 'Forro Boreal') {
+    window.location.href = 'index.html';
+  } else {
+    window.location.href = 'index.html';
+  }
+}
+</script>
+
+</body>
+</html>

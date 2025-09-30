@@ -1,0 +1,27 @@
+================================================================================
+CONSIDERAÇÕES TÉCNICAS
+================================================================================
+
+EFICIÊNCIA DE CORTE
+-----------------------
+- As placas são cortadas para se adequar às dimensões do projeto
+- O fator de perda de 10% considera cortes e ajustes necessários
+- Para projetos grandes, a eficiência pode ser maior
+
+ESPAÇAMENTO DOS PERFIS
+--------------------------
+- Perfis verticais: espaçamento de 400mm a 600mm
+- Perfis horizontais: espaçamento conforme altura da parede
+- Cantoneiras e fixações incluídas no cálculo
+
+FIXAÇÃO DAS PLACAS
+----------------------
+- Parafusos espaçados de 200mm a 300mm
+- Maior quantidade para forros devido à gravidade
+- Divisórias requerem fixação em ambas as faces
+
+ACABAMENTO
+--------------
+- Fita de juntas aplicada em todas as juntas entre placas
+- Massa para acabamento considera 2-3 demãos
+- Fator de perda considera desperdícios e ajustes

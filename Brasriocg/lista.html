@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRASRIO CAMPO GRANDE - Selecionar da Lista v2.0</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/jpeg" href="Isolino.jpg">
+</head>
+<body>
+
+<header>
+  <img src="Isolino.jpg" alt="Isolino Mascote" class="mascote-topo">
+  <div>
+    <h1>BRASRIO CAMPO GRANDE</h1>
+    <small>Orçamento Rápido</small>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2>Selecione os materiais e quantidades</h2>
+    <p id="material-info"></p>
+    <div id="materials-list" class="materials-list"></div>
+    <div class="btn-group">
+      <button onclick="finalizar()">Finalizar</button>
+      <button class="btn-back" onclick="goBack()">Voltar</button>
+    </div>
+  </div>
+</div>
+
+<script src="utils.js"></script>
+<script>
+// Pega os parâmetros da URL
+const urlParams = new URLSearchParams(window.location.search);
+const material = urlParams.get('material');
+const subtype = urlParams.get('subtype');
+
+// Exibe informações do material selecionado
+document.addEventListener('DOMContentLoaded', function() {
+  const materialInfo = document.getElementById('material-info');
+  if (material && subtype) {
+    materialInfo.textContent = `Material: ${material} - ${subtype}`;
+  } else if (material) {
+    materialInfo.textContent = `Material: ${material}`;
+  }
+  
+  carregarProdutos().then(() => {
+    carregarListaMateriais();
+  });
+});
+
+async function carregarListaMateriais() {
+  const lista = document.getElementById('materials-list');
+  lista.innerHTML = '';
+  
+  // Se for Piso Vinílico, mostra apenas os pisos vinílicos específicos
+  if (material === 'Piso' && subtype === 'Vinílico') {
+    const pisosVinilicos = [
+      { codigo: "1574", descricao: "PISO VINÍLICO RUFFINO - SOFISTICATO CARAMBOLA - 18 REGUAS - 2MM - 3,90 M2" },
+      { codigo: "1570", descricao: "PISO VINÍLICO RUFFINO - SOFISTICATO SAPUCAIA - 18 REGUAS - 2MM - 3,90 M2" },
+      { codigo: "1599", descricao: "PISO VINILICO RUFFINO BRAVO COR ANGELIM - 3MM - 2,6 M2" },
+      { codigo: "1575", descricao: "PISO VINILICO RUFFINO NOBILE COLADO BAOBA 2MM - 3,90M2" },
+      { codigo: "1576", descricao: "PISO VINILICO RUFFINO NOBILE COLADO DAMASCO 2MM - 3,90M2" }
+    ];
+    
+    pisosVinilicos.forEach(piso => {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <input type="number" id="qtd-${piso.codigo}" min="0" style="width:80px;" placeholder="Qtd">
+        <strong>[${piso.codigo}]</strong> ${piso.descricao}
+      `;
+      lista.appendChild(div);
+    });
+  } else if (material === 'Piso' && subtype === 'Laminado') {
+    // Se for Piso Laminado, mostra apenas os pisos laminados específicos
+    const pisosLaminados = [
+      { codigo: "1102", descricao: "PISO LAMINADO GRAN ELEGANCE STONE CLICK 8MM - CAIXA C/ 2,41M2" },
+      { codigo: "1236", descricao: "PISO LAMINADO CLICADO DURAFLOOR NATURE BELGRADO CX C/ 2,51M2" },
+      { codigo: "1401", descricao: "PISO LAMINADO QUICK STEP PREMIERE MOCHA - 2,84M2" }
+    ];
+    
+    pisosLaminados.forEach(piso => {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <input type="number" id="qtd-${piso.codigo}" min="0" style="width:80px;" placeholder="Qtd">
+        <strong>[${piso.codigo}]</strong> ${piso.descricao}
+      `;
+      lista.appendChild(div);
+    });
+  } else if (material === 'Cimenticia') {
+    // Se for Placas Cimentícias, verifica o subtipo
+    if (subtype === 'Teto') {
+      // Para teto: não mostra placas, apenas fita e massa
+      const materiaisTeto = [
+        { codigo: "FITA", descricao: "FITA PARA JUNTA" },
+        { codigo: "MASSA", descricao: "MASSA PARA JUNTA" }
+      ];
+      
+      materiaisTeto.forEach(mat => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <input type="number" id="qtd-${mat.codigo}" min="0" style="width:80px;" placeholder="Qtd">
+          <strong>[${mat.codigo}]</strong> ${mat.descricao} (para cada 15m²)
+        `;
+        lista.appendChild(div);
+      });
+    } else if (subtype === 'Parede') {
+      // Para parede: mostra apenas uma placa (a escolhida anteriormente)
+      // Por enquanto, vamos usar uma placa padrão, mas isso deveria vir da tela anterior
+      const placaPadrao = { codigo: "181", descricao: "PLACA CIMENTICIA 2.40 X 1.20 8MM DECORLIT" };
+      
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <input type="number" id="qtd-${placaPadrao.codigo}" min="0" style="width:80px;" placeholder="Qtd">
+        <strong>[${placaPadrao.codigo}]</strong> ${placaPadrao.descricao}
+      `;
+      lista.appendChild(div);
+      
+      // Adiciona fita e massa para parede
+      const materiaisParede = [
+        { codigo: "FITA", descricao: "FITA PARA JUNTA" },
+        { codigo: "MASSA", descricao: "MASSA PARA JUNTA" }
+      ];
+      
+      materiaisParede.forEach(mat => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <input type="number" id="qtd-${mat.codigo}" min="0" style="width:80px;" placeholder="Qtd">
+          <strong>[${mat.codigo}]</strong> ${mat.descricao} (para cada 15m²)
+        `;
+        lista.appendChild(div);
+      });
+    } else {
+      // Se não especificar subtipo, mantém comportamento original
+      const placasCimenticias = [
+        { codigo: "181", descricao: "PLACA CIMENTICIA 2.40 X 1.20 8MM DECORLIT" },
+        { codigo: "182", descricao: "PLACA CIMENTICIA 2.40 X 1.20 10MM DECORLIT" },
+        { codigo: "263", descricao: "PLACA CIMENTICIA 2.40 X 1.20 6MM DECORLIT" },
+        { codigo: "1172", descricao: "PLACA CIMENTICIA 2.40 X 1.20 12MM DECORLIT" }
+      ];
+      
+      placasCimenticias.forEach(placa => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <input type="number" id="qtd-${placa.codigo}" min="0" style="width:80px;" placeholder="Qtd">
+          <strong>[${placa.codigo}]</strong> ${placa.descricao}
+        `;
+        lista.appendChild(div);
+      });
+    }
+  } else if (material === 'PVC') {
+    // Se for PVC, verifica o subtipo
+    if (subtype === 'Placa') {
+      // Para placa: carrega produtos de todas as categorias
+      const todosProdutos = getAllProducts();
+      todosProdutos.forEach(mat => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <input type="number" id="qtd-${mat.CodigoProduto}" min="0" style="width:80px;" placeholder="Qtd">
+          <strong>[${mat.CodigoProduto}]</strong> ${mat.Descricao}
+        `;
+        lista.appendChild(div);
+      });
+    } else if (subtype === 'Regua') {
+      // Para régua: mostra apenas as réguas PVC específicas
+      const reguasPVC = [
+        { codigo: "1138", descricao: "FORRO PVC 1,00 METROS ( 7MM )" },
+        { codigo: "1139", descricao: "FORRO PVC 2,00 METROS ( 7MM )" },
+        { codigo: "740", descricao: "FORRO PVC 6,50 METROS ( 7MM )" },
+        { codigo: "566", descricao: "FORRO PVC 3,00 METROS ( 7MM )" },
+        { codigo: "571", descricao: "FORRO PVC 6,00 METROS ( 7MM )" },
+        { codigo: "567", descricao: "FORRO PVC 3,50 METROS ( 7MM )" },
+        { codigo: "741", descricao: "FORRO PVC 5.50 METROS ( 7MM )" },
+        { codigo: "568", descricao: "FORRO PVC 4,00 METROS ( 7MM )" },
+        { codigo: "570", descricao: "FORRO PVC 5.00 METROS ( 7MM )" },
+        { codigo: "569", descricao: "FORRO PVC 4,50 METROS ( 7MM )" },
+        { codigo: "572", descricao: "FORRO PVC 7,00 METROS ( 7MM )" },
+        { codigo: "573", descricao: "FORRO PVC 8,00 METROS ( 7MM )" },
+        { codigo: "1251", descricao: "FORRO PVC 8,50 METROS ( 7MM )" }
+      ];
+      
+      reguasPVC.forEach(regua => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <input type="number" id="qtd-${regua.codigo}" min="0" style="width:80px;" placeholder="Qtd">
+          <strong>[${regua.codigo}]</strong> ${regua.descricao}
+        `;
+        lista.appendChild(div);
+      });
+    }
+  } else {
+    // Carrega produtos de todas as categorias para outros materiais
+    const todosProdutos = getAllProducts();
+    todosProdutos.forEach(mat => {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <input type="number" id="qtd-${mat.CodigoProduto}" min="0" style="width:80px;" placeholder="Qtd">
+        <strong>[${mat.CodigoProduto}]</strong> ${mat.Descricao}
+      `;
+      lista.appendChild(div);
+    });
+  }
+}
+
+function finalizar() {
+  const materiaisSelecionados = [];
+  
+  if (material === 'Piso' && subtype === 'Vinílico') {
+    // Para piso vinílico, verifica apenas os pisos específicos
+    const pisosVinilicos = [
+      { codigo: "1574", descricao: "PISO VINÍLICO RUFFINO - SOFISTICATO CARAMBOLA - 18 REGUAS - 2MM - 3,90 M2" },
+      { codigo: "1570", descricao: "PISO VINÍLICO RUFFINO - SOFISTICATO SAPUCAIA - 18 REGUAS - 2MM - 3,90 M2" },
+      { codigo: "1599", descricao: "PISO VINILICO RUFFINO BRAVO COR ANGELIM - 3MM - 2,6 M2" },
+      { codigo: "1575", descricao: "PISO VINILICO RUFFINO NOBILE COLADO BAOBA 2MM - 3,90M2" },
+      { codigo: "1576", descricao: "PISO VINILICO RUFFINO NOBILE COLADO DAMASCO 2MM - 3,90M2" }
+    ];
+    
+    let totalCaixas = 0;
+    pisosVinilicos.forEach(piso => {
+      const qtd = parseFloat(document.getElementById(`qtd-${piso.codigo}`).value) || 0;
+      if (qtd > 0) {
+        materiaisSelecionados.push({
+          codigo: piso.codigo,
+          nome: piso.descricao,
+          quantidade: qtd
+        });
+        totalCaixas += qtd;
+      }
+    });
+    
+    // Adiciona massa niveladora para cada caixa de piso
+    if (totalCaixas > 0) {
+      materiaisSelecionados.push({
+        codigo: "947",
+        nome: "MASSA NIVELADORA PISO SC/ 4KG MAPEI",
+        quantidade: totalCaixas
+      });
+    }
+  } else if (material === 'Piso' && subtype === 'Laminado') {
+    // Para piso laminado, verifica apenas os pisos específicos
+    const pisosLaminados = [
+      { codigo: "1102", descricao: "PISO LAMINADO GRAN ELEGANCE STONE CLICK 8MM - CAIXA C/ 2,41M2" },
+      { codigo: "1236", descricao: "PISO LAMINADO CLICADO DURAFLOOR NATURE BELGRADO CX C/ 2,51M2" },
+      { codigo: "1401", descricao: "PISO LAMINADO QUICK STEP PREMIERE MOCHA - 2,84M2" }
+    ];
+    
+    let totalCaixas = 0;
+    let totalM2 = 0;
+    pisosLaminados.forEach(piso => {
+      const qtd = parseFloat(document.getElementById(`qtd-${piso.codigo}`).value) || 0;
+      if (qtd > 0) {
+        materiaisSelecionados.push({
+          codigo: piso.codigo,
+          nome: piso.descricao,
+          quantidade: qtd
+        });
+        totalCaixas += qtd;
+        
+        // Calcula área total baseada no tipo de piso
+        if (piso.codigo === "1102") totalM2 += qtd * 2.41;
+        else if (piso.codigo === "1236") totalM2 += qtd * 2.51;
+        else if (piso.codigo === "1401") totalM2 += qtd * 2.84;
+      }
+    });
+    
+    // Adiciona manta para piso laminado (obrigatória)
+    if (totalCaixas > 0) {
+      materiaisSelecionados.push({
+        codigo: "447",
+        nome: "MANTA P/ PISO LAMINADO 1,20ML",
+        quantidade: Math.ceil(totalM2 / 1.2)
+      });
+    }
+  } else if (material === 'PVC') {
+    // Se for PVC, verifica o subtipo
+    if (subtype === 'Placa') {
+      // Para placa: usa a lógica original
+      const todosProdutos = getAllProducts();
+      todosProdutos.forEach(mat => {
+        const qtd = parseFloat(document.getElementById(`qtd-${mat.CodigoProduto}`).value) || 0;
+        if (qtd > 0) {
+          materiaisSelecionados.push({
+            codigo: mat.CodigoProduto,
+            nome: mat.Descricao,
+            quantidade: qtd
+          });
+        }
+      });
+    } else if (subtype === 'Regua') {
+      // Para régua: verifica apenas as réguas específicas
+      const reguasPVC = [
+        { codigo: "1138", descricao: "FORRO PVC 1,00 METROS ( 7MM )" },
+        { codigo: "1139", descricao: "FORRO PVC 2,00 METROS ( 7MM )" },
+        { codigo: "740", descricao: "FORRO PVC 6,50 METROS ( 7MM )" },
+        { codigo: "566", descricao: "FORRO PVC 3,00 METROS ( 7MM )" },
+        { codigo: "571", descricao: "FORRO PVC 6,00 METROS ( 7MM )" },
+        { codigo: "567", descricao: "FORRO PVC 3,50 METROS ( 7MM )" },
+        { codigo: "741", descricao: "FORRO PVC 5.50 METROS ( 7MM )" },
+        { codigo: "568", descricao: "FORRO PVC 4,00 METROS ( 7MM )" },
+        { codigo: "570", descricao: "FORRO PVC 5.00 METROS ( 7MM )" },
+        { codigo: "569", descricao: "FORRO PVC 4,50 METROS ( 7MM )" },
+        { codigo: "572", descricao: "FORRO PVC 7,00 METROS ( 7MM )" },
+        { codigo: "573", descricao: "FORRO PVC 8,00 METROS ( 7MM )" },
+        { codigo: "1251", descricao: "FORRO PVC 8,50 METROS ( 7MM )" }
+      ];
+      
+      reguasPVC.forEach(regua => {
+        const qtd = parseFloat(document.getElementById(`qtd-${regua.codigo}`).value) || 0;
+        if (qtd > 0) {
+          materiaisSelecionados.push({
+            codigo: regua.codigo,
+            nome: regua.descricao,
+            quantidade: qtd
+          });
+        }
+      });
+    }
+  } else if (material === 'Cimenticia') {
+    // Para placas cimentícias, verifica o subtipo
+    if (subtype === 'Teto') {
+      // Para teto: apenas fita e massa
+      const materiaisTeto = [
+        { codigo: "FITA", descricao: "FITA PARA JUNTA" },
+        { codigo: "MASSA", descricao: "MASSA PARA JUNTA" }
+      ];
+      
+      materiaisTeto.forEach(mat => {
+        const qtd = parseFloat(document.getElementById(`qtd-${mat.codigo}`).value) || 0;
+        if (qtd > 0) {
+          materiaisSelecionados.push({
+            codigo: mat.codigo,
+            nome: mat.descricao,
+            quantidade: qtd
+          });
+        }
+      });
+    } else if (subtype === 'Parede') {
+      // Para parede: uma placa + fita e massa (sem bucha e parafuso)
+      const placaPadrao = { codigo: "181", descricao: "PLACA CIMENTICIA 2.40 X 1.20 8MM DECORLIT" };
+      
+      const qtdPlaca = parseFloat(document.getElementById(`qtd-${placaPadrao.codigo}`).value) || 0;
+      if (qtdPlaca > 0) {
+        materiaisSelecionados.push({
+          codigo: placaPadrao.codigo,
+          nome: placaPadrao.descricao,
+          quantidade: qtdPlaca
+        });
+      }
+      
+      // Adiciona fita e massa para parede
+      const materiaisParede = [
+        { codigo: "FITA", descricao: "FITA PARA JUNTA" },
+        { codigo: "MASSA", descricao: "MASSA PARA JUNTA" }
+      ];
+      
+      materiaisParede.forEach(mat => {
+        const qtd = parseFloat(document.getElementById(`qtd-${mat.codigo}`).value) || 0;
+        if (qtd > 0) {
+          materiaisSelecionados.push({
+            codigo: mat.codigo,
+            nome: mat.descricao,
+            quantidade: qtd
+          });
+        }
+      });
+    } else {
+      // Se não especificar subtipo, mantém comportamento original
+      const placasCimenticias = [
+        { codigo: "181", descricao: "PLACA CIMENTICIA 2.40 X 1.20 8MM DECORLIT" },
+        { codigo: "182", descricao: "PLACA CIMENTICIA 2.40 X 1.20 10MM DECORLIT" },
+        { codigo: "263", descricao: "PLACA CIMENTICIA 2.40 X 1.20 6MM DECORLIT" },
+        { codigo: "1172", descricao: "PLACA CIMENTICIA 2.40 X 1.20 12MM DECORLIT" }
+      ];
+      
+      placasCimenticias.forEach(placa => {
+        const qtd = parseFloat(document.getElementById(`qtd-${placa.codigo}`).value) || 0;
+        if (qtd > 0) {
+          materiaisSelecionados.push({
+            codigo: placa.codigo,
+            nome: placa.descricao,
+            quantidade: qtd
+          });
+        }
+      });
+    }
+  } else {
+    // Para outros materiais, usa a lógica original
+    const todosProdutos = getAllProducts();
+    todosProdutos.forEach(mat => {
+      const qtd = parseFloat(document.getElementById(`qtd-${mat.CodigoProduto}`).value) || 0;
+      if (qtd > 0) {
+        materiaisSelecionados.push({
+          codigo: mat.CodigoProduto,
+          nome: mat.Descricao,
+          quantidade: qtd
+        });
+      }
+    });
+  }
+
+  if (materiaisSelecionados.length === 0) {
+    alert("Selecione pelo menos um material!");
+    return;
+  }
+
+  // Salva no sessionStorage para passar para a página de resultado
+  sessionStorage.setItem('materiaisSelecionados', JSON.stringify(materiaisSelecionados));
+  
+  let url = `resultado.html?material=${encodeURIComponent(material)}&method=lista`;
+  if (subtype) {
+    url += `&subtype=${encodeURIComponent(subtype)}`;
+  }
+  
+  window.location.href = url;
+}
+
+function goBack() {
+  if (material === 'Drywall') {
+    window.location.href = 'drywall.html';
+  } else if (material === 'Cimenticia') {
+    let url = 'cimenticia.html';
+    if (subtype) {
+      url += `?subtype=${encodeURIComponent(subtype)}`;
+    }
+    window.location.href = url;
+  } else if (material === 'PVC') {
+    let url = 'pvc.html';
+    if (subtype) {
+      url += `?subtype=${encodeURIComponent(subtype)}`;
+    }
+    window.location.href = url;
+  } else if (material === 'Piso') {
+    window.location.href = 'piso.html';
+  } else {
+    let url = `material.html?material=${encodeURIComponent(material)}`;
+    if (subtype) {
+      url += `&subtype=${encodeURIComponent(subtype)}`;
+    }
+    window.location.href = url;
+  }
+}
+</script>
+
+</body>
+</html>

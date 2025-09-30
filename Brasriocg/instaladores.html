@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instaladores Credenciados - BRASRIO CAMPO GRANDE</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/jpeg" href="Isolino.jpg">
+</head>
+<body>
+
+<header>
+  <img src="Isolino.jpg" alt="Isolino Mascote" class="mascote-topo">
+  <div>
+    <h1>BRASRIO CAMPO GRANDE</h1>
+    <small>Instaladores Credenciados</small>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2>Instaladores Credenciados</h2>
+    <p>Encontre profissionais qualificados para instalação dos seus materiais!</p>
+    
+    <h3>Nossos Parceiros</h3>
+    <div class="instaladores-list" id="instaladores-list">
+      <!-- Os instaladores serão carregados dinamicamente via JavaScript -->
+    </div>
+    
+    <div class="btn-group">
+      <button class="btn-back" onclick="voltarInicio()">Voltar ao Início</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Carregar dados dos instaladores do JSON
+async function carregarInstaladores() {
+  try {
+    const response = await fetch('instaladores.json');
+    const data = await response.json();
+    const instaladoresList = document.getElementById('instaladores-list');
+    
+    instaladoresList.innerHTML = '';
+    
+    data.instaladores.forEach(instalador => {
+      const instaladorItem = document.createElement('div');
+      instaladorItem.className = 'instalador-item';
+      instaladorItem.innerHTML = `
+        <h4>${instalador.nome}</h4>
+        <p><strong>Especialização:</strong> ${instalador.especializacao}</p>
+        <p><strong>Telefone:</strong> ${instalador.telefone}</p>
+        <button onclick="contatarWhatsApp('${instalador.numeroWhatsApp}')">Contratar</button>
+      `;
+      instaladoresList.appendChild(instaladorItem);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar instaladores:', error);
+    document.getElementById('instaladores-list').innerHTML = '<p>Erro ao carregar dados dos instaladores.</p>';
+  }
+}
+
+function contatarWhatsApp(numero) {
+  const mensagem = encodeURIComponent('Olá! Gostaria de contratar seus serviços de instalação de PVC e Drywall.');
+  window.open(`https://wa.me/55${numero}?text=${mensagem}`, '_blank');
+}
+
+function voltarInicio() {
+  window.location.href = 'index.html';
+}
+
+// Carregar instaladores quando a página carregar
+document.addEventListener('DOMContentLoaded', carregarInstaladores);
+</script>
+
+<style>
+.instaladores-list {
+  text-align: left;
+  margin: 20px 0;
+}
+
+.instalador-item {
+  background: #f8f8f8;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border-left: 4px solid #ff6600;
+}
+
+.instalador-item h4 {
+  margin: 0 0 10px 0;
+  color: #ff6600;
+  font-size: 18px;
+}
+
+.instalador-item p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.instalador-item button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+</style>
+
+</body>
+</html>

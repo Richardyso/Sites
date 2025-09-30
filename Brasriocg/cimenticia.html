@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRASRIO CAMPO GRANDE - Tipo de Placas Cimentícias</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/jpeg" href="Isolino.jpg">
+</head>
+<body>
+
+<header>
+  <img src="Isolino.jpg" alt="Isolino Mascote" class="mascote-topo">
+  <div>
+    <h1>BRASRIO CAMPO GRANDE</h1>
+    <small>Orçamento Rápido - Placas Cimentícias</small>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2>Escolha o tipo de Placas Cimentícias</h2>
+    <div class="btn-group">
+      <button onclick="selectCimenticiaType('Teto')">Teto</button>
+      <button onclick="selectCimenticiaType('Parede')">Parede</button>
+    </div>
+    <button class="btn-back" onclick="goBack()">Voltar</button>
+  </div>
+</div>
+
+<script>
+function selectCimenticiaType(subtype) {
+  window.location.href = `material.html?material=Cimenticia&subtype=${encodeURIComponent(subtype)}`;
+}
+
+function goBack() {
+  window.location.href = 'index.html';
+}
+</script>
+
+</body>
+</html>

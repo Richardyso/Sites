@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro - Planejagro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="financeiro.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Controle Financeiro - Planejagro</h1>
+            <p class="subtitle">Gestão de receitas e despesas para o produtor rural</p>
+            <a href="index.html" class="btn-back">← Voltar ao Clima</a>
+        </div>
+
+        <!-- Resumo Financeiro -->
+        <div class="financial-summary">
+            <div class="summary-card income">
+                <div class="summary-icon">📈</div>
+                <div class="summary-content">
+                    <div class="summary-label">Total Receitas</div>
+                    <div class="summary-value" id="totalIncome">R$ 0,00</div>
+                </div>
+            </div>
+            <div class="summary-card expense">
+                <div class="summary-icon">📉</div>
+                <div class="summary-content">
+                    <div class="summary-label">Total Despesas</div>
+                    <div class="summary-value" id="totalExpense">R$ 0,00</div>
+                </div>
+            </div>
+            <div class="summary-card balance">
+                <div class="summary-icon">⚖️</div>
+                <div class="summary-content">
+                    <div class="summary-label">Saldo Atual</div>
+                    <div class="summary-value" id="currentBalance">R$ 0,00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros e Controles -->
+        <div class="controls">
+            <div class="filter-section">
+                <label for="typeFilter">Filtrar por tipo:</label>
+                <select id="typeFilter" onchange="filterTransactions()">
+                    <option value="">Todas as transações</option>
+                    <option value="receita">Receitas</option>
+                    <option value="despesa">Despesas</option>
+                </select>
+            </div>
+            <div class="filter-section">
+                <label for="categoryFilter">Categoria:</label>
+                <select id="categoryFilter" onchange="filterTransactions()">
+                    <option value="">Todas as categorias</option>
+                    <option value="venda">Venda de Produtos</option>
+                    <option value="subsidio">Subsídios</option>
+                    <option value="outros_renda">Outras Receitas</option>
+                    <option value="insumos">Insumos Agrícolas</option>
+                    <option value="mao_obra">Mão de Obra</option>
+                    <option value="equipamentos">Equipamentos</option>
+                    <option value="manutencao">Manutenção</option>
+                    <option value="combustivel">Combustível</option>
+                    <option value="outros_gasto">Outras Despesas</option>
+                </select>
+            </div>
+            <div class="button-group">
+                <button class="btn-income" onclick="showAddTransactionModal('receita')">+ Receita</button>
+                <button class="btn-expense" onclick="showAddTransactionModal('despesa')">+ Despesa</button>
+            </div>
+        </div>
+
+        <!-- Gráfico Simples -->
+        <div class="chart-section">
+            <h3>📊 Resumo Mensal</h3>
+            <div class="chart-container">
+                <canvas id="monthlyChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Lista de Transações -->
+        <div class="transactions-section">
+            <h3>📋 Últimas Transações</h3>
+            <div class="transactions-list" id="transactionsList">
+                <!-- Transações serão inseridas aqui via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar/editar transação -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Adicionar Transação</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="transactionType">Tipo de Transação:</label>
+                    <select id="transactionType" onchange="updateCategories()" required>
+                        <option value="">Selecione o tipo</option>
+                        <option value="receita">Receita</option>
+                        <option value="despesa">Despesa</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="transactionCategory">Categoria:</label>
+                    <select id="transactionCategory" required>
+                        <option value="">Selecione uma categoria</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="transactionDescription">Descrição:</label>
+                    <input type="text" id="transactionDescription" required placeholder="Ex: Venda de milho, Compra de fertilizante...">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="transactionAmount">Valor (R$):</label>
+                        <input type="number" id="transactionAmount" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transactionDate">Data:</label>
+                        <input type="date" id="transactionDate" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transactionNotes">Observações:</label>
+                    <textarea id="transactionNotes" rows="3" placeholder="Informações adicionais..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar Transação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="financeiro.js"></script>
+</body>
+</html>

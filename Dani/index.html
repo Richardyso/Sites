@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dani e Manu se amam?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Corações flutuantes de fundo */
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .heart {
+            position: absolute;
+            color: rgba(255, 182, 193, 0.6);
+            font-size: 20px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 90%;
+            width: 500px;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(10px);
+            border: 3px solid #ffb6c1;
+        }
+
+        h1 {
+            color: #ff69b4;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-yes {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-yes:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn-no {
+            background: linear-gradient(45deg, #ff4757, #ff6b7a);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+            position: relative;
+            transition: all 0.1s ease;
+        }
+
+        .btn-no:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.6);
+        }
+
+        .response-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .response-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            max-width: 90%;
+            width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 3px solid #ffb6c1;
+            position: relative;
+        }
+
+        .hearts-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .heart-emoji {
+            position: absolute;
+            font-size: 30px;
+            color: #ff69b4;
+            animation: heartFall 3s linear infinite;
+        }
+
+        @keyframes heartFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .response-text {
+            font-size: 1.8em;
+            color: #ff69b4;
+            margin: 20px 0;
+            line-height: 1.4;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            font-family: "Comic Sans MS", cursive, sans-serif;
+        }
+
+        .close-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+
+            .response-content {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+
+            .response-text {
+                font-size: 1.5em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .response-text {
+                font-size: 1.3em;
+            }
+        }
+
+        /* Animação de entrada */
+        .container {
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-hearts" id="floatingHearts"></div>
+    
+    <div class="container">
+        <h1>💕 Dani e Manu se amam? 💕</h1>
+        
+        <div class="buttons-container">
+            <button class="btn btn-yes" onclick="showResponse('sim')">Sim! 💖</button>
+            <button class="btn btn-yes" onclick="showResponse('certeza')">Com certeza! 💕</button>
+            <button class="btn btn-yes" onclick="showResponse('claro')">Claro! 💗</button>
+            <button class="btn btn-yes" onclick="showResponse('obvio')">Óbvio! 💝</button>
+            <button class="btn btn-yes" onclick="showResponse('muito')">Muito! 💘</button>
+            <button class="btn btn-yes" onclick="showResponse('vida')">Pra vida toda! 💞</button>
+            <button class="btn btn-no" id="noBtn" onmouseover="moveButton()">Não 😢</button>
+        </div>
+    </div>
+
+    <div class="response-screen" id="responseScreen">
+        <div class="response-content">
+            <div class="hearts-animation" id="heartsAnimation"></div>
+            <div class="response-text" id="responseText"></div>
+            <button class="close-btn" onclick="closeResponse()">Voltar 💕</button>
+        </div>
+    </div>
+
+    <script>
+        // Textos aleatórios sobre amor
+        const loveMessages = {
+            "sim": [
+                "Sim! O amor entre vocês é como um jardim em flor! 🌸",
+                "Sim! Vocês são como duas estrelas que se encontraram no céu! ⭐",
+                "Sim! O amor de vocês brilha mais que o sol! ☀️",
+                "Sim! Vocês são a prova de que o amor verdadeiro existe! 💫",
+                "Sim! O coração de vocês bate em sincronia! 💓"
+            ],
+            "certeza": [
+                "Com certeza! Vocês são como dois pássaros voando juntos! 🕊️",
+                "Com certeza! O amor de vocês é puro como cristal! 💎",
+                "Com certeza! Vocês se completam como peças de um quebra-cabeça! 🧩",
+                "Com certeza! O amor de vocês é eterno como as estrelas! ✨",
+                "Com certeza! Vocês são a definição de amor verdadeiro! 💕"
+            ],
+            "claro": [
+                "Claro! Vocês são como duas almas gêmeas! 👫",
+                "Claro! O amor de vocês é doce como mel! 🍯",
+                "Claro! Vocês são como duas flores no mesmo jardim! 🌺",
+                "Claro! O amor de vocês é forte como uma montanha! 🏔️",
+                "Claro! Vocês são a inspiração para todos os casais! 💑"
+            ],
+            "obvio": [
+                "Óbvio! Vocês são como duas notas musicais em harmonia! 🎵",
+                "Óbvio! O amor de vocês é radiante como o arco-íris! 🌈",
+                "Óbvio! Vocês são como duas borboletas dançando! 🦋",
+                "Óbvio! O amor de vocês é mágico como um conto de fadas! 🧚‍♀️",
+                "Óbvio! Vocês são a prova viva do amor eterno! 💖"
+            ],
+            "muito": [
+                "Muito! Vocês se amam mais que as ondas amam o mar! 🌊",
+                "Muito! O amor de vocês é infinito como o universo! 🌌",
+                "Muito! Vocês são como duas chamas que se tornam uma! 🔥",
+                "Muito! O amor de vocês é profundo como o oceano! 🌊",
+                "Muito! Vocês são a definição de amor incondicional! 💝"
+            ],
+            "vida": [
+                "Pra vida toda! Vocês são como duas árvores enraizadas juntas! 🌳",
+                "Pra vida toda! O amor de vocês é eterno como o tempo! ⏰",
+                "Pra vida toda! Vocês são como duas estrelas do norte! 🌟",
+                "Pra vida toda! O amor de vocês é imortal como os contos! 📚",
+                "Pra vida toda! Vocês são a história de amor mais linda! 📖"
+            ]
+        };
+
+        // Função para mostrar resposta
+        function showResponse(type) {
+            const responseScreen = document.getElementById("responseScreen");
+            const responseText = document.getElementById("responseText");
+            const heartsAnimation = document.getElementById("heartsAnimation");
+            
+            // Escolher mensagem aleatória
+            const messages = loveMessages[type];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            responseText.textContent = randomMessage;
+            responseScreen.style.display = "flex";
+            
+            // Criar corações animados
+            createHearts();
+        }
+
+        // Função para fechar resposta
+        function closeResponse() {
+            const responseScreen = document.getElementById("responseScreen");
+            responseScreen.style.display = "none";
+        }
+
+        // Função para criar corações animados
+        function createHearts() {
+            const heartsContainer = document.getElementById("heartsAnimation");
+            heartsContainer.innerHTML = "";
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement("div");
+                    heart.className = "heart-emoji";
+                    heart.textContent = "💕";
+                    heart.style.left = Math.random() * 100 + "%";
+                    heart.style.animationDelay = Math.random() * 2 + "s";
+                    heart.style.animationDuration = (Math.random() * 2 + 2) + "s";
+                    heartsContainer.appendChild(heart);
+                    
+                    // Remover coração após animação
+                    setTimeout(() => {
+                        if (heart.parentNode) {
+                            heart.parentNode.removeChild(heart);
+                        }
+                    }, 5000);
+                }, i * 100);
+            }
+        }
+
+        // Função para mover o botão "não"
+        function moveButton() {
+            const noBtn = document.getElementById("noBtn");
+            const container = noBtn.parentElement;
+            const containerRect = container.getBoundingClientRect();
+            const btnRect = noBtn.getBoundingClientRect();
+            
+            // Calcular nova posição aleatória
+            const maxX = containerRect.width - btnRect.width;
+            const maxY = containerRect.height - btnRect.height;
+            
+            const newX = Math.random() * maxX;
+            const newY = Math.random() * maxY;
+            
+            // Aplicar nova posição
+            noBtn.style.position = "absolute";
+            noBtn.style.left = newX + "px";
+            noBtn.style.top = newY + "px";
+            noBtn.style.transition = "all 0.3s ease";
+            
+            // Adicionar efeito de tremor
+            noBtn.style.animation = "shake 0.5s ease-in-out";
+            setTimeout(() => {
+                noBtn.style.animation = "";
+            }, 500);
+        }
+
+        // Criar corações flutuantes de fundo
+        function createFloatingHearts() {
+            const container = document.getElementById("floatingHearts");
+            
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement("div");
+                heart.className = "heart";
+                heart.textContent = "💕";
+                heart.style.left = Math.random() * 100 + "%";
+                heart.style.top = Math.random() * 100 + "%";
+                heart.style.animationDelay = Math.random() * 6 + "s";
+                heart.style.animationDuration = (Math.random() * 4 + 4) + "s";
+                container.appendChild(heart);
+            }
+        }
+
+        // Inicializar corações flutuantes
+        createFloatingHearts();
+
+        // Adicionar evento de clique no botão "não" para tentar pegar
+        document.getElementById("noBtn").addEventListener("click", function(e) {
+            e.preventDefault();
+            moveButton();
+            
+            // Mostrar mensagem especial
+            const responseScreen = document.getElementById("responseScreen");
+            const responseText = document.getElementById("responseText");
+            const heartsAnimation = document.getElementById("heartsAnimation");
+            
+            responseText.textContent = "Haha! Você não consegue me pegar! 😄 Mas eu sei que vocês se amam muito! 💕";
+            responseScreen.style.display = "flex";
+            createHearts();
+        });
+    </script>
+</body>
+</html>'

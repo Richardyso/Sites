@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Estoque - Planejagro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="estoque.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Gestão de Estoque - Planejagro</h1>
+            <p class="subtitle">Controle de insumos agrícolas para o produtor rural</p>
+            <a href="index.html" class="btn-back">← Voltar ao Clima</a>
+        </div>
+
+        <div class="controls">
+            <div class="filter-section">
+                <label for="categoryFilter">Filtrar por categoria:</label>
+                <select id="categoryFilter" onchange="filterProducts()">
+                    <option value="">Todas as categorias</option>
+                    <option value="fertilizantes">Fertilizantes</option>
+                    <option value="agrotoxicos">Agrotóxicos</option>
+                    <option value="corretivos">Corretivos de Solo</option>
+                </select>
+            </div>
+
+            <button class="btn-primary" onclick="showAddProductModal()">+ Adicionar Produto</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalProducts">0</div>
+                <div class="stat-label">Total de Produtos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lowStockProducts">0</div>
+                <div class="stat-label">Estoque Baixo</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="expiredProducts">0</div>
+                <div class="stat-label">Próximos ao Vencimento</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="expiringSoon">0</div>
+                <div class="stat-label">Vencendo em 15 dias</div>
+            </div>
+        </div>
+
+        <div class="products-section">
+            <h2>📦 Produtos em Estoque</h2>
+            <div class="products-grid" id="productsGrid">
+                <!-- Produtos serão inseridos aqui via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar/editar produto -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Adicionar Produto</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="productName">Nome do Produto:</label>
+                    <input type="text" id="productName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="productCategory">Categoria:</label>
+                    <select id="productCategory" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="fertilizantes">Fertilizantes (Orgânicos/Químicos)</option>
+                        <option value="agrotoxicos">Agrotóxicos (Controle de Pragas)</option>
+                        <option value="corretivos">Corretivos de Solo (Calcário)</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productQuantity">Quantidade:</label>
+                        <input type="number" id="productQuantity" min="0" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productUnit">Unidade:</label>
+                        <select id="productUnit" required>
+                            <option value="kg">kg</option>
+                            <option value="L">L</option>
+                            <option value="un">un</option>
+                            <option value="sc">saco</option>
+                            <option value="cx">caixa</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="productMinStock">Estoque Mínimo:</label>
+                    <input type="number" id="productMinStock" min="0" step="0.1" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productExpiry">Data de Vencimento:</label>
+                        <input type="date" id="productExpiry">
+                    </div>
+                    <div class="form-group">
+                        <label for="productSupplier">Fornecedor:</label>
+                        <input type="text" id="productSupplier">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="productNotes">Observações:</label>
+                    <textarea id="productNotes" rows="3"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar Produto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="estoque.js"></script>
+</body>
+</html>

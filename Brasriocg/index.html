@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRASRIO CAMPO GRANDE - Orçamento Rápido</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/jpeg" href="Isolino.jpg">
+</head>
+<body>
+
+<header>
+  <img src="Isolino.jpg" alt="Isolino Mascote" class="mascote-topo">
+  <div>
+    <h1>BRASRIO CAMPO GRANDE</h1>
+    <small>Orçamento Rápido</small>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2>Bem-vindo ao Sistema de Orçamento</h2>
+    <p>Calcule rapidamente os materiais necessários para sua obra!</p>
+    
+    <h2>Escolha o tipo de material</h2>
+    <div class="btn-group">
+      <button onclick="selectMaterial('Drywall')">Drywall</button>
+      <button onclick="selectMaterial('Cimenticia')">Placas Cimentícias</button>
+      <button onclick="selectMaterial('PVC')">PVC</button>
+      <button onclick="selectMaterial('Isopor')">Isopor</button>
+      <button onclick="selectMaterial('Forro Mineral')">Forro Mineral</button>
+      <button onclick="selectMaterial('Forro Boreal')">Forro Boreal</button>
+      <button onclick="selectMaterial('Painel')">Divisoria eucatex</button>
+      <button onclick="selectMaterial('Piso')">Pisos</button>
+    </div>
+    
+    <h2>Precisa de Indicação?</h2>
+    <div class="btn-group">
+      <button onclick="selectIndicacao('Instaladores')">Instaladores Credenciados</button>
+      <button onclick="selectIndicacao('Fretes')">Fretes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectMaterial(material) {
+  if (material === 'Drywall') {
+    // Para Drywall, vai para página de subtipo
+    window.location.href = `drywall.html`;
+  } else if (material === 'Cimenticia') {
+    // Para Placas Cimentícias, vai para página de subtipo
+    window.location.href = `cimenticia.html`;
+  } else if (material === 'PVC') {
+    // Para PVC, vai para página de subtipo
+    window.location.href = `pvc.html`;
+  } else if (material === 'Piso') {
+    // Para Piso, vai para página de subtipo
+    window.location.href = `piso.html`;
+  } else if (material === 'Isopor') {
+    // Para Isopor, vai direto para material
+    window.location.href = `material.html?material=${encodeURIComponent(material)}`;
+  } else if (material === 'Forro Mineral') {
+    // Para Forro Mineral, vai direto para metragem (sempre teto)
+    window.location.href = `metragem.html?material=${encodeURIComponent(material)}&subtype=Teto`;
+  } else if (material === 'Forro Boreal') {
+    // Para Forro Boreal, vai direto para metragem (sempre teto)
+    window.location.href = `metragem.html?material=${encodeURIComponent(material)}&subtype=Teto`;
+  } else {
+    // Para outros materiais, vai direto para material
+    window.location.href = `material.html?material=${encodeURIComponent(material)}`;
+  }
+}
+
+function selectIndicacao(tipo) {
+  if (tipo === 'Instaladores') {
+    // Redirecionar para página de instaladores credenciados
+    window.location.href = 'instaladores.html';
+  } else if (tipo === 'Fretes') {
+    // Redirecionar para página de fretes
+    window.location.href = 'fretes.html';
+  }
+}
+</script>
+
+</body>
+</html>

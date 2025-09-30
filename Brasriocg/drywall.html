@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRASRIO CAMPO GRANDE - Tipo de Drywall</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/jpeg" href="Isolino.jpg">
+</head>
+<body>
+
+<header>
+  <img src="Isolino.jpg" alt="Isolino Mascote" class="mascote-topo">
+  <div>
+    <h1>BRASRIO CAMPO GRANDE</h1>
+    <small>Orçamento Rápido - Drywall</small>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2>Escolha o tipo de Drywall</h2>
+    <div class="btn-group">
+      <button onclick="selectDrywallType('Teto')">Teto</button>
+      <button onclick="selectDrywallType('Parede')">Parede</button>
+    </div>
+    <button class="btn-back" onclick="goBack()">Voltar</button>
+  </div>
+</div>
+
+<script>
+function selectDrywallType(subtype) {
+  window.location.href = `material.html?material=Drywall&subtype=${encodeURIComponent(subtype)}`;
+}
+
+function goBack() {
+  window.location.href = 'index.html';
+}
+</script>
+
+</body>
+</html>

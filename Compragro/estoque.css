@@ -1,0 +1,647 @@
+/* Estilos específicos para a página de gestão de estoque */
+
+.subtitle {
+    color: #636e72;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+.nav-btn {
+    background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+    color: white;
+    padding: 15px 25px;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 184, 148, 0.3);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.btn-back {
+    background: #ddd;
+    color: #2d3436;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+    margin-top: 15px;
+}
+
+.btn-back:hover {
+    background: #b2bec3;
+    transform: translateY(-1px);
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-section label {
+    font-weight: 500;
+    color: #2d3436;
+}
+
+.filter-section select {
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(116, 185, 255, 0.3);
+}
+
+.stat-number {
+    font-size: 2.5em;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.products-section h2 {
+    color: #2d3436;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-card.low-stock {
+    border-color: #fdcb6e;
+    background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%);
+}
+
+.product-card.expired {
+    border-color: #ff7675;
+    background: linear-gradient(135deg, #ffe6e6 0%, #fab1a0 100%);
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.product-name {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #2d3436;
+    margin: 0;
+}
+
+.product-category {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.category-fertilizantes {
+    background: #00b894;
+    color: white;
+}
+
+.category-agrotoxicos {
+    background: #e17055;
+    color: white;
+}
+
+.category-corretivos {
+    background: #6c5ce7;
+    color: white;
+}
+
+.product-info {
+    margin-bottom: 15px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.info-label {
+    color: #636e72;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #2d3436;
+    font-weight: 600;
+}
+
+.stock-warning {
+    background: #ff7675;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.product-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-edit, .btn-delete {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-edit {
+    background: #74b9ff;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #0984e3;
+}
+
+.btn-delete {
+    background: #ff7675;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #d63031;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.close {
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+    opacity: 0.8;
+}
+
+.close:hover {
+    opacity: 1;
+}
+
+#productForm {
+    padding: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2d3436;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #00b894;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    justify-content: flex-end;
+}
+
+/* Responsividade para tablets */
+@media (max-width: 768px) {
+    .container {
+        padding: 25px;
+        margin: 10px;
+    }
+    
+    .header h1 {
+        font-size: 2.2em;
+    }
+    
+    .subtitle {
+        font-size: 1em;
+    }
+    
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .filter-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .filter-section select {
+        width: 100%;
+        padding: 12px;
+    }
+    
+    .btn-primary {
+        padding: 18px;
+        font-size: 16px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .stat-number {
+        font-size: 2.2em;
+    }
+    
+    .products-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .product-card {
+        padding: 18px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .modal-content {
+        margin: 5% auto;
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+/* Responsividade para celulares */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        padding: 20px;
+        margin: 5px;
+        border-radius: 15px;
+    }
+    
+    .header h1 {
+        font-size: 1.8em;
+        margin-bottom: 15px;
+    }
+    
+    .subtitle {
+        font-size: 0.95em;
+        margin-bottom: 20px;
+    }
+    
+    .btn-back {
+        padding: 12px 18px;
+        font-size: 14px;
+    }
+    
+    .controls {
+        gap: 12px;
+    }
+    
+    .filter-section label {
+        font-size: 0.9em;
+    }
+    
+    .filter-section select {
+        padding: 14px;
+        font-size: 16px; /* Previne zoom no iOS */
+    }
+    
+    .btn-primary {
+        padding: 20px;
+        font-size: 16px;
+        border-radius: 12px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .stat-card {
+        padding: 18px;
+    }
+    
+    .stat-number {
+        font-size: 2em;
+    }
+    
+    .stat-label {
+        font-size: 0.85em;
+    }
+    
+    .products-section h2 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
+    
+    .products-grid {
+        gap: 12px;
+    }
+    
+    .product-card {
+        padding: 15px;
+    }
+    
+    .product-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    
+    .product-name {
+        font-size: 1.2em;
+    }
+    
+    .product-category {
+        font-size: 0.75em;
+        padding: 3px 10px;
+    }
+    
+    .stock-warning {
+        padding: 6px 10px;
+        font-size: 0.75em;
+        margin-bottom: 12px;
+    }
+    
+    .info-row {
+        margin-bottom: 6px;
+        font-size: 0.85em;
+    }
+    
+    .info-label {
+        font-size: 0.8em;
+    }
+    
+    .info-value {
+        font-size: 0.85em;
+    }
+    
+    .product-actions {
+        gap: 8px;
+        margin-top: 12px;
+    }
+    
+    .btn-edit, .btn-delete {
+        padding: 10px 12px;
+        font-size: 0.85em;
+    }
+    
+    .modal-content {
+        margin: 2% auto;
+        width: 98%;
+        max-height: 98vh;
+        border-radius: 12px;
+    }
+    
+    .modal-header {
+        padding: 15px;
+        border-radius: 12px 12px 0 0;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.3em;
+    }
+    
+    .close {
+        font-size: 24px;
+    }
+    
+    #productForm {
+        padding: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        font-size: 0.9em;
+        margin-bottom: 6px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 14px;
+        font-size: 16px; /* Previne zoom no iOS */
+        border-radius: 8px;
+    }
+    
+    .form-row {
+        gap: 12px;
+    }
+    
+    .modal-actions {
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .modal-actions button {
+        padding: 15px;
+        font-size: 16px;
+        border-radius: 10px;
+    }
+}
+
+/* Responsividade para celulares pequenos */
+@media (max-width: 360px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .header h1 {
+        font-size: 1.6em;
+    }
+    
+    .stat-number {
+        font-size: 1.8em;
+    }
+    
+    .product-name {
+        font-size: 1.1em;
+    }
+    
+    .btn-edit, .btn-delete {
+        padding: 8px 10px;
+        font-size: 0.8em;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.2em;
+    }
+    
+    #productForm {
+        padding: 15px;
+    }
+}
+
+/* Melhorias para touch em dispositivos móveis */
+@media (max-width: 768px) {
+    button, .nav-btn, .btn-edit, .btn-delete {
+        min-height: 44px; /* Tamanho mínimo recomendado para touch */
+    }
+    
+    input, select, textarea {
+        min-height: 44px;
+    }
+    
+    .close {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

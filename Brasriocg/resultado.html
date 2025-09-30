@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRASRIO CAMPO GRANDE - Resultado do Orçamento</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/jpeg" href="Isolino.jpg">
+</head>
+<body>
+
+<header>
+  <img src="Isolino.jpg" alt="Isolino Mascote" class="mascote-topo">
+  <div>
+    <h1>BRASRIO CAMPO GRANDE</h1>
+    <small>Resultado do Orçamento</small>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2>Resultado do Orçamento</h2>
+    <p id="material-info"></p>
+    <div id="result-content"></div>
+    <div class="btn-group">
+      <button class="btn-back" onclick="novoOrcamento()">Novo Orçamento</button>
+      <button onclick="fazerPedidoWhatsApp()">Fazer Compra</button>
+    </div>
+  </div>
+</div>
+
+<script src="utils.js"></script>
+<script>
+// Pega os parâmetros da URL
+const urlParams = new URLSearchParams(window.location.search);
+const material = urlParams.get('material');
+const subtype = urlParams.get('subtype');
+const method = urlParams.get('method');
+const m2 = parseFloat(urlParams.get('m2'));
+const placa = urlParams.get('placa');
+const cor = urlParams.get('cor');
+const peDireito = parseFloat(urlParams.get('peDireito'));
+const janelas = parseInt(urlParams.get('janelas')) || 0;
+const portas = parseInt(urlParams.get('portas')) || 0;
+
+let materiaisSelecionados = [];
+
+// Carrega e exibe o resultado
+document.addEventListener('DOMContentLoaded', function() {
+  carregarProdutos().then(() => {
+    processarResultado();
+  });
+});
+
+function processarResultado() {
+  const materialInfo = document.getElementById('material-info');
+  
+  if (method === 'metragem') {
+    // Cálculo por metragem
+    let infoText = '';
+    if (material && subtype) {
+      infoText = `Material: ${material} - ${subtype}`;
+    } else if (material) {
+      infoText = `Material: ${material}`;
+    }
+    
+    // Adiciona informações específicas dependendo do tipo
+    if ((material === 'Drywall' && subtype === 'Parede' && peDireito) || (material === 'Cimenticia' && subtype === 'Parede' && peDireito)) {
+      const comprimento = m2 / peDireito;
+      infoText += ` | ${m2}m² - Pé direito: ${peDireito}m (Comprimento: ${comprimento.toFixed(2)}m)`;
+    } else {
+      infoText += ` | Metragem: ${m2}m²`;
+    }
+    
+    materialInfo.textContent = infoText;
+    
+    try {
+      // Use ParedeCalculator para Drywall Parede com m² e pé direito
+      if (material === 'Drywall' && subtype === 'Parede' && peDireito) {
+        const calculator = new ParedeCalculator(m2, peDireito, placa);
+        materiaisSelecionados = calculator.calcularMateriais();
+      } else if (material === 'Cimenticia' && subtype === 'Parede' && peDireito) {
+        // Use CimenticiaCalculator para Placas Cimentícias Parede com m² e pé direito
+        const calculator = new CimenticiaCalculator(m2, peDireito, placa, 'parede');
+        materiaisSelecionados = calculator.calcularMateriais();
+      } else if (material === 'Cimenticia' && subtype === 'Teto') {
+        // Use CimenticiaCalculator para Placas Cimentícias Teto (sem placa)
+        const calculator = new CimenticiaCalculator(m2, 2.7, null, 'teto');
+        materiaisSelecionados = calculator.calcularMateriais();
+      } else if (material === 'PVC' && subtype === 'Regua') {
+        // Use PVCCalculator para réguas PVC
+        const calculator = new PVCCalculator(m2, placa);
+        materiaisSelecionados = calculator.calcularMateriais();
+      } else if (material === 'Forro Mineral') {
+        // Use ForroMineralCalculator para Forro Mineral
+        const calculator = new ForroMineralCalculator(m2, placa);
+        materiaisSelecionados = calculator.calcularMateriais();
+      } else if (material === 'Forro Boreal') {
+        // Use ForroBorealCalculator para Forro Boreal
+        const calculator = new ForroBorealCalculator(m2, placa);
+        materiaisSelecionados = calculator.calcularMateriais();
+      } else {
+        // Para pisos, usa o parâmetro 'cor' como 'placaSel'
+        const placaSel = (material === 'Piso' && cor) ? cor : placa;
+        materiaisSelecionados = calcularMateriais(material, subtype, m2, placaSel, janelas, portas, peDireito);
+      }
+    } catch (error) {
+      alert(error.message);
+      return;
+    }
+    
+  } else if (method === 'lista') {
+    // Seleção da lista
+    if (material && subtype) {
+      materialInfo.textContent = `Material: ${material} - ${subtype} | Seleção manual`;
+    } else if (material) {
+      materialInfo.textContent = `Material: ${material} | Seleção manual`;
+    }
+    
+    // Recupera do sessionStorage
+    const stored = sessionStorage.getItem('materiaisSelecionados');
+    if (stored) {
+      materiaisSelecionados = JSON.parse(stored);
+      sessionStorage.removeItem('materiaisSelecionados'); // Limpa após usar
+    }
+  }
+  
+  mostrarResultado();
+}
+
+function mostrarResultado() {
+  let html = "<ul>";
+  materiaisSelecionados.forEach(mat => {
+    html += `<li>[${mat.codigo}] ${mat.quantidade}x ${mat.nome}</li>`;
+  });
+  html += "</ul>";
+
+  html += `
+    <div style="color:red; font-weight:bold; margin-top:10px;">
+      <p>Este cálculo é apenas uma estimativa e não considera características específicas do local de instalação nem possíveis perdas.</p>
+      <p>Utilize-o apenas como referência. Para informações precisas, recomenda-se consultar um profissional de confiança.</p>
+    </div>
+  `;
+
+  document.getElementById('result-content').innerHTML = html;
+}
+
+function fazerPedidoWhatsApp() {
+  if (materiaisSelecionados.length === 0) {
+    alert("Nenhum material selecionado!");
+    return;
+  }
+
+  let mensagem = " *PEDIDO DE COMPRA WEB - BRASRIO*\n\n";
+  mensagem += "*Materiais Solicitados:*\n";
+  materiaisSelecionados.forEach(mat => {
+    mensagem += `• [${mat.codigo}] ${mat.quantidade}x ${mat.nome}\n`;
+  });
+
+  mensagem += `\n *Total de itens:* ${materiaisSelecionados.length}\n`;
+  mensagem += ` Data: ${new Date().toLocaleString('pt-BR')}\n\n`;
+  mensagem += " *Observação:* Este é um cálculo estimado, para maior precisão contatar um profissional de confiança.";
+
+  const numeroWhatsApp = "5521971252304";
+  const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+  window.open(url, '_blank');
+}
+
+function novoOrcamento() {
+  window.location.href = 'index.html';
+}
+</script>
+
+</body>
+</html>

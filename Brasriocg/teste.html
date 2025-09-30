@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teste de Produtos</title>
+</head>
+<body>
+<h1>Teste de Produtos</h1>
+<div id="resultado"></div>
+
+<script src="utils.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  carregarProdutos().then(() => {
+    // Teste com alguns códigos
+    const codigos = ['163', '68', '79', '1599'];
+    const resultado = document.getElementById('resultado');
+    
+    codigos.forEach(codigo => {
+      const prod = findProductByCode(codigo);
+      if (prod) {
+        const chaves = Object.keys(prod);
+        let descricao = "NÃO ENCONTRADO";
+        for (const chave of chaves) {
+          if (chave !== "1") {
+            descricao = prod[chave];
+            break;
+          }
+        }
+        resultado.innerHTML += `<p>Código ${codigo}: ${descricao}</p>`;
+      } else {
+        resultado.innerHTML += `<p>Código ${codigo}: NÃO ENCONTRADO</p>`;
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

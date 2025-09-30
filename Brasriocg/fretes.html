@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fretes - BRASRIO CAMPO GRANDE</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/jpeg" href="Isolino.jpg">
+</head>
+<body>
+
+<header>
+  <img src="Isolino.jpg" alt="Isolino Mascote" class="mascote-topo">
+  <div>
+    <h1>BRASRIO CAMPO GRANDE</h1>
+    <small>Serviços de Frete</small>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2>Serviços de Frete</h2>
+    <p>Transporte seguro e rápido dos seus materiais até sua obra!</p>
+    
+    <h3>Nossos Parceiros de Frete</h3>
+    <div class="fretes-list" id="fretes-list">
+      <!-- Os fretes serão carregados dinamicamente via JavaScript -->
+    </div>
+    
+    <div class="info-box">
+      <h4>Informações Importantes:</h4>
+      <ul>
+        <li>Valores podem variar conforme peso e distância</li>
+        <li>Entrega em até 24h para área urbana</li>
+        <li>Atendimento de segunda a sábado</li>
+      </ul>
+    </div>
+    
+    <div class="btn-group">
+      <button class="btn-back" onclick="voltarInicio()">Voltar ao Início</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Carregar dados dos fretes do JSON
+async function carregarFretes() {
+  try {
+    const response = await fetch('fretes.json');
+    const data = await response.json();
+    const fretesList = document.getElementById('fretes-list');
+    
+    fretesList.innerHTML = '';
+    
+    data.fretes.forEach(frete => {
+      const freteItem = document.createElement('div');
+      freteItem.className = 'frete-item';
+      freteItem.innerHTML = `
+        <h4>${frete.nome}</h4>
+        <p><strong>Telefone:</strong> ${frete.telefone}</p>
+        <p><strong>Área de Atendimento:</strong> ${frete.areaAtendimento}</p>
+        <p><strong>Peso Máximo:</strong> ${frete.pesoMaximo}</p>
+        <button onclick="contatarWhatsApp('${frete.numeroWhatsApp}')">Contatar via WhatsApp</button>
+      `;
+      fretesList.appendChild(freteItem);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar fretes:', error);
+    document.getElementById('fretes-list').innerHTML = '<p>Erro ao carregar dados dos fretes.</p>';
+  }
+}
+
+function contatarWhatsApp(numero) {
+  const mensagem = encodeURIComponent('Olá! Gostaria de solicitar um orçamento de frete para materiais de construção.');
+  window.open(`https://wa.me/55${numero}?text=${mensagem}`, '_blank');
+}
+
+function voltarInicio() {
+  window.location.href = 'index.html';
+}
+
+// Carregar fretes quando a página carregar
+document.addEventListener('DOMContentLoaded', carregarFretes);
+</script>
+
+<style>
+.fretes-list {
+  text-align: left;
+  margin: 20px 0;
+}
+
+.frete-item {
+  background: #f8f8f8;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border-left: 4px solid #ff6600;
+}
+
+.frete-item h4 {
+  margin: 0 0 10px 0;
+  color: #ff6600;
+  font-size: 18px;
+}
+
+.frete-item p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.frete-item button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.info-box {
+  background: #fff3e0;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 8px;
+  border: 1px solid #ff6600;
+  text-align: left;
+}
+
+.info-box h4 {
+  margin: 0 0 10px 0;
+  color: #ff6600;
+}
+
+.info-box ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.info-box li {
+  margin: 5px 0;
+  font-size: 14px;
+}
+</style>
+
+</body>
+</html>

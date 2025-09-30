@@ -1,0 +1,359 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+h1 {
+    color: #2d3436;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 300;
+}
+
+.input-group {
+    margin-bottom: 30px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #636e72;
+    font-weight: 500;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #74b9ff;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+button {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: #74b9ff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0984e3;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #ddd;
+    color: #2d3436;
+}
+
+.btn-secondary:hover {
+    background: #b2bec3;
+    transform: translateY(-2px);
+}
+
+.weather-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-top: 20px;
+    display: none;
+}
+
+.weather-card.show {
+    display: block;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.location {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.temperature {
+    font-size: 3em;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.description {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    text-transform: capitalize;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.detail-item {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.detail-label {
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.detail-value {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.loading {
+    display: none;
+    color: #74b9ff;
+    font-size: 1.1em;
+}
+
+.error {
+    background: #ff7675;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    display: none;
+}
+
+.error.show {
+    display: block;
+}
+
+.subtitle {
+    color: #636e72;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+.nav-btn {
+    background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+    color: white;
+    padding: 15px 25px;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 184, 148, 0.3);
+}
+
+/* Responsividade para tablets */
+@media (max-width: 768px) {
+    .container {
+        padding: 25px;
+        margin: 10px;
+    }
+    
+    h1 {
+        font-size: 2.2em;
+    }
+    
+    .subtitle {
+        font-size: 1em;
+    }
+    
+    .button-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    button {
+        padding: 18px;
+        font-size: 16px;
+    }
+    
+    .details {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .nav-buttons {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .nav-btn {
+        padding: 18px 25px;
+        font-size: 16px;
+    }
+}
+
+/* Responsividade para celulares */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        padding: 20px;
+        margin: 5px;
+        border-radius: 15px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+    
+    .subtitle {
+        font-size: 0.95em;
+        margin-bottom: 15px;
+    }
+    
+    .input-group {
+        margin-bottom: 25px;
+    }
+    
+    input[type="text"] {
+        padding: 18px;
+        font-size: 16px; /* Previne zoom no iOS */
+    }
+    
+    .button-group {
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+    
+    button {
+        padding: 20px;
+        font-size: 16px;
+        border-radius: 12px;
+    }
+    
+    .nav-btn {
+        padding: 20px 25px;
+        font-size: 16px;
+        border-radius: 12px;
+    }
+    
+    .weather-card {
+        padding: 20px;
+        margin-top: 15px;
+    }
+    
+    .location {
+        font-size: 1.3em;
+        margin-bottom: 12px;
+    }
+    
+    .temperature {
+        font-size: 2.5em;
+        margin-bottom: 8px;
+    }
+    
+    .description {
+        font-size: 1.1em;
+        margin-bottom: 15px;
+    }
+    
+    .details {
+        gap: 10px;
+    }
+    
+    .detail-item {
+        padding: 12px;
+    }
+    
+    .detail-label {
+        font-size: 0.85em;
+    }
+    
+    .detail-value {
+        font-size: 1em;
+    }
+    
+    .loading {
+        font-size: 1em;
+        padding: 10px;
+    }
+    
+    .error {
+        padding: 12px;
+        font-size: 0.9em;
+    }
+}
+
+/* Responsividade para celulares pequenos */
+@media (max-width: 360px) {
+    .container {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 1.6em;
+    }
+    
+    .temperature {
+        font-size: 2.2em;
+    }
+    
+    button, .nav-btn {
+        padding: 18px;
+        font-size: 15px;
+    }
+}

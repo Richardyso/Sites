@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRASRIO CAMPO GRANDE - Informar Metragem</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/jpeg" href="Isolino.jpg">
+</head>
+<body>
+
+<header>
+  <img src="Isolino.jpg" alt="Isolino Mascote" class="mascote-topo">
+  <div>
+    <h1>BRASRIO CAMPO GRANDE</h1>
+    <small>Orçamento Rápido</small>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2 id="page-title">Informe a metragem (m²)</h2>
+    <p id="material-info"></p>
+    
+    <!-- Campos para metragem simples -->
+    <div id="metragem-simples">
+      <input type="number" id="metragem" placeholder="Ex: 12" min="0" step="0.01">
+    </div>
+
+    <!-- Campos para dimensões de parede -->
+    <div id="dimensoes-parede" style="display:none;">
+      <div style="margin-bottom: 10px;">
+        <label for="metros-quadrados" style="display:block; margin-bottom:6px;">Metros quadrados (m²) *</label>
+        <input type="number" id="metros-quadrados" placeholder="Ex: 12.15" min="0" step="0.01" required>
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label for="pe-direito" style="display:block; margin-bottom:6px;">Pé direito (m) *</label>
+        <input type="number" id="pe-direito" placeholder="Ex: 2.7" min="0" step="0.01" required>
+      </div>
+      <div style="margin-bottom: 10px;">
+        <p><strong>Comprimento calculado: </strong><span id="comprimento-calculado">0 m</span></p>
+      </div>
+    </div>
+
+    <!-- Lista de placas só para Drywall -->
+    <div id="placaDrywallContainer" style="display:none; margin-top:10px;">
+      <label for="placaDrywall" style="display:block; margin-bottom:6px;">Tipo de placa</label>
+      <select id="placaDrywall" style="max-width: 280px; width:100%;">
+        <option value="" selected disabled>Selecione o tipo de placa...</option>
+        <option value="280">Drywall ST Branco 1,80 x 1,20</option>
+        <option value="177">Drywall RU (Resistente à Umidade) 1,80 x 1,20</option>
+        <option value="193">Drywall RF (Resistente à fogo) 1,80 x 1,20</option>
+      </select>
+    </div>
+
+    <!-- Lista de placas cimentícias -->
+    <div id="placaCimenticiaContainer" style="display:none; margin-top:10px;">
+      <label for="placaCimenticia" style="display:block; margin-bottom:6px;">Tipo de placa cimentícia</label>
+      <select id="placaCimenticia" style="max-width: 400px; width:100%;">
+        <option value="" selected disabled>Selecione o tipo de placa...</option>
+        <option value="181">PLACA CIMENTICIA 2.40 X 1.20 8MM DECORLIT</option>
+        <option value="182">PLACA CIMENTICIA 2.40 X 1.20 10MM DECORLIT</option>
+        <option value="263">PLACA CIMENTICIA 2.40 X 1.20 6MM DECORLIT</option>
+        <option value="1172">PLACA CIMENTICIA 2.40 X 1.20 12MM DECORLIT</option>
+      </select>
+    </div>
+
+    <!-- Seleção de cor/material para Pisos -->
+    <div id="corPisoContainer" style="display:none; margin-top:10px;">
+      <label for="corPiso" style="display:block; margin-bottom:6px;">Cor do material</label>
+      <select id="corPiso" style="max-width: 400px; width:100%;">
+        <option value="" selected disabled>Selecione a cor do material...</option>
+      </select>
+    </div>
+
+    <!-- Campo para quantidade de janelas - Divisória Naval -->
+    <div id="janelasContainer" style="display:none; margin-top:10px;">
+      <label for="quantidadeJanelas" style="display:block; margin-bottom:6px;">Quantidade de janelas</label>
+      <input type="number" id="quantidadeJanelas" placeholder="Ex: 2" min="0" step="1" value="0" style="max-width: 200px; width:100%;">
+      <small style="color: #666; display:block; margin-top:4px;">Digite 0 se não houver janelas</small>
+    </div>
+
+    <!-- Campo para quantidade de portas - Divisória Naval -->
+    <div id="portasContainer" style="display:none; margin-top:10px;">
+      <label for="quantidadePortas" style="display:block; margin-bottom:6px;">Quantidade de portas</label>
+      <input type="number" id="quantidadePortas" placeholder="Ex: 1" min="0" step="1" value="0" style="max-width: 200px; width:100%;">
+      <small style="color: #666; display:block; margin-top:4px;">Digite 0 se não houver portas</small>
+    </div>
+
+    <br>
+    <div class="btn-group">
+      <button onclick="calcular()">Calcular</button>
+      <button class="btn-back" onclick="goBack()">Voltar</button>
+    </div>
+  </div>
+</div>
+
+<script src="utils.js"></script>
+<script>
+// Pega os parâmetros da URL
+const urlParams = new URLSearchParams(window.location.search);
+const material = urlParams.get('material');
+const subtype = urlParams.get('subtype');
+
+// Exibe informações do material selecionado
+document.addEventListener('DOMContentLoaded', function() {
+  const materialInfo = document.getElementById('material-info');
+  const pageTitle = document.getElementById('page-title');
+  const metragemSimples = document.getElementById('metragem-simples');
+  const dimensoesParede = document.getElementById('dimensoes-parede');
+  
+  if (material && subtype) {
+    materialInfo.textContent = `Material: ${material} - ${subtype}`;
+  } else if (material) {
+    materialInfo.textContent = `Material: ${material}`;
+  }
+
+  // Mostra/esconde a lista de placas conforme o material
+  const cont = document.getElementById('placaDrywallContainer');
+  const contCimenticia = document.getElementById('placaCimenticiaContainer');
+  const corPisoCont = document.getElementById('corPisoContainer');
+  const corPisoSelect = document.getElementById('corPiso');
+  const janelasCont = document.getElementById('janelasContainer');
+  const portasCont = document.getElementById('portasContainer');
+  
+  if (material === 'Drywall') {
+    cont.style.display = 'block';
+    
+    // Se for Drywall Parede, mostra campos separados
+    if (subtype === 'Parede') {
+      pageTitle.textContent = 'Informe a metragem e pé direito da parede';
+      metragemSimples.style.display = 'none';
+      dimensoesParede.style.display = 'block';
+      
+      // Adiciona listeners para cálculo automático do comprimento
+      const metrosQuadradosInput = document.getElementById('metros-quadrados');
+      const peDireitoInput = document.getElementById('pe-direito');
+      const comprimentoCalculado = document.getElementById('comprimento-calculado');
+      
+      function atualizarComprimento() {
+        const m2 = parseFloat(metrosQuadradosInput.value) || 0;
+        const peDireito = parseFloat(peDireitoInput.value) || 0;
+        if (m2 > 0 && peDireito > 0) {
+          const comprimento = m2 / peDireito;
+          comprimentoCalculado.textContent = `${comprimento.toFixed(2)} m`;
+        } else {
+          comprimentoCalculado.textContent = '0 m';
+        }
+      }
+      
+      metrosQuadradosInput.addEventListener('input', atualizarComprimento);
+      peDireitoInput.addEventListener('input', atualizarComprimento);
+    }
+  } else if (material === 'Cimenticia') {
+    // Se for Placas Cimentícias, verifica o subtipo
+    if (subtype === 'Teto') {
+      // Para teto: não mostra seleção de placas, apenas fita e massa
+      contCimenticia.style.display = 'none';
+    } else if (subtype === 'Parede') {
+      // Para parede: mostra seleção de placas
+      contCimenticia.style.display = 'block';
+      pageTitle.textContent = 'Informe a metragem e pé direito da parede';
+      metragemSimples.style.display = 'none';
+      dimensoesParede.style.display = 'block';
+      
+      // Adiciona listeners para cálculo automático do comprimento
+      const metrosQuadradosInput = document.getElementById('metros-quadrados');
+      const peDireitoInput = document.getElementById('pe-direito');
+      const comprimentoCalculado = document.getElementById('comprimento-calculado');
+      
+      function atualizarComprimento() {
+        const m2 = parseFloat(metrosQuadradosInput.value) || 0;
+        const peDireito = parseFloat(peDireitoInput.value) || 0;
+        if (m2 > 0 && peDireito > 0) {
+          const comprimento = m2 / peDireito;
+          comprimentoCalculado.textContent = `${comprimento.toFixed(2)} m`;
+        } else {
+          comprimentoCalculado.textContent = '0 m';
+        }
+      }
+      
+      metrosQuadradosInput.addEventListener('input', atualizarComprimento);
+      peDireitoInput.addEventListener('input', atualizarComprimento);
+    }
+  } else if (material === 'PVC') {
+    // Se for PVC, verifica o subtipo
+    if (subtype === 'Placa') {
+      // Para placa: usa lógica padrão (sem seleção específica)
+      contCimenticia.style.display = 'none';
+    } else if (subtype === 'Regua') {
+      // Para régua: mostra seleção de réguas PVC
+      contCimenticia.style.display = 'block';
+      // Atualiza o título e opções do select
+      const select = document.getElementById('placaCimenticia');
+      const label = document.querySelector('label[for="placaCimenticia"]');
+      label.textContent = 'Tipo de régua PVC';
+      select.innerHTML = `
+        <option value="" selected disabled>Selecione o tipo de régua...</option>
+        <option value="1138">FORRO PVC 1,00 METROS ( 7MM )</option>
+        <option value="1139">FORRO PVC 2,00 METROS ( 7MM )</option>
+        <option value="740">FORRO PVC 6,50 METROS ( 7MM )</option>
+        <option value="566">FORRO PVC 3,00 METROS ( 7MM )</option>
+        <option value="571">FORRO PVC 6,00 METROS ( 7MM )</option>
+        <option value="567">FORRO PVC 3,50 METROS ( 7MM )</option>
+        <option value="741">FORRO PVC 5.50 METROS ( 7MM )</option>
+        <option value="568">FORRO PVC 4,00 METROS ( 7MM )</option>
+        <option value="570">FORRO PVC 5.00 METROS ( 7MM )</option>
+        <option value="569">FORRO PVC 4,50 METROS ( 7MM )</option>
+        <option value="572">FORRO PVC 7,00 METROS ( 7MM )</option>
+        <option value="573">FORRO PVC 8,00 METROS ( 7MM )</option>
+        <option value="1251">FORRO PVC 8,50 METROS ( 7MM )</option>
+      `;
+    }
+  } else if (material === 'Piso') {
+    // Mostra seleção de cor para pisos
+    corPisoCont.style.display = 'block';
+    
+    // Popula as opções baseadas no subtipo
+    if (subtype === 'Vinílico') {
+      const opcoesVinilico = [
+        { codigo: '1574', nome: 'PISO VINÍLICO RUFFINO - SOFISTICATO CARAMBOLA - 18 REGUAS - 2MM - 3,90 M2' },
+        { codigo: '1570', nome: 'PISO VINÍLICO RUFFINO - SOFISTICATO SAPUCAIA - 18 REGUAS - 2MM - 3,90 M2' },
+        { codigo: '1599', nome: 'PISO VINILICO RUFFINO BRAVO COR ANGELIM - 3MM - 2,6 M2' },
+        { codigo: '1575', nome: 'PISO VINILICO RUFFINO NOBILE COLADO BAOBA 2MM - 3,90M2' },
+        { codigo: '1576', nome: 'PISO VINILICO RUFFINO NOBILE COLADO DAMASCO 2MM - 3,90M2' }
+      ];
+      
+      opcoesVinilico.forEach(opcao => {
+        const option = document.createElement('option');
+        option.value = opcao.codigo;
+        option.textContent = `[${opcao.codigo}] ${opcao.nome}`;
+        corPisoSelect.appendChild(option);
+      });
+    } else if (subtype === 'Laminado') {
+      const opcoesLaminado = [
+        { codigo: '1102', nome: 'PISO LAMINADO GRAN ELEGANCE STONE CLICK 8MM - CAIXA C/ 2,41M2' },
+        { codigo: '1236', nome: 'PISO LAMINADO CLICADO DURAFLOOR NATURE BELGRADO CX C/ 2,51M2' },
+        { codigo: '1401', nome: 'PISO LAMINADO QUICK STEP PREMIERE MOCHA - 2,84M2' }
+      ];
+      
+      opcoesLaminado.forEach(opcao => {
+        const option = document.createElement('option');
+        option.value = opcao.codigo;
+        option.textContent = `[${opcao.codigo}] ${opcao.nome}`;
+        corPisoSelect.appendChild(option);
+      });
+    }
+  } else if (material === 'Painel') {
+    // Mostra campos para quantidade de janelas e portas para Divisória Naval
+    janelasCont.style.display = 'block';
+    portasCont.style.display = 'block';
+  } else if (material === 'Forro Mineral') {
+    // Mostra seleção de materiais específicos do Forro Mineral
+    contCimenticia.style.display = 'block';
+    const select = document.getElementById('placaCimenticia');
+    const label = document.querySelector('label[for="placaCimenticia"]');
+    label.textContent = 'Tipo de Forro Mineral';
+    select.innerHTML = `
+      <option value="" selected disabled>Selecione o tipo de forro...</option>
+      <option value="161">FORRO MINERAL ECOMIN 1250 X 625 X 13MM (12UN) 9,375M2</option>
+      <option value="194">FORRO MINERAL ECOMIN 625 X 625 (18UN) 7,03M2</option>
+      <option value="601">FORRO MINERAL FEINSTRATOS (NRC 0,60) TEGULAR 625X625 C/14 PÇ (5,46M2)</option>
+      <option value="867">FORRO MINERAL FEINSTRATOS (NRC 0,60) 1250 X 625 X 15MM C/10 PÇ (7,812M2)</option>
+    `;
+  } else if (material === 'Forro Boreal') {
+    // Mostra seleção específica do Forro Boreal
+    contCimenticia.style.display = 'block';
+    const select = document.getElementById('placaCimenticia');
+    const label = document.querySelector('label[for="placaCimenticia"]');
+    label.textContent = 'Tipo de Forro Boreal';
+    select.innerHTML = `
+      <option value="" selected disabled>Selecione o tipo de forro...</option>
+      <option value="368">FORRO BOREAL PLUS 1250X625X15 MM (C/24 PÇS - 18,75 M2)</option>
+    `;
+  }
+});
+
+function calcular() {
+  let m2, peDireito, quantidadeJanelas = 0, quantidadePortas = 0;
+  
+  // Determina qual forma de entrada usar
+  if ((material === 'Drywall' && subtype === 'Parede') || (material === 'Cimenticia' && subtype === 'Parede')) {
+    // Para Drywall ou Placas Cimentícias Parede, usa metros quadrados e pé direito
+    m2 = parseFloat(document.getElementById('metros-quadrados').value);
+    peDireito = parseFloat(document.getElementById('pe-direito').value);
+    
+    if (isNaN(m2) || m2 <= 0) {
+      alert("Digite a metragem em metros quadrados!");
+      return;
+    }
+    if (isNaN(peDireito) || peDireito <= 0) {
+      alert("Digite o pé direito (altura)!");
+      return;
+    }
+  } else {
+    // Para outros casos, usa metragem direta
+    m2 = parseFloat(document.getElementById('metragem').value);
+    if (isNaN(m2) || m2 <= 0) {
+      alert("Digite uma metragem válida!");
+      return;
+    }
+  }
+
+  // Captura quantidade de janelas e portas para Divisória Naval
+  if (material === 'Painel') {
+    quantidadeJanelas = parseInt(document.getElementById('quantidadeJanelas').value) || 0;
+    quantidadePortas = parseInt(document.getElementById('quantidadePortas').value) || 0;
+  }
+
+  let placaSel = '';
+  let corPiso = '';
+  
+  if (material === 'Drywall') {
+    placaSel = document.getElementById('placaDrywall').value;
+    if (!placaSel) {
+      alert("Selecione o tipo de placa de Drywall.");
+      return;
+    }
+  } else if (material === 'Cimenticia') {
+    // Para teto não precisa selecionar placa, apenas para parede
+    if (subtype === 'Parede') {
+      placaSel = document.getElementById('placaCimenticia').value;
+      if (!placaSel) {
+        alert("Selecione o tipo de placa cimentícia.");
+        return;
+      }
+    }
+  } else if (material === 'PVC') {
+    // Para PVC Régua precisa selecionar o tipo de régua
+    if (subtype === 'Regua') {
+      placaSel = document.getElementById('placaCimenticia').value;
+      if (!placaSel) {
+        alert("Selecione o tipo de régua PVC.");
+        return;
+      }
+    }
+  } else if (material === 'Piso') {
+    corPiso = document.getElementById('corPiso').value;
+    if (!corPiso) {
+      alert("Selecione a cor do material.");
+      return;
+    }
+  } else if (material === 'Forro Mineral') {
+    placaSel = document.getElementById('placaCimenticia').value;
+    if (!placaSel) {
+      alert("Selecione o tipo de Forro Mineral.");
+      return;
+    }
+  } else if (material === 'Forro Boreal') {
+    placaSel = document.getElementById('placaCimenticia').value;
+    if (!placaSel) {
+      alert("Selecione o tipo de Forro Boreal.");
+      return;
+    }
+  }
+
+  // Monta os parâmetros para a página de resultado
+  let url = `resultado.html?material=${encodeURIComponent(material)}&m2=${m2}&method=metragem`;
+  if (subtype) {
+    url += `&subtype=${encodeURIComponent(subtype)}`;
+  }
+  if (placaSel) {
+    url += `&placa=${encodeURIComponent(placaSel)}`;
+  }
+  if (corPiso) {
+    url += `&cor=${encodeURIComponent(corPiso)}`;
+  }
+  
+  // Adiciona pé direito se for parede
+  if (peDireito) {
+    url += `&peDireito=${peDireito}`;
+  }
+  
+  // Adiciona quantidade de janelas e portas se for divisória naval
+  if (material === 'Painel') {
+    if (quantidadeJanelas > 0) {
+      url += `&janelas=${quantidadeJanelas}`;
+    }
+    if (quantidadePortas > 0) {
+      url += `&portas=${quantidadePortas}`;
+    }
+  }
+
+  window.location.href = url;
+}
+
+function goBack() {
+  if (material === 'Drywall') {
+    window.location.href = 'drywall.html';
+  } else if (material === 'Cimenticia') {
+    window.location.href = 'cimenticia.html';
+  } else if (material === 'Piso') {
+    window.location.href = 'piso.html';
+  } else if (material === 'Forro Mineral' || material === 'Forro Boreal') {
+    window.location.href = 'index.html';
+  } else {
+    let url = `material.html?material=${encodeURIComponent(material)}`;
+    if (subtype) {
+      url += `&subtype=${encodeURIComponent(subtype)}`;
+    }
+    window.location.href = url;
+  }
+}
+</script>
+
+</body>
+</html>
