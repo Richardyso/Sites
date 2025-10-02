@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Claudinha Sancas - Fábrica e Loja de Gesso em Campo Grande, RJ. Decoração em gesso moderna e sofisticada com mais de 80 modelos.">
+    <title>Claudinha Sancas | Decoração em Gesso - Campo Grande, RJ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header / Navigation -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <img src="images/logo.PNG" alt="Claudinha Sancas Logo">
+                    <div class="logo-text">
+                        <span class="brand-name">Claudinha Sancas</span>
+                        <span class="brand-slogan">Decoração em Gesso</span>
+                    </div>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#home" class="nav-link">Início</a></li>
+                    <li><a href="#about" class="nav-link">Sobre</a></li>
+                    <li><a href="#products" class="nav-link">Produtos</a></li>
+                    <li><a href="#calculator" class="nav-link">Calculadora</a></li>
+                    <li><a href="#contact" class="nav-link">Contato</a></li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title animate-fade-in">Transforme seu ambiente com elegância</h1>
+            <p class="hero-subtitle animate-fade-in-delay">Realizando sonhos através da decoração em gesso</p>
+            <div class="hero-buttons animate-fade-in-delay-2">
+                <a href="#products" class="btn btn-primary">Ver Produtos</a>
+                <a href="#contact" class="btn btn-secondary">Fale Conosco</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Sobre Nós</h2>
+                <div class="title-underline"></div>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Excelência em Decoração de Gesso</h3>
+                    <p>Somos uma fábrica e loja de gesso localizada em <strong>Campo Grande, Rio de Janeiro</strong>. Nossa missão é realizar os sonhos dos clientes através da decoração em gesso, com um toque moderno e sofisticado.</p>
+                    <p>Nosso diferencial está no <strong>atendimento personalizado</strong> e na <strong>qualidade superior</strong> das nossas peças, conforme atestado por nossos clientes satisfeitos.</p>
+                    <div class="features">
+                        <div class="feature-item">
+                            <i class="fas fa-palette"></i>
+                            <span>Mais de 80 Modelos 3D</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-star"></i>
+                            <span>Qualidade Premium</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-users"></i>
+                            <span>Atendimento Diferenciado</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="images/5.PNG" alt="Claudinha Sancas - Decoração em Gesso">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="products">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Nossos Produtos</h2>
+                <div class="title-underline"></div>
+                <p class="section-subtitle">Mais de 80 modelos para transformar seu espaço</p>
+            </div>
+
+            <!-- Product Categories -->
+            <div class="product-categories">
+                <button class="category-btn active" data-category="all">Todos</button>
+                <button class="category-btn" data-category="sanca">Sanca</button>
+                <button class="category-btn" data-category="3d">Parede 3D</button>
+                <button class="category-btn" data-category="ripado">Ripado</button>
+                <button class="category-btn" data-category="materiais">Materiais</button>
+                <button class="category-btn" data-category="outros">Outros</button>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="products-grid">
+                <!-- Sancas (Roda Teto) -->
+                <div class="product-card" data-category="sanca" data-product="Sanca Aberta" data-price="35">
+                    <div class="product-image">
+                        <img src="images/1.PNG" alt="Sanca Aberta">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Sanca Aberta</h3>
+                        <p class="product-description">Iluminação indireta elegante</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 35/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="sanca" data-product="Sanca Fechada" data-price="30">
+                    <div class="product-image">
+                        <img src="images/2.PNG" alt="Sanca Fechada">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Sanca Fechada</h3>
+                        <p class="product-description">Acabamento sofisticado</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 30/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="sanca" data-product="Sanca Invertida" data-price="40">
+                    <div class="product-image">
+                        <img src="images/3.PNG" alt="Sanca Invertida">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Sanca Invertida</h3>
+                        <p class="product-description">Efeito moderno e clean</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 40/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="sanca" data-product="Sanca com Rasgo de Luz" data-price="45">
+                    <div class="product-image">
+                        <img src="images/4.PNG" alt="Sanca com Rasgo de Luz">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Sanca com Rasgo de Luz</h3>
+                        <p class="product-description">Iluminação diferenciada</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 45/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="sanca" data-product="Sanca Decorativa" data-price="38">
+                    <div class="product-image">
+                        <img src="images/6.PNG" alt="Sanca Decorativa">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Sanca Decorativa</h3>
+                        <p class="product-description">Design exclusivo</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 38/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="sanca" data-product="Sanca Trabalhada" data-price="42">
+                    <div class="product-image">
+                        <img src="images/7.PNG" alt="Sanca Trabalhada">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Sanca Trabalhada</h3>
+                        <p class="product-description">Detalhes sofisticados</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 42/m²</p>
+                    </div>
+                </div>
+
+                <!-- Paredes 3D -->
+                <div class="product-card" data-category="3d" data-product="Parede 3D Ondulada" data-price="80">
+                    <div class="product-image">
+                        <img src="images/12.PNG" alt="Parede 3D Ondulada">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Parede 3D Ondulada</h3>
+                        <p class="product-description">Textura moderna e dinâmica</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 80/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="3d" data-product="Parede 3D Geométrica" data-price="85">
+                    <div class="product-image">
+                        <img src="images/13.PNG" alt="Parede 3D Geométrica">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Parede 3D Geométrica</h3>
+                        <p class="product-description">Design contemporâneo</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 85/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="3d" data-product="Parede 3D Mosaico" data-price="90">
+                    <div class="product-image">
+                        <img src="images/14.PNG" alt="Parede 3D Mosaico">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Parede 3D Mosaico</h3>
+                        <p class="product-description">Efeito visual impactante</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 90/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="3d" data-product="Parede 3D Diamante" data-price="95">
+                    <div class="product-image">
+                        <img src="images/15.PNG" alt="Parede 3D Diamante">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Parede 3D Diamante</h3>
+                        <p class="product-description">Luxo e sofisticação</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 95/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="3d" data-product="Parede 3D Linear" data-price="85">
+                    <div class="product-image">
+                        <img src="images/16.PNG" alt="Parede 3D Linear">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Parede 3D Linear</h3>
+                        <p class="product-description">Linhas modernas</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 85/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="3d" data-product="Parede 3D Relevo" data-price="88">
+                    <div class="product-image">
+                        <img src="images/17.PNG" alt="Parede 3D Relevo">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Parede 3D Relevo</h3>
+                        <p class="product-description">Profundidade única</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 88/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="3d" data-product="Parede 3D Textura" data-price="82">
+                    <div class="product-image">
+                        <img src="images/18.PNG" alt="Parede 3D Textura">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Parede 3D Textura</h3>
+                        <p class="product-description">Toque especial</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 82/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="3d" data-product="Parede 3D Abstrata" data-price="92">
+                    <div class="product-image">
+                        <img src="images/19.PNG" alt="Parede 3D Abstrata">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Parede 3D Abstrata</h3>
+                        <p class="product-description">Arte na parede</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 92/m²</p>
+                    </div>
+                </div>
+
+                <!-- Ripado -->
+                <div class="product-card" data-category="ripado" data-product="Ripado Vertical" data-price="120">
+                    <div class="product-image">
+                        <img src="images/20.PNG" alt="Ripado Vertical">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Ripado Vertical</h3>
+                        <p class="product-description">Estilo escandinavo</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 120/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="ripado" data-product="Ripado Horizontal" data-price="115">
+                    <div class="product-image">
+                        <img src="images/21.PNG" alt="Ripado Horizontal">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Ripado Horizontal</h3>
+                        <p class="product-description">Amplitude visual</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 115/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="ripado" data-product="Ripado Decorativo" data-price="125">
+                    <div class="product-image">
+                        <img src="images/23.PNG" alt="Ripado Decorativo">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Ripado Decorativo</h3>
+                        <p class="product-description">Design diferenciado</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 125/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="ripado" data-product="Ripado Diagonal" data-price="130">
+                    <div class="product-image">
+                        <img src="images/24.PNG" alt="Ripado Diagonal">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Ripado Diagonal</h3>
+                        <p class="product-description">Efeito dinâmico</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 130/m²</p>
+                    </div>
+                </div>
+
+                <!-- Outros Produtos -->
+                <div class="product-card" data-category="outros" data-product="Boiserie" data-price="150">
+                    <div class="product-image">
+                        <img src="images/30.PNG" alt="Boiserie">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Boiserie</h3>
+                        <p class="product-description">Elegância clássica</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 150/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="outros" data-product="Coluna Romana" data-price="0">
+                    <div class="product-image">
+                        <img src="images/40.PNG" alt="Coluna Romana">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Coluna Romana</h3>
+                        <p class="product-description">Imponência e sofisticação</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> Sob consulta</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="outros" data-product="Friso (Rodapé)" data-price="15">
+                    <div class="product-image">
+                        <img src="images/50.PNG" alt="Friso (Rodapé)">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Friso (Rodapé)</h3>
+                        <p class="product-description">Acabamento perfeito</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 15/m</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="outros" data-product="Molduras" data-price="12">
+                    <div class="product-image">
+                        <img src="images/60.PNG" alt="Molduras">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Molduras</h3>
+                        <p class="product-description">Detalhes que fazem a diferença</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 12/m</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="outros" data-product="Nichos Decorativos" data-price="80">
+                    <div class="product-image">
+                        <img src="images/25.PNG" alt="Nichos Decorativos">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Nichos Decorativos</h3>
+                        <p class="product-description">Funcionalidade e estilo</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 80/unidade</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="outros" data-product="Forro de Gesso" data-price="55">
+                    <div class="product-image">
+                        <img src="images/26.PNG" alt="Forro de Gesso">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Forro de Gesso</h3>
+                        <p class="product-description">Acabamento perfeito</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 55/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="outros" data-product="Detalhes Decorativos" data-price="18">
+                    <div class="product-image">
+                        <img src="images/27.PNG" alt="Detalhes Decorativos">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Detalhes Decorativos</h3>
+                        <p class="product-description">Toque especial</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 18/m</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="outros" data-product="Painel Decorativo" data-price="140">
+                    <div class="product-image">
+                        <img src="images/28.PNG" alt="Painel Decorativo">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Painel Decorativo</h3>
+                        <p class="product-description">Destaque na decoração</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 140/m²</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="outros" data-product="Acabamento Especial" data-price="95">
+                    <div class="product-image">
+                        <img src="images/29.PNG" alt="Acabamento Especial">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Acabamento Especial</h3>
+                        <p class="product-description">Requinte único</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> A partir de R$ 95/m²</p>
+                    </div>
+                </div>
+
+                <!-- Materiais de Construção -->
+                <div class="product-card" data-category="materiais" data-product="Parafuso GN25" data-price="0">
+                    <div class="product-image">
+                        <img src="images/gn25.PNG" alt="Parafuso GN25">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Parafuso GN25</h3>
+                        <p class="product-description">Fixação resistente para gesso</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> Sob consulta</p>
+                    </div>
+                </div>
+
+                <div class="product-card" data-category="materiais" data-product="Sisal" data-price="0">
+                    <div class="product-image">
+                        <img src="images/sisal.PNG" alt="Sisal">
+                        <div class="product-overlay">
+                            <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Sisal</h3>
+                        <p class="product-description">Reforço estrutural para gesso</p>
+                        <p class="product-measure"><i class="fas fa-ruler"></i> Sob consulta</p>
+                    </div>
+                </div>
+
+                <!-- ============================================
+                     ESPAÇO PARA ADICIONAR MAIS MATERIAIS
+                     ============================================
+                     
+                     COMO ADICIONAR NOVOS PRODUTOS:
+                     
+                     1. Copie o bloco abaixo:
+                     
+                     <div class="product-card" data-category="materiais" data-product="Nome do Produto" data-price="PRECO">
+                         <div class="product-image">
+                             <img src="images/NOME-IMAGEM.PNG" alt="Nome do Produto">
+                             <div class="product-overlay">
+                                 <button class="btn-view" onclick="openProductDetail(this)">Ver Detalhes</button>
+                             </div>
+                         </div>
+                         <div class="product-info">
+                             <h3>Nome do Produto</h3>
+                             <p class="product-description">Descrição curta</p>
+                             <p class="product-measure"><i class="fas fa-ruler"></i> R$ XX,XX/unidade</p>
+                         </div>
+                     </div>
+                     
+                     2. Cole aqui embaixo e edite:
+                        - data-product="Nome do Produto"
+                        - data-price="PRECO" (só o número, sem R$)
+                        - src="images/NOME-IMAGEM.PNG"
+                        - alt="Nome do Produto"
+                        - <h3>Nome do Produto</h3>
+                        - Descrição curta
+                        - Preço e unidade
+                     
+                     EXEMPLOS DE MATERIAIS QUE PODEM SER ADICIONADOS:
+                     • Massa corrida
+                     • Fita para juntas
+                     • Tela de reforço
+                     • Gesso em pó
+                     • Arame galvanizado
+                     • Cola para gesso
+                     • Perfil metálico
+                     • Parafusos diversos
+                     • Buchas
+                     • Primer
+                     • Lixa
+                     • Espátulas
+                     • etc...
+                     
+                     ============================================ -->
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculator Section -->
+    <section id="calculator" class="calculator">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Calculadora de Orçamento</h2>
+                <div class="title-underline"></div>
+                <p class="section-subtitle">Calcule o valor aproximado do seu projeto</p>
+            </div>
+            <div class="calculator-content">
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label for="product-type">Tipo de Produto</label>
+                        <select id="product-type" class="form-control">
+                            <option value="">Selecione um produto</option>
+                            <optgroup label="Sancas">
+                                <option value="35">Sanca Aberta - R$ 35/m²</option>
+                                <option value="30">Sanca Fechada - R$ 30/m²</option>
+                                <option value="40">Sanca Invertida - R$ 40/m²</option>
+                            </optgroup>
+                            <optgroup label="Paredes 3D">
+                                <option value="80">Parede 3D Ondulada - R$ 80/m²</option>
+                                <option value="85">Parede 3D Geométrica - R$ 85/m²</option>
+                                <option value="90">Parede 3D Mosaico - R$ 90/m²</option>
+                            </optgroup>
+                            <optgroup label="Ripado">
+                                <option value="120">Ripado Vertical - R$ 120/m²</option>
+                                <option value="115">Ripado Horizontal - R$ 115/m²</option>
+                            </optgroup>
+                            <optgroup label="Materiais">
+                                <option value="0" disabled>Parafuso GN25 - Sob consulta</option>
+                                <option value="0" disabled>Sisal - Sob consulta</option>
+                            </optgroup>
+                            <optgroup label="Outros">
+                                <option value="150">Boiserie - R$ 150/m²</option>
+                                <option value="15">Friso (Rodapé) - R$ 15/m</option>
+                                <option value="12">Molduras - R$ 12/m</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="area">Área (m² ou metros lineares)</label>
+                        <input type="number" id="area" class="form-control" placeholder="Ex: 25" min="0" step="0.1">
+                    </div>
+                    <button class="btn btn-primary" onclick="calculateBudget()">Calcular Orçamento</button>
+                </div>
+                <div class="calculator-result" id="calculator-result">
+                    <div class="result-content">
+                        <i class="fas fa-calculator"></i>
+                        <h3>Seu Orçamento</h3>
+                        <div class="result-value" id="result-value">R$ 0,00</div>
+                        <p class="result-note">* Valor aproximado. Entre em contato para orçamento detalhado.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Galeria de Projetos</h2>
+                <div class="title-underline"></div>
+                <p class="section-subtitle">Confira alguns dos nossos trabalhos realizados</p>
+            </div>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="images/70.PNG" alt="Projeto 1">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/71.PNG" alt="Projeto 2">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/72.PNG" alt="Projeto 3">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/73.PNG" alt="Projeto 4">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/74.PNG" alt="Projeto 5">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/75.PNG" alt="Projeto 6">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Entre em Contato</h2>
+                <div class="title-underline"></div>
+                <p class="section-subtitle">Estamos prontos para realizar seu projeto</p>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>Endereço</h4>
+                            <p>Avenida Benedicto da Motta, 4<br>Campo Grande - Rio de Janeiro, RJ</p>
+                            <p style="font-size: 0.9rem; margin-top: 5px; color: var(--primary-color);">
+                                <i class="fab fa-waze"></i> Pesquise "Claudinha Sancas" no Waze
+                            </p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Telefone Fixo</h4>
+                            <p><a href="tel:+552133841297">(21) 3384-1297</a></p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <h4>WhatsApp</h4>
+                            <p><a href="https://wa.me/5521976176072?text=Ol%C3%A1!%20Vim%20do%20site%20e%20gostaria%20de%20saber%20mais%20sobre%20os%20produtos%20de%20gesso." target="_blank">(21) 97617-6072</a></p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>E-mail</h4>
+                            <p><a href="mailto:contato@claudinhasancas.com.br">contato@claudinhasancas.com.br</a></p>
+                        </div>
+                    </div>
+                    <div class="social-media">
+                        <a href="https://www.facebook.com/claudinhasancas/?locale=pt_BR" target="_blank" class="social-link" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/gessoclaudinha/" target="_blank" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Claudinha Sancas</h4>
+                    <p>Realizando sonhos através da decoração em gesso com qualidade e sofisticação.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#about">Sobre</a></li>
+                        <li><a href="#products">Produtos</a></li>
+                        <li><a href="#contact">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Horário de Atendimento</h4>
+                    <p>Segunda a Sexta: 8h às 18h<br>Sábado: 8h às 13h</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Claudinha Sancas. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/5521976176072?text=Ol%C3%A1!%20Vim%20do%20site%20da%20Claudinha%20Sancas%20e%20gostaria%20de%20fazer%20um%20or%C3%A7amento." 
+       class="whatsapp-float" 
+       target="_blank"
+       title="Fale conosco no WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Image Disclaimer -->
+    <div class="i
