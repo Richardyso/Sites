@@ -1,3 +1,141 @@
+// Translations
+const translations = {
+    'pt-pt': {
+        'quickLinks.services': 'Meus<br>Serviços',
+        'quickLinks.contact': 'Contato',
+        'about.description': 'Oioi sou a Babi — criadora de conteúdo e designer gráfica. Falo sobre autocuidado, beleza e desenvolvimento pessoal, ajudando-te a viver o teu glow up com propósito, leveza e criatividade. 🌸',
+        'about.signature': 'Me Segue',
+        'social.title': 'Minhas Redes Sociais',
+        'social.tiktokSelfcare': 'Tiktok de Autocuidado',
+        'social.tiktokVlog': 'Tiktok de Vlog',
+        'shopping.title': 'Compras e produtos que eu recomendo',
+        'shopping.shein': 'Minha Lista SHEIN',
+        'shopping.rituals': 'Pack Autocuidado Rituals',
+        'contact.title': 'Contato Profissional'
+    },
+    'pt-br': {
+        'quickLinks.services': 'Meus<br>Serviços',
+        'quickLinks.contact': 'Contato',
+        'about.description': 'Oi, sou a Babi — criadora de conteúdo e designer gráfica. Falo sobre autocuidado, beleza e desenvolvimento pessoal, ajudando você a viver seu glow up com propósito, leveza e criatividade. 🌸',
+        'about.signature': 'Me Segue',
+        'social.title': 'Minhas Redes Sociais',
+        'social.tiktokSelfcare': 'Tiktok de Autocuidado',
+        'social.tiktokVlog': 'Tiktok de Vlog',
+        'shopping.title': 'Compras e produtos que eu recomendo',
+        'shopping.shein': 'Minha Lista SHEIN',
+        'shopping.rituals': 'Pack Autocuidado Rituals',
+        'contact.title': 'Contato Profissional'
+    },
+    'en': {
+        'quickLinks.services': 'My<br>Services',
+        'quickLinks.contact': 'Contact',
+        'about.description': 'Hi, I\'m Babi — content creator and graphic designer. I talk about self-care, beauty and personal development, helping you live your glow up with purpose, lightness and creativity. 🌸',
+        'about.signature': 'Follow Me',
+        'social.title': 'My Social Media',
+        'social.tiktokSelfcare': 'Selfcare Tiktok',
+        'social.tiktokVlog': 'Vlog Tiktok',
+        'shopping.title': 'Shopping and products I recommend',
+        'shopping.shein': 'My SHEIN List',
+        'shopping.rituals': 'Selfcare Pack Rituals',
+        'contact.title': 'Professional Contact'
+    },
+    'es': {
+        'quickLinks.services': 'Mis<br>Servicios',
+        'quickLinks.contact': 'Contacto',
+        'about.description': 'Hola, soy Babi — creadora de contenido y diseñadora gráfica. Hablo sobre autocuidado, belleza y desarrollo personal, ayudándote a vivir tu glow up con propósito, ligereza y creatividad. 🌸',
+        'about.signature': 'Sígueme',
+        'social.title': 'Mis Redes Sociales',
+        'social.tiktokSelfcare': 'Tiktok de Autocuidado',
+        'social.tiktokVlog': 'Tiktok de Vlog',
+        'shopping.title': 'Compras y productos que recomiendo',
+        'shopping.shein': 'Mi Lista SHEIN',
+        'shopping.rituals': 'Pack Autocuidado Rituals',
+        'contact.title': 'Contacto Profesional'
+    }
+};
+
+// Current language
+let currentLanguage = localStorage.getItem('language') || 'pt-pt';
+
+// Change language function
+function changeLanguage(lang) {
+    currentLanguage = lang;
+    localStorage.setItem('language', lang);
+    
+    // Update all elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            element.innerHTML = translations[lang][key];
+        }
+    });
+    
+    // Update active button
+    document.querySelectorAll('.language-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-lang') === lang) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// Initialize language selector
+function initLanguageSelector() {
+    const langToggle = document.getElementById('lang-toggle');
+    const langDropdown = document.getElementById('lang-dropdown');
+    const langSelector = document.querySelector('.language-selector');
+    const langOptions = document.querySelectorAll('.lang-option');
+    
+    // Toggle dropdown
+    langToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        langSelector.classList.toggle('open');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!langSelector.contains(e.target)) {
+            langSelector.classList.remove('open');
+        }
+    });
+    
+    // Language options
+    langOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const lang = option.getAttribute('data-lang');
+            changeLanguage(lang);
+            updateLanguageDisplay(lang);
+            langSelector.classList.remove('open');
+            
+            // Update active option
+            langOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+        });
+    });
+    
+    // Set initial language
+    changeLanguage(currentLanguage);
+    updateLanguageDisplay(currentLanguage);
+}
+
+// Update language display
+function updateLanguageDisplay(lang) {
+    const currentFlag = document.getElementById('current-flag');
+    const currentLang = document.getElementById('current-lang');
+    
+    const langMap = {
+        'pt-pt': { flag: '🇵🇹', code: 'PT' },
+        'pt-br': { flag: '🇧🇷', code: 'BR' },
+        'en': { flag: '🇺🇸', code: 'EN' },
+        'es': { flag: '🇪🇸', code: 'ES' }
+    };
+    
+    if (langMap[lang]) {
+        currentFlag.textContent = langMap[lang].flag;
+        currentLang.textContent = langMap[lang].code;
+    }
+}
+
 // Site initialization
 function initializeSite() {
     console.log('🌸 Minha Vida, Teu Vlog - Site carregado com sucesso!');
@@ -258,6 +396,7 @@ function addNotificationStyles() {
 // Initialize all functions when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     initializeSite();
+    initLanguageSelector();
     addClickAnimation();
     addQuickLinkEffects();
     setupImageHandlers();

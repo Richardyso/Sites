@@ -8,6 +8,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <button class="language-toggle" id="lang-toggle">
+            <span class="flag" id="current-flag">🇵🇹</span>
+            <span class="lang-code" id="current-lang">PT</span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <div class="language-dropdown" id="lang-dropdown">
+            <button class="lang-option active" data-lang="pt-pt">
+                <span class="flag">🇵🇹</span>
+                <span>Português (PT)</span>
+            </button>
+            <button class="lang-option" data-lang="pt-br">
+                <span class="flag">🇧🇷</span>
+                <span>Português (BR)</span>
+            </button>
+            <button class="lang-option" data-lang="en">
+                <span class="flag">🇺🇸</span>
+                <span>English (US)</span>
+            </button>
+            <button class="lang-option" data-lang="es">
+                <span class="flag">🇪🇸</span>
+                <span>Español (ES)</span>
+            </button>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Header -->
         <header class="header">
@@ -34,13 +61,13 @@
                 <div class="quick-link-icon">
                     <i class="fas fa-briefcase"></i>
                 </div>
-                <p>Meus<br>Serviços</p>
+                <p data-i18n="quickLinks.services">Meus<br>Serviços</p>
             </div>
             <div class="quick-link" onclick="scrollToSection('contato')">
                 <div class="quick-link-icon">
                     <i class="fas fa-envelope"></i>
                 </div>
-                <p>Contato</p>
+                <p data-i18n="quickLinks.contact">Contato</p>
             </div>
         </div>
 
@@ -51,15 +78,15 @@
                     <img src="babi2.jpeg" alt="Babi" id="about-img">
                 </div>
                 <div class="about-text">
-                    <p>Oioi sou a Babi — criadora de conteúdo e designer gráfica. Falo sobre autocuidado, beleza e desenvolvimento pessoal, ajudando-te a viver o teu glow up com propósito, leveza e criatividade. 🌸</p>
-                    <p class="signature">Me Segue</p>
+                    <p data-i18n="about.description">Oioi sou a Babi — criadora de conteúdo e designer gráfica. Falo sobre autocuidado, beleza e desenvolvimento pessoal, ajudando-te a viver o teu glow up com propósito, leveza e criatividade. 🌸</p>
+                    <p class="signature" data-i18n="about.signature">Me Segue</p>
                 </div>
             </div>
         </div>
 
         <!-- Social Links -->
         <div class="links-section">
-            <h3 class="section-title">Minhas Redes Sociais</h3>
+            <h3 class="section-title" data-i18n="social.title">Minhas Redes Sociais</h3>
             
             <a href="https://www.instagram.com/minhavidateuvlog/?igsh=MTIyYXpjMDFzb2dobw%3D%3D#" target="_blank" class="link-button instagram">
                 <i class="fab fa-instagram"></i>
@@ -69,13 +96,13 @@
 
             <a href="https://www.tiktok.com/@minhavidateuvlog2" target="_blank" class="link-button tiktok">
                 <i class="fab fa-tiktok"></i>
-                <span>Tiktok de Autocuidado</span>
+                <span data-i18n="social.tiktokSelfcare">Tiktok de Autocuidado</span>
                 <i class="fas fa-chevron-right"></i>
             </a>
 
             <a href="https://www.tiktok.com/@minhavidateuvlog" target="_blank" class="link-button tiktok">
                 <i class="fab fa-tiktok"></i>
-                <span>Tiktok de Vlog</span>
+                <span data-i18n="social.tiktokVlog">Tiktok de Vlog</span>
                 <i class="fas fa-chevron-right"></i>
             </a>
 
@@ -94,24 +121,24 @@
 
         <!-- Shopping Section -->
         <div class="links-section" id="compras">
-            <h3 class="section-title">Compras e produtos que eu recomendo</h3>
+            <h3 class="section-title" data-i18n="shopping.title">Compras e produtos que eu recomendo</h3>
             
             <a href="https://pt.shein.com/ark/5231?test=5051&url_from=affiliate_koc_1030913491&scene=1&ad_type=KOC&language=pt-pt&siteuid=pt&version_bid=101535226,101682411,101507551,100710741,101545096,101682511&version_eid=100647471&landing_page_id=5231&ad_test_id=41075&campaign=picklist&koc_id=1030913491&picks_delivery_id=1620162&requestId=olw-536ov6jz56o5&tv_b=2&behaviorId=picklist.5614b36b-2231-4589-a041-216e1b560569&onelink=15/4vo69r6u7imh&campaign_id=469" target="_blank" class="link-button shein">
                 <i class="fas fa-shopping-cart"></i>
-                <span>Minha Lista SHEIN</span>
+                <span data-i18n="shopping.shein">Minha Lista SHEIN</span>
                 <i class="fas fa-chevron-right"></i>
             </a>
 
             <a href="https://www.rituals.com/pt-pt/sakura-body-cream-and-refill-pack-1112209.html?source=cop&showbacklink=false" target="_blank" class="link-button rituals">
                 <i class="fas fa-spa"></i>
-                <span>Pack Autocuidado Rituals</span>
+                <span data-i18n="shopping.rituals">Pack Autocuidado Rituals</span>
                 <i class="fas fa-chevron-right"></i>
             </a>
         </div>
 
         <!-- Contact Section -->
         <div class="contact-section" id="contato">
-            <h3 class="section-title">Contato Profissional</h3>
+            <h3 class="section-title" data-i18n="contact.title">Contato Profissional</h3>
             <a href="mailto:profissionalbarbaracosta@gmail.com" class="link-button email">
                 <i class="fas fa-envelope"></i>
                 <span>profissionalbarbaracosta@gmail.com</span>
