@@ -3,6 +3,86 @@ function initializeSite() {
     console.log('🌸 Minha Vida, Teu Vlog - Site carregado com sucesso!');
 }
 
+// Floating Emojis Animation
+function initFloatingEmojis() {
+    const emojis = document.querySelectorAll('.floating-emoji');
+    let lastScrollY = window.scrollY;
+    
+    // Set random initial positions
+    emojis.forEach((emoji, index) => {
+        const randomX = Math.random() * 90;
+        const randomY = Math.random() * 80;
+        emoji.style.left = `${randomX}%`;
+        emoji.style.top = `${randomY}%`;
+        
+        // Random size variation (only width, height auto to maintain aspect ratio)
+        const randomSize = 35 + Math.random() * 30;
+        emoji.style.width = `${randomSize}px`;
+    });
+    
+    // Scroll parallax effect
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+        const scrollDelta = scrollY - lastScrollY;
+        
+        emojis.forEach((emoji, index) => {
+            const speed = parseFloat(emoji.getAttribute('data-speed')) || 1;
+            const currentTop = parseFloat(emoji.style.top);
+            const currentLeft = parseFloat(emoji.style.left);
+            
+            // Move emojis based on scroll
+            let newTop = currentTop - (scrollDelta * speed * 0.05);
+            let newLeft = currentLeft + (scrollDelta * speed * 0.03 * (index % 2 === 0 ? 1 : -1));
+            
+            // Keep emojis within viewport
+            if (newTop < -10) newTop = 100;
+            if (newTop > 110) newTop = -10;
+            if (newLeft < -10) newLeft = 100;
+            if (newLeft > 110) newLeft = -10;
+            
+            emoji.style.top = `${newTop}%`;
+            emoji.style.left = `${newLeft}%`;
+        });
+        
+        lastScrollY = scrollY;
+    });
+    
+    // Random movement animation
+    setInterval(() => {
+        emojis.forEach((emoji) => {
+            const randomX = (Math.random() - 0.5) * 100;
+            const randomY = (Math.random() - 0.5) * 100;
+            const randomRotation = Math.random() * 360;
+            
+            emoji.style.transition = 'transform 3s ease-in-out';
+            emoji.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotation}deg)`;
+        });
+    }, 4000);
+    
+    // Mouse interaction (optional)
+    document.addEventListener('mousemove', (e) => {
+        emojis.forEach((emoji, index) => {
+            const rect = emoji.getBoundingClientRect();
+            const emojiX = rect.left + rect.width / 2;
+            const emojiY = rect.top + rect.height / 2;
+            
+            const deltaX = e.clientX - emojiX;
+            const deltaY = e.clientY - emojiY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            
+            // Move away from cursor if too close
+            if (distance < 150) {
+                const angle = Math.atan2(deltaY, deltaX);
+                const moveX = -Math.cos(angle) * 30;
+                const moveY = -Math.sin(angle) * 30;
+                
+                emoji.style.transition = 'transform 0.3s ease-out';
+                emoji.style.transform = `translate(${moveX}px, ${moveY}px) rotate(${Math.random() * 360}deg)`;
+            }
+        });
+    });
+}
+
 // Scroll to section
 function scrollToSection(sectionId) {
     const section = document.getElementById(sectionId);
@@ -181,6 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addClickAnimation();
     addQuickLinkEffects();
     setupImageHandlers();
+    initFloatingEmojis();
     // addParallaxEffect(); // Commented out - can be enabled for parallax effect
     trackLinkClicks();
     setupEmailCopy();

@@ -398,6 +398,118 @@ body {
     }
 }
 
+/* Floating Emojis */
+.floating-emojis {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    overflow: hidden;
+}
+
+.floating-emoji {
+    position: absolute;
+    width: 40px;
+    height: auto;
+    opacity: 0.7;
+    pointer-events: none;
+    animation: float-around 15s infinite ease-in-out;
+    will-change: transform;
+    object-fit: contain;
+    aspect-ratio: 1/1;
+}
+
+.floating-emoji:nth-child(1) {
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 12s;
+}
+
+.floating-emoji:nth-child(2) {
+    top: 20%;
+    left: 80%;
+    animation-delay: 2s;
+    animation-duration: 15s;
+}
+
+.floating-emoji:nth-child(3) {
+    top: 60%;
+    left: 5%;
+    animation-delay: 1s;
+    animation-duration: 18s;
+}
+
+.floating-emoji:nth-child(4) {
+    top: 40%;
+    left: 90%;
+    animation-delay: 3s;
+    animation-duration: 14s;
+}
+
+.floating-emoji:nth-child(5) {
+    top: 80%;
+    left: 15%;
+    animation-delay: 1.5s;
+    animation-duration: 16s;
+}
+
+.floating-emoji:nth-child(6) {
+    top: 30%;
+    left: 50%;
+    animation-delay: 4s;
+    animation-duration: 13s;
+}
+
+.floating-emoji:nth-child(7) {
+    top: 70%;
+    left: 75%;
+    animation-delay: 2.5s;
+    animation-duration: 17s;
+}
+
+@keyframes float-around {
+    0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+        transform: translate(50px, -80px) rotate(90deg);
+    }
+    50% {
+        transform: translate(-30px, -150px) rotate(180deg);
+    }
+    75% {
+        transform: translate(-80px, -80px) rotate(270deg);
+    }
+}
+
+/* Responsive Emojis */
+@media (max-width: 768px) {
+    .floating-emoji {
+        width: 30px;
+        height: auto;
+        opacity: 0.6;
+    }
+    
+    @keyframes float-around {
+        0%, 100% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+        25% {
+            transform: translate(30px, -50px) rotate(90deg);
+        }
+        50% {
+            transform: translate(-20px, -100px) rotate(180deg);
+        }
+        75% {
+            transform: translate(-50px, -50px) rotate(270deg);
+        }
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
