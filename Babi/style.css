@@ -934,3 +934,311 @@ html {
         margin-top: 20px;
     }
 }
+
+/* Services Modal */
+.services-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.services-modal.active {
+    display: block;
+    opacity: 1;
+}
+
+.services-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+}
+
+.services-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    background: linear-gradient(135deg, rgba(91, 44, 111, 0.98), rgba(123, 67, 151, 0.98));
+    border-radius: 30px;
+    padding: 40px 30px;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    animation: modalSlideIn 0.4s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.services-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: var(--white);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.services-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.services-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.services-profile-container {
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.services-profile-container .flower-frame {
+    width: 120px;
+    height: 120px;
+}
+
+.services-title {
+    font-family: 'Great Vibes', cursive;
+    font-size: 42px;
+    color: var(--text-light);
+    text-shadow: 2px 2px 8px var(--shadow);
+    margin: 0;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 50px;
+}
+
+.service-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.service-image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+}
+
+.service-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.service-card:hover .service-image img {
+    transform: scale(1.1);
+}
+
+.service-content {
+    padding: 20px;
+}
+
+.service-content h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.service-content h3 i {
+    font-size: 20px;
+    color: var(--purple-accent);
+}
+
+.service-content p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Portfolio Section */
+.portfolio-section {
+    padding-top: 30px;
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.portfolio-title {
+    font-family: 'Great Vibes', cursive;
+    font-size: 38px;
+    color: var(--text-light);
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 8px var(--shadow);
+}
+
+.portfolio-subtitle {
+    text-align: center;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 30px;
+}
+
+.portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    min-height: 200px;
+}
+
+.portfolio-placeholder {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 60px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.portfolio-placeholder i {
+    font-size: 48px;
+}
+
+.portfolio-placeholder p {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Modal Responsive */
+@media (max-width: 768px) {
+    .services-modal-content {
+        width: 95%;
+        padding: 30px 20px;
+        max-height: 95vh;
+    }
+
+    .services-title {
+        font-size: 36px;
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .service-image {
+        height: 200px;
+    }
+
+    .portfolio-title {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .services-modal-content {
+        padding: 25px 15px;
+        border-radius: 20px;
+    }
+
+    .services-close-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+        top: 15px;
+        right: 15px;
+    }
+
+    .services-profile-container .flower-frame {
+        width: 100px;
+        height: 100px;
+    }
+
+    .services-title {
+        font-size: 32px;
+    }
+
+    .service-content h3 {
+        font-size: 16px;
+    }
+
+    .service-content h3 i {
+        font-size: 18px;
+    }
+
+    .service-content p {
+        font-size: 13px;
+    }
+
+    .portfolio-title {
+        font-size: 28px;
+    }
+
+    .portfolio-subtitle {
+        font-size: 14px;
+    }
+}
+
+/* Custom Scrollbar for Modal */
+.services-modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.services-modal-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.services-modal-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+.services-modal-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}

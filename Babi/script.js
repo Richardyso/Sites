@@ -11,7 +11,21 @@ const translations = {
         'shopping.title': 'Compras e produtos que eu recomendo',
         'shopping.shein': 'Minha Lista SHEIN',
         'shopping.rituals': 'Pack Autocuidado Rituals',
-        'contact.title': 'Contato Profissional'
+        'contact.title': 'Contato Profissional',
+        'services.title': 'Meus Serviços',
+        'services.graphicDesign.title': 'Design Gráfico',
+        'services.graphicDesign.description': 'Criação de identidades visuais, logos e materiais gráficos personalizados',
+        'services.socialMedia.title': 'Social Media',
+        'services.socialMedia.description': 'Posts criativos, stories e conteúdo visual para redes sociais',
+        'services.illustrations.title': 'Ilustrações',
+        'services.illustrations.description': 'Ilustrações digitais e arte personalizada para diversos projetos',
+        'services.thumbnails.title': 'Thumbnails',
+        'services.thumbnails.description': 'Thumbnails atraentes e otimizadas para vídeos no YouTube',
+        'services.digitalDesign.title': 'Design Digital',
+        'services.digitalDesign.description': 'Layouts para sites, apps e interfaces digitais modernas',
+        'portfolio.title': 'Portfólio',
+        'portfolio.subtitle': 'Em breve, trabalhos incríveis aparecerão aqui! ✨',
+        'portfolio.comingSoon': 'Trabalhos em breve...'
     },
     'pt-br': {
         'quickLinks.services': 'Meus<br>Serviços',
@@ -24,7 +38,21 @@ const translations = {
         'shopping.title': 'Compras e produtos que eu recomendo',
         'shopping.shein': 'Minha Lista SHEIN',
         'shopping.rituals': 'Pack Autocuidado Rituals',
-        'contact.title': 'Contato Profissional'
+        'contact.title': 'Contato Profissional',
+        'services.title': 'Meus Serviços',
+        'services.graphicDesign.title': 'Design Gráfico',
+        'services.graphicDesign.description': 'Criação de identidades visuais, logos e materiais gráficos personalizados',
+        'services.socialMedia.title': 'Social Media',
+        'services.socialMedia.description': 'Posts criativos, stories e conteúdo visual para redes sociais',
+        'services.illustrations.title': 'Ilustrações',
+        'services.illustrations.description': 'Ilustrações digitais e arte personalizada para diversos projetos',
+        'services.thumbnails.title': 'Thumbnails',
+        'services.thumbnails.description': 'Thumbnails atraentes e otimizadas para vídeos no YouTube',
+        'services.digitalDesign.title': 'Design Digital',
+        'services.digitalDesign.description': 'Layouts para sites, apps e interfaces digitais modernas',
+        'portfolio.title': 'Portfólio',
+        'portfolio.subtitle': 'Em breve, trabalhos incríveis aparecerão aqui! ✨',
+        'portfolio.comingSoon': 'Trabalhos em breve...'
     },
     'en': {
         'quickLinks.services': 'My<br>Services',
@@ -37,7 +65,21 @@ const translations = {
         'shopping.title': 'Shopping and products I recommend',
         'shopping.shein': 'My SHEIN List',
         'shopping.rituals': 'Selfcare Pack Rituals',
-        'contact.title': 'Professional Contact'
+        'contact.title': 'Professional Contact',
+        'services.title': 'My Services',
+        'services.graphicDesign.title': 'Graphic Design',
+        'services.graphicDesign.description': 'Creation of visual identities, logos and personalized graphic materials',
+        'services.socialMedia.title': 'Social Media',
+        'services.socialMedia.description': 'Creative posts, stories and visual content for social networks',
+        'services.illustrations.title': 'Illustrations',
+        'services.illustrations.description': 'Digital illustrations and personalized art for various projects',
+        'services.thumbnails.title': 'Thumbnails',
+        'services.thumbnails.description': 'Attractive and optimized thumbnails for YouTube videos',
+        'services.digitalDesign.title': 'Digital Design',
+        'services.digitalDesign.description': 'Layouts for websites, apps and modern digital interfaces',
+        'portfolio.title': 'Portfolio',
+        'portfolio.subtitle': 'Amazing work coming soon! ✨',
+        'portfolio.comingSoon': 'Work coming soon...'
     },
     'es': {
         'quickLinks.services': 'Mis<br>Servicios',
@@ -50,7 +92,21 @@ const translations = {
         'shopping.title': 'Compras y productos que recomiendo',
         'shopping.shein': 'Mi Lista SHEIN',
         'shopping.rituals': 'Pack Autocuidado Rituals',
-        'contact.title': 'Contacto Profesional'
+        'contact.title': 'Contacto Profesional',
+        'services.title': 'Mis Servicios',
+        'services.graphicDesign.title': 'Diseño Gráfico',
+        'services.graphicDesign.description': 'Creación de identidades visuales, logos y materiales gráficos personalizados',
+        'services.socialMedia.title': 'Social Media',
+        'services.socialMedia.description': 'Posts creativos, stories y contenido visual para redes sociales',
+        'services.illustrations.title': 'Ilustraciones',
+        'services.illustrations.description': 'Ilustraciones digitales y arte personalizada para diversos proyectos',
+        'services.thumbnails.title': 'Thumbnails',
+        'services.thumbnails.description': 'Thumbnails atractivos y optimizados para vídeos de YouTube',
+        'services.digitalDesign.title': 'Diseño Digital',
+        'services.digitalDesign.description': 'Layouts para sitios web, apps e interfaces digitales modernas',
+        'portfolio.title': 'Portafolio',
+        'portfolio.subtitle': '¡Próximamente trabajos increíbles! ✨',
+        'portfolio.comingSoon': 'Trabajos próximamente...'
     }
 };
 
@@ -392,6 +448,26 @@ function addNotificationStyles() {
     `;
     document.head.appendChild(style);
 }
+
+// Services Modal Functions
+function openServicesModal() {
+    const modal = document.getElementById('services-modal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling on body
+}
+
+function closeServicesModal() {
+    const modal = document.getElementById('services-modal');
+    modal.classList.remove('active');
+    document.body.style.overflow = ''; // Restore scrolling
+}
+
+// Close modal with ESC key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeServicesModal();
+    }
+});
 
 // Initialize all functions when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
