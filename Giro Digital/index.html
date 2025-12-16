@@ -61,21 +61,18 @@
                 
                 <!-- Seletor de Idioma -->
                 <div class="language-selector" id="language-selector">
-                    <button class="language-selector__current" id="language-toggle" aria-label="Selecionar idioma">
-                        <img src="https://flagcdn.com/w40/pt.png" alt="Portugal" class="language-selector__flag" id="current-flag">
-                        <span class="language-selector__text" id="current-lang">PT</span>
-                        <i class="fas fa-chevron-down language-selector__arrow"></i>
+                    <button class="language-selector__option" data-lang="pt-PT" data-country="Portugal" aria-label="Português Portugal">
+                        <img src="https://flagcdn.com/w40/pt.png" alt="Portugal" class="language-selector__flag">
                     </button>
-                    <div class="language-selector__dropdown" id="language-dropdown">
-                        <button class="language-selector__option" data-lang="pt-PT" data-country="Portugal">
-                            <img src="https://flagcdn.com/w40/pt.png" alt="Portugal" class="language-selector__flag">
-                            <span>Português (PT)</span>
-                        </button>
-                        <button class="language-selector__option" data-lang="pt-BR" data-country="Brasil">
-                            <img src="https://flagcdn.com/w40/br.png" alt="Brasil" class="language-selector__flag">
-                            <span>Português (BR)</span>
-                        </button>
-                    </div>
+                    <button class="language-selector__option" data-lang="pt-BR" data-country="Brasil" aria-label="Português Brasil">
+                        <img src="https://flagcdn.com/w40/br.png" alt="Brasil" class="language-selector__flag">
+                    </button>
+                    <button class="language-selector__option" data-lang="es-ES" data-country="España" aria-label="Español España">
+                        <img src="https://flagcdn.com/w40/es.png" alt="España" class="language-selector__flag">
+                    </button>
+                    <button class="language-selector__option" data-lang="en-US" data-country="USA" aria-label="English USA">
+                        <img src="https://flagcdn.com/w40/us.png" alt="USA" class="language-selector__flag">
+                    </button>
                 </div>
                 
                 <button class="nav__toggle" id="nav-toggle" aria-label="Menu">
@@ -85,13 +82,13 @@
                 </button>
                 
                 <ul class="nav__menu" id="nav-menu">
-                    <li class="nav__item"><a href="#inicio" class="nav__link">Início</a></li>
-                    <li class="nav__item"><a href="#precos" class="nav__link">Preços</a></li>
-                    <li class="nav__item"><a href="#servicos" class="nav__link">Serviços</a></li>
-                    <li class="nav__item"><a href="#sobre" class="nav__link">Sobre</a></li>
-                    <li class="nav__item"><a href="faq.html" class="nav__link">FAQ</a></li>
-                    <li class="nav__item"><a href="termos.html" class="nav__link">Termos</a></li>
-                    <li class="nav__item"><a href="https://wa.me/351910474651?text=Olá! Gostaria de solicitar um orçamento gratuito para o meu negócio." target="_blank" rel="noopener" class="nav__link nav__link--cta">Orçamento Gratuito</a></li>
+                    <li class="nav__item"><a href="#inicio" class="nav__link" data-i18n="nav.home">Início</a></li>
+                    <li class="nav__item"><a href="#precos" class="nav__link" data-i18n="nav.prices">Preços</a></li>
+                    <li class="nav__item"><a href="#servicos" class="nav__link" data-i18n="nav.services">Serviços</a></li>
+                    <li class="nav__item"><a href="#sobre" class="nav__link" data-i18n="nav.about">Sobre</a></li>
+                    <li class="nav__item"><a href="faq.html" class="nav__link" data-i18n="nav.faq">FAQ</a></li>
+                    <li class="nav__item"><a href="termos.html" class="nav__link" data-i18n="nav.terms">Termos</a></li>
+                    <li class="nav__item"><a href="https://wa.me/351910474651?text=Olá! Gostaria de solicitar um orçamento gratuito para o meu negócio." target="_blank" rel="noopener" class="nav__link nav__link--cta" data-i18n="nav.quote">Orçamento Gratuito</a></li>
                 </ul>
             </div>
         </nav>
@@ -100,11 +97,11 @@
     <!-- Hero Section -->
     <section class="hero" id="inicio">
         <div class="hero__container">
-            <h1 class="hero__title">Marketing Digital <span class="hero__highlight">Simples e Acessível</span> para o Seu Negócio</h1>
-            <p class="hero__subtitle">Ajudamos pequenos negócios a crescer online com soluções completas de branding, redes sociais e websites.</p>
+            <h1 class="hero__title"><span data-i18n="hero.title">Marketing Digital</span> <span class="hero__highlight" data-i18n="hero.highlight">Simples e Acessível</span> para o Seu Negócio</h1>
+            <p class="hero__subtitle" data-i18n="hero.subtitle">Ajudamos pequenos negócios a crescer online com soluções completas de branding, redes sociais e websites.</p>
             <div class="hero__buttons">
-                <a href="#precos" class="btn btn--primary btn--large">Ver Pacotes e Preços</a>
-                <a href="https://wa.me/351910474651?text=Olá! Vi o site da Giro Digital e gostaria de mais informações." target="_blank" rel="noopener" class="btn btn--secondary btn--large">Falar Connosco</a>
+                <a href="#precos" class="btn btn--primary btn--large" data-i18n="hero.btn1">Ver Pacotes e Preços</a>
+                <a href="https://wa.me/351910474651?text=Olá! Vi o site da Giro Digital e gostaria de mais informações." target="_blank" rel="noopener" class="btn btn--secondary btn--large" data-i18n="hero.btn2">Falar Connosco</a>
             </div>
         </div>
     </section>
@@ -112,8 +109,8 @@
     <!-- Preços -->
     <section class="pricing" id="precos">
         <div class="pricing__container">
-            <h2 class="pricing__title">Pacotes e Preços</h2>
-            <p class="pricing__subtitle">Escolha o pacote ideal para o seu negócio e poupe até 30%</p>
+            <h2 class="pricing__title" data-i18n="pricing.title">Pacotes e Preços</h2>
+            <p class="pricing__subtitle" data-i18n="pricing.subtitle">Escolha o pacote ideal para o seu negócio e poupe até 30%</p>
             
             <div class="pricing__grid">
                 <!-- Pacote Starter -->
@@ -403,6 +400,7 @@
     </a>
 
     <!-- JavaScript -->
+    <script src="assets/js/translations.js"></script>
     <script src="assets/js/currency-converter.js"></script>
     <script src="assets/js/main.js"></script>
 </body>

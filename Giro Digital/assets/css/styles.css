@@ -263,6 +263,7 @@ img {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
     z-index: 1000;
     transition: all var(--transition-base);
+    overflow: visible;
 }
 
 .nav__container {
@@ -273,6 +274,8 @@ img {
     padding-bottom: var(--spacing-sm);
     max-width: 100%;
     overflow-x: hidden;
+    overflow-y: visible;
+    position: relative;
 }
 
 .nav__logo {
@@ -309,100 +312,62 @@ img {
 
 /* Seletor de Idioma */
 .language-selector {
-    position: relative;
-    margin-left: var(--spacing-sm);
-    z-index: 1002;
-}
-
-.language-selector__current {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid rgba(124, 58, 237, 0.2);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-family: var(--font-family);
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--color-dark);
-}
-
-.language-selector__current:hover {
-    border-color: var(--color-primary);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
-}
-
-.language-selector__flag {
-    width: 24px;
-    height: 18px;
-    object-fit: cover;
-    border-radius: 3px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.language-selector__text {
-    font-weight: 600;
-    color: var(--color-dark);
-}
-
-.language-selector__arrow {
-    font-size: 0.625rem;
-    color: var(--color-gray);
-    transition: transform var(--transition-fast);
-}
-
-.language-selector.active .language-selector__arrow {
-    transform: rotate(180deg);
-}
-
-.language-selector__dropdown {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    left: 0;
-    background: var(--color-white);
-    border-radius: var(--radius-md);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: all var(--transition-fast);
-    min-width: 160px;
-}
-
-.language-selector.active .language-selector__dropdown {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+    gap: 0.4rem;
+    margin-left: var(--spacing-sm);
+    margin-right: var(--spacing-xs);
 }
 
 .language-selector__option {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    background: none;
-    border: none;
+    justify-content: center;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(124, 58, 237, 0.1);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-family: var(--font-family);
-    font-size: 0.875rem;
-    color: var(--color-dark);
     transition: all var(--transition-fast);
-    text-align: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.language-selector__option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient-primary);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
 }
 
 .language-selector__option:hover {
-    background: rgba(124, 58, 237, 0.1);
-    color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
 }
 
 .language-selector__option.active {
-    background: var(--gradient-primary);
-    color: var(--color-white);
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.language-selector__option.active::before {
+    opacity: 0.1;
+}
+
+.language-selector__flag {
+    width: 28px;
+    height: 21px;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
 }
 
 /* Menu Mobile */
@@ -1444,6 +1409,7 @@ img {
         padding: 0 var(--spacing-lg);
     }
     
+    
     /* Hero */
     .hero__title {
         font-size: 3.5rem;
@@ -1496,9 +1462,8 @@ img {
     
     /* Seletor de idioma desktop */
     .language-selector {
-        margin-left: var(--spacing-sm);
+        margin-left: var(--spacing-md);
         margin-right: var(--spacing-sm);
-        flex-shrink: 0;
     }
     
     .nav__menu {
@@ -1620,19 +1585,16 @@ img {
     .language-selector {
         margin-left: auto;
         margin-right: 0.5rem;
+        gap: 0.3rem;
     }
     
-    .language-selector__current {
-        padding: 0.4rem 0.5rem;
+    .language-selector__option {
+        padding: 0.3rem;
     }
     
-    .language-selector__text {
-        display: none;
-    }
-    
-    .language-selector__dropdown {
-        right: 0;
-        left: auto;
+    .language-selector__flag {
+        width: 20px;
+        height: 15px;
     }
     
     /* Ajustes no menu mobile */
