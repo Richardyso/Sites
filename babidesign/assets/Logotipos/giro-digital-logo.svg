@@ -1,0 +1,54 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradiente tecnológico -->
+    <linearGradient id="techGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0099ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0066ff;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Gradiente secundário -->
+    <linearGradient id="secondaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Círculo de fundo -->
+  <circle cx="200" cy="200" r="180" fill="none" stroke="url(#techGradient)" stroke-width="2" opacity="0.2"/>
+  <circle cx="200" cy="200" r="160" fill="none" stroke="url(#techGradient)" stroke-width="1.5" opacity="0.15"/>
+  
+  <!-- Elementos decorativos -->
+  <circle cx="200" cy="80" r="8" fill="url(#techGradient)" opacity="0.6"/>
+  <circle cx="320" cy="200" r="6" fill="url(#secondaryGradient)" opacity="0.5"/>
+  <circle cx="100" cy="130" r="3" fill="url(#techGradient)" opacity="0.7"/>
+  <circle cx="300" cy="270" r="3" fill="url(#secondaryGradient)" opacity="0.7"/>
+  
+  <!-- Letras GD em fonte moderna -->
+  <text x="200" y="230" 
+        font-family="'Arial Black', 'Helvetica', sans-serif" 
+        font-size="140" 
+        font-weight="900" 
+        fill="url(#techGradient)" 
+        text-anchor="middle"
+        letter-spacing="-10">GD</text>
+  
+  <!-- Detalhe tech nas letras -->
+  <rect x="105" y="185" width="4" height="35" fill="url(#secondaryGradient)" opacity="0.8"/>
+  <rect x="265" y="185" width="4" height="35" fill="url(#techGradient)" opacity="0.8"/>
+  
+  <!-- Nome da empresa -->
+  <text x="200" y="310" 
+        font-family="'Arial', sans-serif" 
+        font-size="32" 
+        font-weight="700" 
+        fill="#333333" 
+        text-anchor="middle"
+        letter-spacing="2">GIRO DIGITAL</text>
+  
+  <!-- Linha tech decorativa -->
+  <line x1="100" y1="325" x2="300" y2="325" 
+        stroke="url(#techGradient)" 
+        stroke-width="3" 
+        opacity="0.6"/>
+</svg>

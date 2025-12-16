@@ -1,0 +1,46 @@
+{
+  "instaladores": [
+    {
+      "nome": "Marcio M&T Decor",
+      "telefone": "(21) 98144-2542",
+      "numeroWhatsApp": "21981442542",
+      "especializacao": "PVC e Drywall"
+    },
+    {
+      "nome": "Hygino's Gesso",
+      "telefone": "(21) 99063-4358",
+      "numeroWhatsApp": "21990634358",
+      "especializacao": "Gesso e Drywall"
+    },
+    {
+      "nome": "JG Construtora",
+      "telefone": "(21) 99977-3930",
+      "numeroWhatsApp": "21999773930",
+      "especializacao": "Construtora geral"
+    },
+    {
+      "nome": "Márcio Miranda",
+      "telefone": "(21) 98417-5074",
+      "numeroWhatsApp": "21984175074",
+      "especializacao": "Decorações e Manutenções"
+    },
+    {
+      "nome": "Alexandre Drywall",
+      "telefone": "(21) 97862-7781",
+      "numeroWhatsApp": "21978627781",
+      "especializacao": "Drywall, PVC e Isopor"
+    },
+    {
+      "nome": "LB SERVIÇOS",
+      "telefone": "(21) 96493-6389",
+      "numeroWhatsApp": "21964936389",
+      "especializacao": "Pisos Laminado e Vinílicos"
+    },
+    {
+      "nome": "Esquadria de Alumínios",
+      "telefone": "(21) 99148-8716",
+      "numeroWhatsApp": "21991488716",
+      "especializacao": "Forro PVC, portões e janelas"
+    }
+  ]
+}

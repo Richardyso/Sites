@@ -1,0 +1,25 @@
+{
+  "fretes": [
+    {
+      "nome": "Rafael Ribeiro",
+      "telefone": "(21) 97039-7474",
+      "numeroWhatsApp": "21970397474",
+      "areaAtendimento": "Campo Grande e Região",
+      "pesoMaximo": "850kg"
+    },
+    {
+      "nome": "Luis Carlos",
+      "telefone": "(21) 96483-6357",
+      "numeroWhatsApp": "21964836357",
+      "areaAtendimento": "Ramos e Região",
+      "pesoMaximo": "1600kg"
+    },
+    {
+      "nome": "Bira",
+      "telefone": "(21) 99939-8855",
+      "numeroWhatsApp": "21999398855",
+      "areaAtendimento": "São Gonçalo e Região",
+      "pesoMaximo": "9000kg"
+    }
+  ]
+}

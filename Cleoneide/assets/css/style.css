@@ -1,0 +1,504 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #fcefff;
+    font-family: Arial, sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(135deg, #fcefff 0%, #f3e5ff 100%);
+}
+
+.hero-section h1 {
+    font-size: 3em;
+    color: #7b2cbf;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.hero-subtitle {
+    font-size: 1.3em;
+    color: #5a189a;
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+/* Welcome Section */
+.welcome-section {
+    padding: 50px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.welcome-content h2 {
+    font-size: 2.2em;
+    color: #7b2cbf;
+    margin-bottom: 20px;
+}
+
+.welcome-content > p {
+    font-size: 1.2em;
+    margin-bottom: 40px;
+    color: #555;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.highlight-item {
+    background: white;
+    padding: 30px 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(123, 44, 191, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.highlight-item:hover {
+    transform: translateY(-5px);
+}
+
+.highlight-icon {
+    font-size: 2.5em;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.highlight-item h3 {
+    font-size: 1.4em;
+    color: #7b2cbf;
+    margin-bottom: 10px;
+}
+
+.highlight-item p {
+    color: #666;
+    font-size: 1em;
+}
+
+/* Categories Section */
+.categories-section {
+    padding: 50px 20px;
+    background: white;
+    text-align: center;
+}
+
+.categories-section h2 {
+    font-size: 2.2em;
+    color: #7b2cbf;
+    margin-bottom: 15px;
+}
+
+.categories-intro {
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.categories-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.categories-grid li a {
+    display: block;
+    padding: 25px 20px;
+    background: linear-gradient(135deg, #9d4edd 0%, #7b2cbf 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(123, 44, 191, 0.2);
+}
+
+.categories-grid li a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(123, 44, 191, 0.3);
+}
+
+.category-icon {
+    font-size: 2.5em;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.categories-grid strong {
+    display: block;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+.categories-grid small {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+/* Promo Section */
+.promo-section {
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #7b2cbf 0%, #5a189a 100%);
+    color: white;
+    text-align: center;
+}
+
+.promo-content h2 {
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+
+.promo-content p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+.promo-highlight {
+    font-size: 1.3em !important;
+    font-weight: bold;
+    background: rgba(255,255,255,0.2);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px auto !important;
+    max-width: 400px;
+}
+
+.promo-small {
+    font-size: 0.9em !important;
+    opacity: 0.8;
+}
+
+/* Contact Section */
+.contact-section {
+    padding: 50px 20px;
+    text-align: center;
+    background: #fcefff;
+}
+
+.contact-section h2 {
+    font-size: 2.2em;
+    color: #7b2cbf;
+    margin-bottom: 30px;
+}
+
+.contact-content {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+.whatsapp-btn {
+    display: flex;
+    align-items: center;
+    padding: 25px;
+    background: #25d366;
+    color: white;
+    text-decoration: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-btn:hover {
+    background: #20b956;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+.whatsapp-icon {
+    font-size: 2.5em;
+    margin-right: 15px;
+}
+
+.whatsapp-text strong {
+    display: block;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+.whatsapp-text small {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.contact-info {
+    text-align: left;
+}
+
+.contact-info h3 {
+    font-size: 1.3em;
+    color: #7b2cbf;
+    margin-bottom: 15px;
+}
+
+.benefits-list {
+    list-style: none;
+    padding: 0;
+}
+
+.benefits-list li {
+    padding: 8px 0;
+    font-size: 1em;
+    color: #555;
+}
+
+/* Payment Section */
+.payment-section {
+    padding: 50px 20px;
+    background: white;
+    text-align: center;
+}
+
+.payment-section h2 {
+    font-size: 2.2em;
+    color: #7b2cbf;
+    margin-bottom: 30px;
+}
+
+.payment-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.payment-item {
+    background: #fcefff;
+    padding: 30px 20px;
+    border-radius: 15px;
+    border: 2px solid #e0d4f7;
+    transition: all 0.3s ease;
+}
+
+.payment-item:hover {
+    border-color: #9d4edd;
+    transform: translateY(-3px);
+}
+
+.payment-icon {
+    font-size: 2.5em;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.payment-item p {
+    margin: 0;
+    color: #555;
+}
+
+.payment-item strong {
+    color: #7b2cbf;
+    font-size: 1.2em;
+}
+
+/* Footer */
+.footer-section {
+    padding: 40px 20px;
+    background: #3c096c;
+    color: white;
+    text-align: center;
+}
+
+.footer-content p {
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+.footer-nav {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.footer-nav a {
+    color: #e0d4f7;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.footer-nav a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/* Produtos (mantendo do CSS original) */
+.produto-item {
+    display: flex;
+    gap: 20px;
+    background-color: #fff;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 900px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    align-items: flex-start;
+}
+
+.produto-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.produto-item h2 {
+    font-size: 1.5em;
+    color: #7b2cbf;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+}
+
+.produto-item p {
+    font-size: 1em;
+    margin: 8px 0;
+    color: #555;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.produto-item .preco {
+    font-weight: bold;
+    color: #5a189a;
+    font-size: 1.2em;
+    margin-top: 15px;
+}
+
+.produto-item .quantidade {
+    color: #7b2cbf;
+    font-weight: 500;
+    font-size: 0.95em;
+    margin-top: 8px;
+}
+
+.produto-imagem {
+    flex-shrink: 0;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #e0d4f7;
+    background-color: #f8f4ff;
+}
+
+.produto-item:not(:has(.produto-imagem))::after {
+    content: 'Sem imagem';
+    flex-shrink: 0;
+    width: 150px;
+    height: 150px;
+    background-color: #e0d4f7;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9d4edd;
+    font-size: 0.9em;
+    border: 2px dashed #c8a2db;
+}
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.2em;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1em;
+    }
+    
+    .welcome-content h2,
+    .categories-section h2,
+    .contact-section h2,
+    .payment-section h2 {
+        font-size: 1.8em;
+    }
+    
+    .highlights {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .categories-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .contact-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .whatsapp-btn {
+        justify-content: center;
+    }
+    
+    .contact-info {
+        text-align: center;
+    }
+    
+    .payment-methods {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .footer-nav {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    .produto-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 15px;
+        padding: 20px 15px;
+    }
+    
+    .produto-info {
+        width: 100%;
+    }
+    
+    .produto-imagem {
+        width: 200px;
+        height: 200px;
+        max-width: 80vw;
+        max-height: 80vw;
+    }
+    
+    .produto-item:not(:has(.produto-imagem))::after {
+        width: 200px;
+        height: 200px;
+        max-width: 80vw;
+        max-height: 80vw;
+    }
+}

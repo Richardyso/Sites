@@ -1,0 +1,940 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Great+Vibes&display=swap');
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --purple-dark: #5b2c6f;
+    --purple-medium: #7b4397;
+    --purple-light: #9b59b6;
+    --purple-accent: #d4a5d4;
+    --white: #ffffff;
+    --text-light: #f0e6f6;
+    --shadow: rgba(0, 0, 0, 0.3);
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #4a1f5e 0%, #5b2c6f 50%, #7b4397 100%);
+    min-height: 100vh;
+    color: var(--white);
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+    width: 100%;
+}
+
+/* Language Selector */
+.language-selector {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+}
+
+.language-toggle {
+    background: linear-gradient(135deg, rgba(91, 44, 111, 0.95), rgba(123, 67, 151, 0.95));
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--white);
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.language-toggle:hover {
+    background: linear-gradient(135deg, rgba(123, 67, 151, 1), rgba(155, 89, 182, 1));
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.language-toggle .flag {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.language-toggle .lang-code {
+    min-width: 25px;
+}
+
+.language-toggle i {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.language-selector.open .language-toggle i {
+    transform: rotate(180deg);
+}
+
+.language-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: linear-gradient(135deg, rgba(91, 44, 111, 0.98), rgba(123, 67, 151, 0.98));
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    min-width: 200px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(15px);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.language-selector.open .language-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.lang-option {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+}
+
+.lang-option:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.lang-option.active {
+    background: rgba(255, 255, 255, 0.25);
+    font-weight: 600;
+}
+
+.lang-option .flag {
+    font-size: 22px;
+    line-height: 1;
+}
+
+/* Header Styles */
+.header {
+    background: linear-gradient(180deg, rgba(91, 44, 111, 0.9) 0%, rgba(123, 67, 151, 0.7) 100%);
+    padding: 15px 20px;
+    backdrop-filter: blur(10px);
+    position: relative;
+}
+
+.header-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.header-info {
+    text-align: center;
+}
+
+.header-info h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.time {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.social-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 18px;
+}
+
+.social-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+}
+
+/* Profile Section */
+.profile-section {
+    text-align: center;
+    padding: 30px 20px;
+    position: relative;
+}
+
+.profile-image-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.flower-frame {
+    width: 180px;
+    height: 180px;
+    background: linear-gradient(135deg, var(--purple-light), var(--purple-accent));
+    border-radius: 50%;
+    padding: 8px;
+    box-shadow: 0 10px 30px var(--shadow);
+    position: relative;
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--white);
+}
+
+.profile-title {
+    font-family: 'Great Vibes', cursive;
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--text-light);
+    text-shadow: 2px 2px 8px var(--shadow);
+    margin-top: 10px;
+}
+
+/* Quick Links */
+.quick-links {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    padding: 20px 60px;
+    margin-bottom: 20px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.quick-link {
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.quick-link:hover {
+    transform: translateY(-5px);
+}
+
+.quick-link-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 5px 15px var(--shadow);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.quick-link p {
+    font-size: 12px;
+    line-height: 1.3;
+    font-weight: 500;
+}
+
+/* About Section */
+.about-section {
+    background: linear-gradient(135deg, rgba(240, 230, 246, 0.95), rgba(212, 165, 212, 0.95));
+    margin: 20px;
+    padding: 25px;
+    border-radius: 30px;
+    box-shadow: 0 10px 30px var(--shadow);
+}
+
+@media (max-width: 480px) {
+    .about-section {
+        margin: 15px;
+        padding: 20px;
+        border-radius: 20px;
+    }
+}
+
+.about-content {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.about-image {
+    flex-shrink: 0;
+}
+
+.about-image img {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    object-fit: cover;
+    border: 3px solid var(--white);
+    box-shadow: 0 5px 15px var(--shadow);
+}
+
+.about-text {
+    flex: 1;
+    color: #2d1b3d;
+}
+
+.about-text p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.signature {
+    font-family: 'Great Vibes', cursive;
+    font-size: 36px !important;
+    color: var(--purple-dark);
+    margin: 0 !important;
+    text-align: right;
+}
+
+/* Links Section */
+.links-section {
+    padding: 20px;
+}
+
+@media (max-width: 480px) {
+    .links-section {
+        padding: 15px;
+    }
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+    color: var(--text-light);
+    text-shadow: 1px 1px 4px var(--shadow);
+}
+
+.link-button {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    padding: 18px 25px;
+    margin-bottom: 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    color: var(--white);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.link-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px var(--shadow);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.link-button i:first-child {
+    font-size: 28px;
+    width: 40px;
+    text-align: center;
+}
+
+.link-button span {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.link-button i:last-child {
+    font-size: 18px;
+    opacity: 0.7;
+}
+
+/* Specific Link Colors */
+.instagram:hover {
+    background: linear-gradient(135deg, rgba(225, 48, 108, 0.3), rgba(193, 53, 132, 0.2));
+}
+
+.tiktok:hover {
+    background: linear-gradient(135deg, rgba(0, 242, 234, 0.3), rgba(255, 0, 80, 0.2));
+}
+
+.youtube:hover {
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(200, 0, 0, 0.2));
+}
+
+.shein:hover {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(50, 50, 50, 0.2));
+}
+
+
+.email:hover {
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.3), rgba(56, 128, 255, 0.2));
+}
+
+.pinterest:hover {
+    background: linear-gradient(135deg, rgba(230, 0, 35, 0.3), rgba(189, 8, 28, 0.2));
+}
+
+.canva:hover {
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(123, 67, 151, 0.2));
+}
+
+/* Contact Section */
+.contact-section {
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 40px;
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.footer p {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 15px;
+}
+
+.footer-social {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.footer-social a {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.footer-social a:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.2);
+}
+
+/* WhatsApp Floating Button */
+.whatsapp-float {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 32px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+}
+
+@media (max-width: 480px) {
+    .whatsapp-float {
+        width: 55px;
+        height: 55px;
+        font-size: 28px;
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+    background: #20BA5A;
+}
+
+.whatsapp-float i {
+    animation: shake 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 25px rgba(37, 211, 102, 0.7);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-10deg);
+    }
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+/* Floating Emojis */
+.floating-emojis {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    overflow: hidden;
+}
+
+.floating-emoji {
+    position: absolute;
+    width: 40px;
+    height: auto;
+    opacity: 0.7;
+    pointer-events: none;
+    animation: float-around 15s infinite ease-in-out;
+    will-change: transform;
+    object-fit: contain;
+    aspect-ratio: 1/1;
+}
+
+.floating-emoji:nth-child(1) {
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 12s;
+}
+
+.floating-emoji:nth-child(2) {
+    top: 20%;
+    left: 80%;
+    animation-delay: 2s;
+    animation-duration: 15s;
+}
+
+.floating-emoji:nth-child(3) {
+    top: 60%;
+    left: 5%;
+    animation-delay: 1s;
+    animation-duration: 18s;
+}
+
+.floating-emoji:nth-child(4) {
+    top: 40%;
+    left: 90%;
+    animation-delay: 3s;
+    animation-duration: 14s;
+}
+
+.floating-emoji:nth-child(5) {
+    top: 80%;
+    left: 15%;
+    animation-delay: 1.5s;
+    animation-duration: 16s;
+}
+
+.floating-emoji:nth-child(6) {
+    top: 30%;
+    left: 50%;
+    animation-delay: 4s;
+    animation-duration: 13s;
+}
+
+.floating-emoji:nth-child(7) {
+    top: 70%;
+    left: 75%;
+    animation-delay: 2.5s;
+    animation-duration: 17s;
+}
+
+@keyframes float-around {
+    0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+        transform: translate(50px, -80px) rotate(90deg);
+    }
+    50% {
+        transform: translate(-30px, -150px) rotate(180deg);
+    }
+    75% {
+        transform: translate(-80px, -80px) rotate(270deg);
+    }
+}
+
+/* Responsive Emojis */
+@media (max-width: 768px) {
+    .floating-emoji {
+        width: 30px;
+        height: auto;
+        opacity: 0.6;
+    }
+    
+    @keyframes float-around {
+        0%, 100% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+        25% {
+            transform: translate(30px, -50px) rotate(90deg);
+        }
+        50% {
+            transform: translate(-20px, -100px) rotate(180deg);
+        }
+        75% {
+            transform: translate(-50px, -50px) rotate(270deg);
+        }
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .language-selector {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .language-toggle {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+    
+    .language-toggle .flag {
+        font-size: 18px;
+    }
+    
+    .language-dropdown {
+        min-width: 180px;
+    }
+    
+    .lang-option {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+    
+    .lang-option .flag {
+        font-size: 20px;
+    }
+    
+    .container {
+        max-width: 100%;
+    }
+
+    .profile-title {
+        font-size: 40px;
+    }
+
+    .quick-links {
+        gap: 20px;
+        padding: 20px 40px;
+    }
+
+    .quick-link-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+    }
+
+    .quick-link p {
+        font-size: 11px;
+    }
+
+    .about-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .about-image img {
+        width: 150px;
+        height: 150px;
+    }
+
+    .signature {
+        text-align: center !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-info h1 {
+        font-size: 16px;
+    }
+
+    .profile-title {
+        font-size: 36px;
+    }
+
+    .flower-frame {
+        width: 150px;
+        height: 150px;
+    }
+
+    .quick-links {
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .quick-link-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+
+    .quick-link p {
+        font-size: 10px;
+    }
+
+    .link-button {
+        padding: 15px 20px;
+    }
+
+    .link-button span {
+        font-size: 14px;
+    }
+
+    .link-button i:first-child {
+        font-size: 24px;
+        width: 35px;
+    }
+
+    .section-title {
+        font-size: 18px;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container > * {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Extra Small Devices (Very Small Phones) */
+@media (max-width: 360px) {
+    .language-toggle {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .language-toggle .flag {
+        font-size: 16px;
+    }
+    
+    .language-dropdown {
+        min-width: 160px;
+    }
+    
+    .header-info h1 {
+        font-size: 14px;
+    }
+    
+    .profile-title {
+        font-size: 32px;
+    }
+    
+    .flower-frame {
+        width: 130px;
+        height: 130px;
+    }
+    
+    .quick-links {
+        padding: 15px;
+        gap: 12px;
+    }
+    
+    .quick-link-icon {
+        width: 55px;
+        height: 55px;
+        font-size: 20px;
+    }
+    
+    .quick-link p {
+        font-size: 9px;
+    }
+    
+    .about-section {
+        padding: 20px 15px;
+    }
+    
+    .about-text p {
+        font-size: 13px;
+    }
+    
+    .signature {
+        font-size: 32px !important;
+    }
+    
+    .link-button {
+        padding: 12px 15px;
+    }
+    
+    .link-button span {
+        font-size: 13px;
+    }
+    
+    .section-title {
+        font-size: 16px;
+    }
+    
+    .whatsapp-float {
+        width: 55px;
+        height: 55px;
+        font-size: 28px;
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .floating-emoji {
+        width: 25px !important;
+        opacity: 0.5;
+    }
+}
+
+/* Large Tablets and Small Laptops */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        max-width: 700px;
+    }
+    
+    .quick-links {
+        padding: 20px 80px;
+    }
+    
+    .quick-link-icon {
+        width: 90px;
+        height: 90px;
+        font-size: 36px;
+    }
+    
+    .about-image img {
+        width: 140px;
+        height: 140px;
+    }
+}
+
+/* Large Desktop Screens */
+@media (min-width: 1025px) {
+    .container {
+        max-width: 650px;
+    }
+    
+    .quick-links {
+        padding: 20px 100px;
+    }
+    
+    .quick-link-icon {
+        width: 95px;
+        height: 95px;
+        font-size: 38px;
+    }
+    
+    .link-button:hover {
+        transform: translateY(-5px);
+    }
+}
+
+/* Landscape Orientation for Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .profile-section {
+        padding: 20px;
+    }
+    
+    .flower-frame {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .profile-title {
+        font-size: 28px;
+    }
+    
+    .quick-links {
+        padding: 15px 40px;
+        gap: 15px;
+    }
+    
+    .quick-link-icon {
+        width: 55px;
+        height: 55px;
+        font-size: 22px;
+    }
+    
+    .about-section {
+        padding: 20px 15px;
+    }
+    
+    .footer {
+        padding: 20px;
+        margin-top: 20px;
+    }
+}

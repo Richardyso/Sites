@@ -1,0 +1,455 @@
+
+.cadastro-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 100px 0 2rem;
+    background: linear-gradient(135deg, hsla(217, 91%, 97%, 1) 0%, hsla(176, 60%, 97%, 1) 100%);
+}
+
+.cadastro-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    background: var(--background);
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow-large);
+    overflow: hidden;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* =============================================================================
+   LADO ESQUERDO - INFORMAÇÕES
+   ============================================================================= */
+
+.cadastro-info {
+    background: linear-gradient(135deg, hsl(217, 91%, 50%) 0%, hsl(176, 60%, 55%) 100%);
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-foreground);
+}
+
+.cadastro-info-content {
+    max-width: 400px;
+}
+
+.cadastro-logo {
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 2rem;
+    filter: brightness(0) invert(1);
+}
+
+.cadastro-info-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    color: var(--primary-foreground);
+}
+
+.cadastro-info-title .gradient-text {
+    background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsla(0, 0%, 100%, 0.8) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.cadastro-info-description {
+    font-size: 1.125rem;
+    margin-bottom: 3rem;
+    opacity: 0.95;
+    line-height: 1.6;
+}
+
+.cadastro-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.benefit-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    stroke: var(--primary-foreground);
+    flex-shrink: 0;
+}
+
+.benefit-item span {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* =============================================================================
+   LADO DIREITO - FORMULÁRIO
+   ============================================================================= */
+
+.cadastro-form-container {
+    padding: 3rem;
+}
+
+.cadastro-form-header {
+    margin-bottom: 2rem;
+}
+
+.cadastro-form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--foreground);
+}
+
+.cadastro-form-subtitle {
+    font-size: 1rem;
+    color: var(--muted-foreground);
+}
+
+/* =============================================================================
+   SELETOR DE TIPO DE USUÁRIO
+   ============================================================================= */
+
+.user-type-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.user-type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    background: var(--muted);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+.user-type-btn svg {
+    width: 2rem;
+    height: 2rem;
+    stroke: var(--muted-foreground);
+    transition: var(--transition-smooth);
+}
+
+.user-type-btn:hover {
+    border-color: var(--primary);
+    background: hsla(217, 91%, 45%, 0.05);
+}
+
+.user-type-btn.active {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, hsla(217, 91%, 45%, 0.1) 0%, hsla(176, 60%, 50%, 0.1) 100%);
+    color: var(--primary);
+}
+
+.user-type-btn.active svg {
+    stroke: var(--primary);
+}
+
+/* =============================================================================
+   FORMULÁRIO
+   ============================================================================= */
+
+.cadastro-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.form-input {
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    color: var(--foreground);
+    background: var(--background);
+    transition: var(--transition-smooth);
+    font-family: inherit;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px hsla(217, 91%, 45%, 0.1);
+}
+
+.form-input::placeholder {
+    color: var(--muted-foreground);
+}
+
+.form-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.form-checkbox input[type="checkbox"] {
+    margin-top: 0.25rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.form-checkbox label {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    line-height: 1.5;
+}
+
+.link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+/* =============================================================================
+   BOTÃO SUBMIT
+   ============================================================================= */
+
+.btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, hsl(217, 91%, 50%) 0%, hsl(176, 60%, 55%) 100%);
+    color: var(--primary-foreground);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    position: relative;
+}
+
+.btn-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-large);
+}
+
+.btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-loader {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    animation: rotate 2s linear infinite;
+    width: 24px;
+    height: 24px;
+}
+
+.spinner-path {
+    stroke: var(--primary-foreground);
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes dash {
+    0% {
+        stroke-dasharray: 1, 150;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -35;
+    }
+    100% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -124;
+    }
+}
+
+/* =============================================================================
+   ALERTAS
+   ============================================================================= */
+
+.alert {
+    padding: 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.alert-success {
+    background: hsla(142, 76%, 96%, 1);
+    color: hsl(142, 76%, 36%);
+    border: 1px solid hsl(142, 76%, 80%);
+}
+
+.alert-error {
+    background: hsla(0, 84%, 96%, 1);
+    color: hsl(0, 84%, 40%);
+    border: 1px solid hsl(0, 84%, 80%);
+}
+
+/* =============================================================================
+   FOOTER DO CADASTRO
+   ============================================================================= */
+
+.cadastro-footer {
+    margin-top: 2rem;
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.cadastro-footer p {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 968px) {
+    .cadastro-container {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+    }
+
+    .cadastro-info {
+        padding: 2rem;
+    }
+
+    .cadastro-info-title {
+        font-size: 2rem;
+    }
+
+    .cadastro-form-container {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .cadastro-section {
+        padding: 90px 1rem 2rem;
+    }
+
+    .cadastro-container {
+        border-radius: 1rem;
+    }
+
+    .cadastro-info {
+        padding: 2rem 1.5rem;
+    }
+
+    .cadastro-logo {
+        width: 3rem;
+        height: 3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .cadastro-info-title {
+        font-size: 1.75rem;
+    }
+
+    .cadastro-info-description {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .cadastro-benefits {
+        gap: 1rem;
+    }
+
+    .benefit-item {
+        font-size: 0.9375rem;
+    }
+
+    .cadastro-form-container {
+        padding: 2rem 1.5rem;
+    }
+
+    .cadastro-form-title {
+        font-size: 1.75rem;
+    }
+
+    .user-type-selector {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .user-type-btn {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 1rem;
+    }
+
+    .user-type-btn svg {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cadastro-section {
+        padding: 80px 0.75rem 1.5rem;
+    }
+
+    .cadastro-info {
+        padding: 1.5rem;
+    }
+
+    .cadastro-form-container {
+        padding: 1.5rem;
+    }
+
+    .cadastro-form {
+        gap: 1.25rem;
+    }
+
+    .form-input {
+        padding: 0.75rem;
+        font-size: 0.9375rem;
+    }
+}
