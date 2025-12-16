@@ -280,7 +280,7 @@ img {
 
 .nav__logo {
     display: inline-block;
-    height: 80px;
+    height: 100px;
     position: relative;
 }
 
@@ -1245,8 +1245,8 @@ img {
    Footer
    =========================== */
 .footer {
-    background: linear-gradient(135deg, var(--color-dark) 0%, #0F0C29 100%);
-    color: var(--color-white);
+    background: linear-gradient(135deg, var(--color-dark) 0%, #0F0C29 100%) !important;
+    color: var(--color-white) !important;
     padding: var(--spacing-xl) 0 var(--spacing-lg);
     position: relative;
 }
@@ -1264,10 +1264,9 @@ img {
 }
 
 .footer__logo-img {
-    height: 60px;
+    height: 80px;
     width: auto;
     margin-bottom: var(--spacing-sm);
-    filter: brightness(0) invert(1);
     opacity: 0.95;
     transition: all var(--transition-base);
 }
@@ -1579,6 +1578,15 @@ img {
     .faq__container,
     .terms__container {
         padding: 0 1rem;
+    }
+    
+    /* Logo menor no mobile */
+    .nav__logo {
+        height: 80px;
+    }
+    
+    .footer__logo-img {
+        height: 60px;
     }
     
     /* Seletor de idioma mobile */
