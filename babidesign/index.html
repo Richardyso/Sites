@@ -631,7 +631,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Barbara. <span data-i18n="footer.rights">Todos os direitos reservados.</span></p>
+                <p>&copy; <span id="current-year">2025</span> Barbara. <span data-i18n="footer.rights">Todos os direitos reservados.</span></p>
                 <p data-i18n="footer.madeWith">Feito com <i class="fas fa-heart"></i> e muita criatividade</p>
             </div>
         </div>
@@ -665,6 +665,16 @@
     
     <!-- JavaScript -->
     <script src="script.js"></script>
+    
+    <!-- Atualizar ano automaticamente -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearElement = document.getElementById('current-year');
+            if (yearElement) {
+                yearElement.textContent = new Date().getFullYear();
+            }
+        });
+    </script>
 </body>
 </html>
 

@@ -354,6 +354,14 @@ const addAnimationStyles = () => {
     document.head.appendChild(style);
 };
 
+// Atualizar ano automaticamente
+const updateYear = () => {
+    const yearElement = document.getElementById('current-year');
+    if (yearElement) {
+        yearElement.textContent = new Date().getFullYear();
+    }
+};
+
 // Inicializar todas as funcionalidades
 const init = () => {
     addAnimationStyles();
@@ -367,6 +375,7 @@ const init = () => {
     initRippleEffect();
     initLazyLoading();
     initFAQAccordion();
+    updateYear();
 };
 
 // Executar quando o DOM estiver pronto

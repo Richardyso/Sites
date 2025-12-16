@@ -328,7 +328,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 Rosa Fúcsia Nails. Todos os direitos reservados.</p>
+                <p>&copy; <span id="current-year">2026</span> Rosa Fúcsia Nails. Todos os direitos reservados.</p>
             </div>
         </div>
     </footer>
@@ -343,6 +343,16 @@
 
     <!-- JavaScript -->
     <script src="js/main.js"></script>
+    
+    <!-- Atualizar ano automaticamente -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearElement = document.getElementById('current-year');
+            if (yearElement) {
+                yearElement.textContent = new Date().getFullYear();
+            }
+        });
+    </script>
 </body>
 </html>
 

@@ -183,7 +183,7 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>© 2025 Babi - Barbara Costa | Minha Vida, Teu Vlog</p>
+            <p>© <span id="current-year">2025</span> Babi - Barbara Costa | Minha Vida, Teu Vlog</p>
         </footer>
     </div>
 
@@ -205,5 +205,15 @@
 
 
     <script src="script.js"></script>
+    
+    <!-- Atualizar ano automaticamente -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearElement = document.getElementById('current-year');
+            if (yearElement) {
+                yearElement.textContent = new Date().getFullYear();
+            }
+        });
+    </script>
 </body>
 </html>
