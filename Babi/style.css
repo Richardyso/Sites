@@ -378,10 +378,16 @@ body {
     border-color: rgba(255, 255, 255, 0.4);
 }
 
-.link-button i:first-child {
+.link-button i:first-child,
+.link-button svg:first-of-type {
     font-size: 28px;
     width: 40px;
+    height: 28px;
     text-align: center;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .link-button span {
@@ -748,9 +754,11 @@ body {
         font-size: 14px;
     }
 
-    .link-button i:first-child {
+    .link-button i:first-child,
+    .link-button svg:first-of-type {
         font-size: 24px;
         width: 35px;
+        height: 24px;
     }
 
     .section-title {
