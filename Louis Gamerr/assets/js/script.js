@@ -42,6 +42,7 @@ const App = {
     this.elements.linkCards = document.querySelectorAll('.link-card, .community-card');
     this.elements.sections = document.querySelectorAll('section');
     this.elements.profileImage = document.querySelector('.profile-image');
+    this.elements.collageItems = document.querySelectorAll('.collage-item');
   },
 
   // Setup de event listeners
@@ -157,6 +158,13 @@ const App = {
       const speed = 0.3 + (index * 0.1);
       character.style.transform = `translateY(${scrollY * speed}px) rotate(${character.classList.contains('character-left') ? -10 : 10}deg)`;
     });
+    
+    // Parallax da colagem
+    this.elements.collageItems.forEach((item, index) => {
+      const speed = 0.1 + (index * 0.02);
+      const rotation = parseInt(getComputedStyle(item).getPropertyValue('--rotation') || '0');
+      item.style.transform = `translateY(${scrollY * speed}px) rotate(${rotation}deg)`;
+    });
   },
 
   // Mouse move effects
@@ -178,6 +186,14 @@ const App = {
         translateY(${moveY * intensity}px) 
         rotate(${character.classList.contains('character-left') ? -10 : 10}deg)
       `;
+    });
+    
+    // Parallax sutil na colagem
+    this.elements.collageItems.forEach((item, index) => {
+      const speed = 0.02 + (index * 0.005);
+      const x = moveX * speed * 50;
+      const y = moveY * speed * 50;
+      item.style.transform = `translate(${x}px, ${y}px) ${item.style.transform || ''}`;
     });
   },
 

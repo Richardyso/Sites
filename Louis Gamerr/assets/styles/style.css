@@ -61,6 +61,210 @@ body {
   position: relative;
 }
 
+/* === BACKGROUND COLLAGE === */
+.background-collage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  background: #000;
+}
+
+.background-collage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.02) 2px,
+      rgba(255, 255, 255, 0.02) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.02) 2px,
+      rgba(255, 255, 255, 0.02) 4px
+    );
+  z-index: 2;
+}
+
+.collage-item {
+  position: absolute;
+  filter: grayscale(20%) brightness(1.3) contrast(1.2) saturate(1.3);
+  opacity: 1;
+  transition: all 0.6s ease;
+  transform-origin: center;
+  border: none;
+  box-shadow: none;
+  overflow: visible;
+  background: none;
+}
+
+.collage-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  mix-blend-mode: normal;
+  filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.9));
+}
+
+/* Efeito de papel rasgado removido para imagens sem fundo */
+
+/* Texto alternativo estilizado - removido para melhor visibilidade */
+
+/* Posicionamento estilo grid sem sobreposição - Mobile First */
+.collage-1 {
+  width: 100px;
+  height: 125px;
+  top: 1%;
+  left: 1%;
+  transform: rotate(-5deg);
+}
+
+.collage-2 {
+  width: 105px;
+  height: 105px;
+  top: 1%;
+  left: 26%;
+  transform: rotate(3deg);
+}
+
+.collage-3 {
+  width: 110px;
+  height: 85px;
+  top: 1%;
+  right: 26%;
+  transform: rotate(-2deg);
+}
+
+.collage-4 {
+  width: 100px;
+  height: 125px;
+  top: 1%;
+  right: 1%;
+  transform: rotate(4deg);
+}
+
+.collage-5 {
+  width: 105px;
+  height: 120px;
+  top: 24%;
+  left: 1%;
+  transform: rotate(-3deg);
+}
+
+.collage-6 {
+  width: 110px;
+  height: 110px;
+  top: 24%;
+  left: 38%;
+  transform: rotate(5deg);
+}
+
+.collage-7 {
+  width: 115px;
+  height: 95px;
+  top: 24%;
+  right: 1%;
+  transform: rotate(2deg);
+}
+
+.collage-8 {
+  width: 100px;
+  height: 120px;
+  top: 48%;
+  left: 1%;
+  transform: rotate(-4deg);
+}
+
+.collage-9 {
+  width: 110px;
+  height: 80px;
+  top: 48%;
+  left: 26%;
+  transform: rotate(6deg);
+}
+
+.collage-10 {
+  width: 105px;
+  height: 115px;
+  top: 48%;
+  right: 26%;
+  transform: rotate(-1deg);
+}
+
+.collage-11 {
+  width: 105px;
+  height: 105px;
+  top: 48%;
+  right: 1%;
+  transform: rotate(3deg);
+}
+
+.collage-12 {
+  width: 100px;
+  height: 115px;
+  bottom: 12%;
+  left: 1%;
+  transform: rotate(-6deg);
+}
+
+.collage-13 {
+  width: 115px;
+  height: 80px;
+  bottom: 12%;
+  left: 38%;
+  transform: rotate(2deg);
+}
+
+.collage-14 {
+  width: 105px;
+  height: 120px;
+  bottom: 12%;
+  right: 1%;
+  transform: rotate(-1deg);
+}
+
+/* Hover effect para itens da colagem */
+.collage-item:hover {
+  filter: grayscale(0%) brightness(1.3) contrast(1.5) saturate(1.6);
+  opacity: 1;
+  transform: scale(1.08) rotate(0deg);
+  z-index: 10;
+}
+
+/* Animação sutil */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(var(--rotation)); }
+  50% { transform: translateY(-5px) rotate(var(--rotation)); }
+}
+
+.collage-1 { --rotation: -15deg; animation: float 8s ease-in-out infinite; }
+.collage-2 { --rotation: 12deg; animation: float 10s ease-in-out infinite 1s; }
+.collage-3 { --rotation: -8deg; animation: float 9s ease-in-out infinite 2s; }
+.collage-4 { --rotation: 5deg; animation: float 11s ease-in-out infinite 0.5s; }
+.collage-5 { --rotation: -10deg; animation: float 7s ease-in-out infinite 1.5s; }
+.collage-6 { --rotation: 18deg; animation: float 12s ease-in-out infinite 3s; }
+.collage-7 { --rotation: 7deg; animation: float 8.5s ease-in-out infinite 2.5s; }
+.collage-8 { --rotation: -12deg; animation: float 9.5s ease-in-out infinite 1.2s; }
+.collage-9 { --rotation: 15deg; animation: float 10.5s ease-in-out infinite 0.8s; }
+.collage-10 { --rotation: -5deg; animation: float 7.5s ease-in-out infinite 2.2s; }
+.collage-11 { --rotation: 10deg; animation: float 11.5s ease-in-out infinite 1.8s; }
+.collage-12 { --rotation: -20deg; animation: float 8.2s ease-in-out infinite 0.3s; }
+.collage-13 { --rotation: 8deg; animation: float 9.8s ease-in-out infinite 2.8s; }
+.collage-14 { --rotation: -3deg; animation: float 10.2s ease-in-out infinite 1.3s; }
+
 /* Grain texture overlay */
 body::before {
   content: '';
@@ -123,6 +327,8 @@ body::before {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  z-index: 2;
+  background: transparent;
 }
 
 .hero-background {
@@ -131,15 +337,8 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
-}
-
-.hero-background img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  filter: grayscale(100%) contrast(1.2);
+  z-index: 1;
+  pointer-events: none;
 }
 
 .hero-overlay {
@@ -150,9 +349,9 @@ body::before {
   height: 100%;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.85) 50%,
-    rgba(0, 0, 0, 0.95) 100%
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.5) 100%
   );
 }
 
@@ -160,9 +359,12 @@ body::before {
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xl);
   max-width: 600px;
   width: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  backdrop-filter: none;
 }
 
 /* Profile Image */
@@ -177,7 +379,7 @@ body::before {
   height: 150px;
   border-radius: 50%;
   border: 4px solid var(--color-text);
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), var(--shadow-glow);
   transition: transform var(--transition);
 }
 
@@ -351,6 +553,8 @@ body::before {
   position: relative;
   z-index: 2;
   padding: var(--spacing-xl) var(--spacing-lg);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: none;
 }
 
 /* Section Titles */
@@ -394,13 +598,15 @@ body::before {
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-lg);
-  background: var(--color-card);
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: none;
   border: 2px solid var(--color-border);
   border-radius: 16px;
   text-decoration: none;
   color: var(--color-text);
   transition: all var(--transition);
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
 }
 
 .link-card:hover {
@@ -502,8 +708,10 @@ body::before {
 .setup-section {
   margin-bottom: var(--spacing-2xl);
   padding: var(--spacing-xl) 0;
-  background: var(--color-accent);
+  background: rgba(26, 26, 26, 0.9);
+  backdrop-filter: none;
   border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
 }
 
 .setup-content {
@@ -521,7 +729,8 @@ body::before {
 .setup-item {
   text-align: center;
   padding: var(--spacing-md);
-  background: var(--color-card);
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: none;
   border-radius: 12px;
   border: 1px solid var(--color-border);
   transition: all var(--transition);
@@ -555,9 +764,11 @@ body::before {
 .footer {
   position: relative;
   padding: var(--spacing-xl) var(--spacing-lg);
-  background: var(--color-accent);
+  background: rgba(26, 26, 26, 0.9);
   border-top: 1px solid var(--color-border);
   overflow: hidden;
+  z-index: 2;
+  backdrop-filter: none;
 }
 
 .footer-content {
@@ -642,6 +853,62 @@ body::before {
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+/* Media Queries para Colagem */
+@media (min-width: 768px) {
+  .collage-item {
+    opacity: 1;
+    filter: grayscale(15%) brightness(1.2) contrast(1.3) saturate(1.4);
+  }
+  
+  .collage-1 { width: 120px; height: 150px; top: 3%; left: 3%; }
+  .collage-2 { width: 130px; height: 130px; top: 3%; left: 22%; }
+  .collage-3 { width: 140px; height: 100px; top: 3%; left: 42%; }
+  .collage-4 { width: 120px; height: 160px; top: 3%; right: 22%; }
+  .collage-5 { width: 120px; height: 140px; top: 3%; right: 3%; }
+  .collage-6 { width: 130px; height: 130px; top: 30%; left: 3%; }
+  .collage-7 { width: 140px; height: 120px; top: 30%; left: 25%; }
+  .collage-8 { width: 125px; height: 150px; top: 30%; right: 25%; }
+  .collage-9 { width: 135px; height: 95px; top: 30%; right: 3%; }
+  .collage-10 { width: 125px; height: 140px; bottom: 25%; left: 3%; }
+  .collage-11 { width: 135px; height: 135px; bottom: 25%; left: 25%; }
+  .collage-12 { width: 120px; height: 135px; bottom: 25%; right: 25%; }
+  .collage-13 { width: 150px; height: 100px; bottom: 25%; right: 3%; }
+  .collage-14 { width: 140px; height: 150px; bottom: 3%; left: 30%; }
+}
+
+@media (min-width: 1024px) {
+  .collage-item {
+    opacity: 1;
+    filter: grayscale(10%) brightness(1.1) contrast(1.4) saturate(1.5);
+    transition: all 0.8s ease;
+  }
+  
+  .collage-item:hover {
+    opacity: 1;
+    filter: grayscale(0%) brightness(1.2) contrast(1.5) saturate(1.6);
+    transform: scale(1.1) rotate(0deg) !important;
+    z-index: 100;
+  }
+  
+  /* Grid layout para desktop sem sobreposição */
+  .collage-1 { width: 150px; height: 190px; top: 5%; left: 5%; }
+  .collage-2 { width: 160px; height: 160px; top: 5%; left: 20%; }
+  .collage-3 { width: 180px; height: 130px; top: 5%; left: 37%; }
+  .collage-4 { width: 150px; height: 200px; top: 5%; left: 56%; }
+  .collage-5 { width: 150px; height: 180px; top: 5%; left: 73%; }
+  .collage-6 { width: 160px; height: 160px; top: 5%; right: 5%; }
+  
+  .collage-7 { width: 170px; height: 145px; top: 35%; left: 5%; }
+  .collage-8 { width: 155px; height: 190px; top: 35%; left: 25%; }
+  .collage-9 { width: 175px; height: 130px; top: 35%; left: 45%; }
+  .collage-10 { width: 160px; height: 180px; top: 35%; right: 25%; }
+  .collage-11 { width: 165px; height: 165px; top: 35%; right: 5%; }
+  
+  .collage-12 { width: 150px; height: 170px; bottom: 20%; left: 10%; }
+  .collage-13 { width: 190px; height: 130px; bottom: 20%; left: 35%; }
+  .collage-14 { width: 170px; height: 190px; bottom: 20%; right: 10%; }
 }
 
 /* === MEDIA QUERIES === */
