@@ -118,7 +118,7 @@
                     <h3 class="pricing-card__title">✨ Starter</h3>
                     <div class="pricing-card__price">
                         <span class="pricing-card__currency">€</span>
-                        <span class="pricing-card__amount" data-euro="99">99</span>
+                        <span class="pricing-card__amount" data-package="starter">99</span>
                         <span class="pricing-card__period">/projeto/mês</span>
                     </div>
                     <p class="pricing-card__description">Ideal para começar a sua presença digital</p>
@@ -129,7 +129,7 @@
                         <li>3 publicações para redes sociais</li>
                         <li>Website Simples com alojamento Netlify</li>
                     </ul>
-                    <p class="pricing-card__savings">Poupe €28 vs. serviços avulsos</p>
+                    <p class="pricing-card__savings" data-package-savings="starter">Poupe €28 vs. serviços avulsos</p>
                     <a href="https://wa.me/351910474651?text=Olá! Tenho interesse no Pacote Starter da Giro Digital." target="_blank" rel="noopener" class="btn btn--secondary btn--full">Começar Agora</a>
                 </div>
                 
@@ -139,7 +139,7 @@
                     <h3 class="pricing-card__title">🚀 Crescimento</h3>
                     <div class="pricing-card__price">
                         <span class="pricing-card__currency">€</span>
-                        <span class="pricing-card__amount" data-euro="199">199</span>
+                        <span class="pricing-card__amount" data-package="crescimento">199</span>
                         <span class="pricing-card__period">/projeto/mês</span>
                     </div>
                     <p class="pricing-card__description">Para negócios que querem crescer online</p>
@@ -150,7 +150,7 @@
                         <li>Gestão redes sociais</li>
                         <li>8 publicações</li>
                     </ul>
-                    <p class="pricing-card__savings">Poupe €100 vs. serviços avulsos</p>
+                    <p class="pricing-card__savings" data-package-savings="crescimento">Poupe €100 vs. serviços avulsos</p>
                     <a href="https://wa.me/351910474651?text=Olá! Tenho interesse no Pacote Crescimento da Giro Digital." target="_blank" rel="noopener" class="btn btn--primary btn--full">Escolher Este</a>
                 </div>
                 
@@ -159,7 +159,7 @@
                     <h3 class="pricing-card__title">👑 Premium</h3>
                     <div class="pricing-card__price">
                         <span class="pricing-card__currency">€</span>
-                        <span class="pricing-card__amount" data-euro="499">499</span>
+                        <span class="pricing-card__amount" data-package="premium">499</span>
                         <span class="pricing-card__period">/projeto/mês</span>
                     </div>
                     <p class="pricing-card__description">Solução completa para dominar o digital</p>
@@ -168,7 +168,7 @@
                         <li>Website avançado com backend e domínio próprio</li>
                         <li>Sistema de compra e pagamento online</li>
                     </ul>
-                    <p class="pricing-card__savings">Poupe €200 vs. serviços avulsos</p>
+                    <p class="pricing-card__savings" data-package-savings="premium">Poupe €200 vs. serviços avulsos</p>
                     <a href="https://wa.me/351910474651?text=Olá! Gostaria de saber mais sobre o Pacote Premium da Giro Digital." target="_blank" rel="noopener" class="btn btn--secondary btn--full">Saber Mais</a>
                 </div>
                 
@@ -200,22 +200,22 @@
                     <div class="individual-service">
                         <h4>Design</h4>
                         <ul>
-                            <li>Logótipo: €20</li>
-                            <li>Cartão visita: €7</li>
-                            <li>Manual marca: €50</li>
+                            <li>Logótipo: <span id="preco-logotipo">€20</span></li>
+                            <li>Cartão visita: <span id="preco-cartao">€7</span></li>
+                            <li>Manual marca: <span id="preco-manual">€50</span></li>
                         </ul>
                     </div>
                     <div class="individual-service">
                         <h4>Websites</h4>
                         <ul>
-                            <li>Página simples de 1 página (Landing page): €50</li>
-                            <li>Site 5 páginas: €100</li>
+                            <li>Página simples de 1 página (Landing page): <span id="preco-landing">€50</span></li>
+                            <li>Site 5 páginas: <span id="preco-site5">€100</span></li>
                         </ul>
                     </div>
                     <div class="individual-service">
                         <h4>Marketing</h4>
                         <ul>
-                            <li>Gestão redes (mês): €100</li>
+                            <li>Gestão redes (mês): <span id="preco-gestao">€100</span></li>
                             <li>Campanha Ads</li>
                             <li>SEO básico</li>
                         </ul>
@@ -244,7 +244,7 @@
                         <li>Paleta de cores</li>
                         <li>Manual de marca</li>
                     </ul>
-                    <div class="service-card__price">A partir de €77</div>
+                    <div class="service-card__price" id="preco-branding">A partir de €77</div>
                 </div>
                 
                 <div class="service-card">
@@ -257,7 +257,7 @@
                         <li>Plano de conteúdo</li>
                         <li>Publicações profissionais</li>
                     </ul>
-                    <div class="service-card__price">A partir de €100/mês</div>
+                    <div class="service-card__price" id="preco-redes">A partir de €100/mês</div>
                 </div>
                 
                 <div class="service-card">
@@ -271,7 +271,7 @@
                         <li>Optimização SEO</li>
                         <li>Carregamento rápido</li>
                     </ul>
-                    <div class="service-card__price">A partir de €50</div>
+                    <div class="service-card__price" id="preco-websites">A partir de €50</div>
                 </div>
                 
                 <div class="service-card service-card--highlight">
@@ -285,7 +285,7 @@
                         <li>Atendimento prioritário</li>
                         <li>Resultados garantidos</li>
                     </ul>
-                    <div class="service-card__price service-card__price--highlight">Desde €99</div>
+                    <div class="service-card__price service-card__price--highlight" id="preco-pacotes">Desde €99</div>
                 </div>
             </div>
         </div>

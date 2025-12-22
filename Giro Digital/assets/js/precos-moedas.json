@@ -1,0 +1,116 @@
+{
+  "moedas": {
+    "EUR": {
+      "simbolo": "€",
+      "nome": "Euro"
+    },
+    "BRL": {
+      "simbolo": "R$",
+      "nome": "Real Brasileiro"
+    },
+    "USD": {
+      "simbolo": "$",
+      "nome": "Dólar Americano"
+    }
+  },
+  "pacotes": {
+    "starter": {
+      "EUR": 99,
+      "BRL": 549,
+      "USD": 109,
+      "economia": {
+        "EUR": 28,
+        "BRL": 155,
+        "USD": 31
+      }
+    },
+    "crescimento": {
+      "EUR": 199,
+      "BRL": 1099,
+      "USD": 219,
+      "economia": {
+        "EUR": 100,
+        "BRL": 550,
+        "USD": 110
+      }
+    },
+    "premium": {
+      "EUR": 499,
+      "BRL": 2749,
+      "USD": 549,
+      "economia": {
+        "EUR": 200,
+        "BRL": 1100,
+        "USD": 220
+      }
+    }
+  },
+  "servicos_avulsos": {
+    "design": {
+      "logotipo": {
+        "EUR": 20,
+        "BRL": 110,
+        "USD": 22
+      },
+      "cartao_visita": {
+        "EUR": 7,
+        "BRL": 39,
+        "USD": 8
+      },
+      "manual_marca": {
+        "EUR": 50,
+        "BRL": 275,
+        "USD": 55
+      }
+    },
+    "websites": {
+      "landing_page": {
+        "EUR": 50,
+        "BRL": 275,
+        "USD": 55
+      },
+      "site_5_paginas": {
+        "EUR": 100,
+        "BRL": 550,
+        "USD": 110
+      }
+    },
+    "marketing": {
+      "gestao_redes_mensal": {
+        "EUR": 100,
+        "BRL": 550,
+        "USD": 110
+      }
+    }
+  },
+  "servicos_cards": {
+    "branding": {
+      "preco_inicial": {
+        "EUR": 77,
+        "BRL": 424,
+        "USD": 85
+      }
+    },
+    "redes_sociais": {
+      "preco_inicial": {
+        "EUR": 100,
+        "BRL": 550,
+        "USD": 110
+      }
+    },
+    "websites": {
+      "preco_inicial": {
+        "EUR": 50,
+        "BRL": 275,
+        "USD": 55
+      }
+    },
+    "pacotes_completos": {
+      "preco_inicial": {
+        "EUR": 99,
+        "BRL": 549,
+        "USD": 109
+      }
+    }
+  }
+}
