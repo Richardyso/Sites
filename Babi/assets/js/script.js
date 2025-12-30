@@ -10,6 +10,7 @@ const translations = {
         'social.tiktokVlog': 'Tiktok de Vlog',
         'shopping.title': 'Compras e produtos que eu recomendo',
         'shopping.canva': 'Lilás Girl: Pack de Autocuidado',
+        'shopping.dashboard': 'Dashboard Aesthetic',
         'shopping.shein': 'Minha Lista SHEIN',
         'contact.title': 'Contato Profissional'
     },
@@ -23,6 +24,7 @@ const translations = {
         'social.tiktokVlog': 'Tiktok de Vlog',
         'shopping.title': 'Compras e produtos que eu recomendo',
         'shopping.canva': 'Lilás Girl: Pack de Autocuidado',
+        'shopping.dashboard': 'Dashboard Aesthetic',
         'shopping.shein': 'Minha Lista SHEIN',
         'contact.title': 'Contato Profissional'
     },
@@ -36,6 +38,7 @@ const translations = {
         'social.tiktokVlog': 'Vlog Tiktok',
         'shopping.title': 'Shopping and products I recommend',
         'shopping.canva': 'Lilac Girl: Selfcare Pack',
+        'shopping.dashboard': 'Aesthetic Dashboard',
         'shopping.shein': 'My SHEIN List',
         'shopping.rituals': 'Selfcare Pack Rituals',
         'contact.title': 'Professional Contact'
@@ -50,6 +53,7 @@ const translations = {
         'social.tiktokVlog': 'Tiktok de Vlog',
         'shopping.title': 'Compras y productos que recomiendo',
         'shopping.canva': 'Lilás Girl: Pack de Autocuidado',
+        'shopping.dashboard': 'Dashboard Estético',
         'shopping.shein': 'Mi Lista SHEIN',
         'shopping.rituals': 'Pack Autocuidado Rituals',
         'contact.title': 'Contacto Profesional'

@@ -379,7 +379,8 @@ body {
 }
 
 .link-button i:first-child,
-.link-button svg:first-of-type {
+.link-button svg:first-of-type,
+.link-button img:first-of-type {
     font-size: 28px;
     width: 40px;
     height: 28px;
@@ -388,6 +389,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.link-button img {
+    flex-shrink: 0;
+    object-fit: contain;
 }
 
 .link-button span {
@@ -421,6 +427,10 @@ body {
 
 .email:hover {
     background: linear-gradient(135deg, rgba(74, 144, 226, 0.3), rgba(56, 128, 255, 0.2));
+}
+
+.whatsapp:hover {
+    background: linear-gradient(135deg, rgba(37, 211, 102, 0.3), rgba(32, 186, 90, 0.2));
 }
 
 .pinterest:hover {
@@ -715,6 +725,12 @@ body {
     .signature {
         text-align: center !important;
     }
+
+    .link-button.email img,
+    .link-button.whatsapp img {
+        width: 48px !important;
+        height: 48px !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -755,10 +771,17 @@ body {
     }
 
     .link-button i:first-child,
-    .link-button svg:first-of-type {
+    .link-button svg:first-of-type,
+    .link-button img:first-of-type {
         font-size: 24px;
         width: 35px;
         height: 24px;
+    }
+
+    .link-button.email img,
+    .link-button.whatsapp img {
+        width: 44px !important;
+        height: 44px !important;
     }
 
     .section-title {
@@ -849,7 +872,13 @@ html {
     .link-button span {
         font-size: 13px;
     }
-    
+
+    .link-button.email img,
+    .link-button.whatsapp img {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
     .section-title {
         font-size: 16px;
     }
