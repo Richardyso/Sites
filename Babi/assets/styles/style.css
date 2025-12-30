@@ -726,11 +726,6 @@ body {
         text-align: center !important;
     }
 
-    .link-button.email img,
-    .link-button.whatsapp img {
-        width: 48px !important;
-        height: 48px !important;
-    }
 }
 
 @media (max-width: 480px) {
@@ -776,12 +771,6 @@ body {
         font-size: 24px;
         width: 35px;
         height: 24px;
-    }
-
-    .link-button.email img,
-    .link-button.whatsapp img {
-        width: 44px !important;
-        height: 44px !important;
     }
 
     .section-title {
@@ -871,12 +860,6 @@ html {
     
     .link-button span {
         font-size: 13px;
-    }
-
-    .link-button.email img,
-    .link-button.whatsapp img {
-        width: 40px !important;
-        height: 40px !important;
     }
 
     .section-title {
