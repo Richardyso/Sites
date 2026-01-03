@@ -1,55 +1,36 @@
 // ===========================
-// Giro Digital - Conversor de Moeda e Seletor de Idioma
-// Usa preços manuais definidos no arquivo precos-moedas.json
+// Giro Digital - Conversor de Moeda Simplificado
+// Conversão automática baseada em taxas fixas
 // ===========================
 
 const CurrencyConverter = {
-    // Dados de preços carregados do JSON
-    pricingData: null,
-    
-    // Idioma atual (será definido na inicialização)
-    currentLang: 'pt-PT',
-    
-    // Carregar dados de preços do arquivo JSON
-    loadPricingData: async () => {
-        try {
-            // Tentar diferentes caminhos possíveis
-            const paths = [
-                'assets/js/precos-moedas.json',
-                '/assets/js/precos-moedas.json',
-                './assets/js/precos-moedas.json'
-            ];
-            
-            let response;
-            for (const path of paths) {
-                try {
-                    response = await fetch(path);
-                    if (response.ok) break;
-                } catch (e) {
-                    continue;
-                }
-            }
-            
-            if (!response || !response.ok) {
-                throw new Error('Arquivo não encontrado');
-            }
-            
-            CurrencyConverter.pricingData = await response.json();
-            console.log('Dados de preços carregados:', CurrencyConverter.pricingData);
-            return true;
-        } catch (error) {
-            console.error('Erro ao carregar arquivo de preços:', error);
-            // Usar valores padrão se houver erro
-            CurrencyConverter.pricingData = {
-                moedas: {
-                    'EUR': { simbolo: '€', nome: 'Euro' },
-                    'BRL': { simbolo: 'R$', nome: 'Real' },
-                    'USD': { simbolo: '$', nome: 'Dólar' }
-                }
-            };
-            return false;
-        }
+    // Taxas de conversão fixas (base EUR)
+    exchangeRates: {
+        'EUR': 1,
+        'BRL': 6.4,  // 1 EUR = 6.4 BRL
+        'USD': 1.04  // 1 EUR = 1.04 USD
     },
+    
+    // Preços base em EUR
+    basePrices: {
+        starter: 49.90,
+        crescimento: 99,
+        starter_economia: 14,
+        crescimento_economia: 50,
+        // Serviços avulsos
+        logotipo: 10,
+        cartao_visita: 3.50,
+        manual_marca: 25,
+        landing_page: 25,
+        site_5_paginas: 50,
+        // Cards de serviços
+        branding_inicial: 38.50,
+        websites_inicial: 25,
+        pacotes_inicial: 49.90
+    },
+    
+    // Idioma atual
+    currentLang: 'pt-PT',
     
     // Obter a moeda baseada no idioma
     getCurrencyForLang: (lang) => {
@@ -62,14 +43,28 @@ const CurrencyConverter = {
         return currencies[lang] || 'EUR';
     },
     
-    // Detectar se é Brasil baseado no idioma salvo ou do navegador
+    // Obter símbolo da moeda
+    getCurrencySymbol: (currency) => {
+        const symbols = {
+            'EUR': '€',
+            'BRL': 'R$',
+            'USD': '$'
+        };
+        return symbols[currency] || '€';
+    },
+    
+    // Converter valor de EUR para outra moeda
+    convertPrice: (priceInEUR, targetCurrency) => {
+        const rate = CurrencyConverter.exchangeRates[targetCurrency] || 1;
+        return Math.round(priceInEUR * rate);
+    },
+    
+    // Detectar se é Brasil
     isBrazil: () => {
-        // Primeiro, verificar se há preferência salva
         const savedLang = localStorage.getItem('giro-language');
         if (savedLang) {
             return savedLang.toLowerCase() === 'pt-br';
         }
-        // Caso contrário, usar idioma do navegador
         const lang = navigator.language || navigator.userLanguage || 'pt-PT';
         return lang.toLowerCase().startsWith('pt-br');
     },
@@ -95,17 +90,14 @@ const CurrencyConverter = {
             window.GiroTranslations.applyTranslations();
         }
         
-        // Depois atualizar preços com pequeno delay para garantir que DOM está atualizado
-        setTimeout(() => {
-            CurrencyConverter.updatePrices();
-        }, 100);
+        // Depois atualizar preços
+        CurrencyConverter.updatePrices();
     },
     
     // Atualizar visual do seletor de idioma
     updateLanguageSelector: (lang) => {
         const options = document.querySelectorAll('.language-selector__option');
         
-        // Marcar opção ativa
         options.forEach(option => {
             const optionLang = option.getAttribute('data-lang');
             if (optionLang.toLowerCase() === lang.toLowerCase()) {
@@ -120,7 +112,6 @@ const CurrencyConverter = {
     initLanguageSelector: () => {
         const options = document.querySelectorAll('.language-selector__option');
         
-        // Selecionar idioma ao clicar na bandeira
         options.forEach(option => {
             option.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -129,90 +120,29 @@ const CurrencyConverter = {
             });
         });
         
-        // Inicializar com idioma atual
         const currentLang = CurrencyConverter.getCurrentLang();
         CurrencyConverter.updateLanguageSelector(currentLang);
         
-        // Aplicar traduções iniciais
         if (window.GiroTranslations) {
             window.GiroTranslations.applyTranslations();
         }
     },
     
-    // Obter preço manual definido no JSON
-    getManualPrice: (category, item, currency) => {
-        if (!CurrencyConverter.pricingData) return null;
-        
-        try {
-            if (category === 'pacotes') {
-                return CurrencyConverter.pricingData.pacotes[item][currency];
-            } else if (category === 'economia') {
-                const [pacote] = item.split('_');
-                return CurrencyConverter.pricingData.pacotes[pacote].economia[currency];
-            } else if (category === 'servicos_cards') {
-                return CurrencyConverter.pricingData.servicos_cards[item].preco_inicial[currency];
-            } else if (category === 'servicos_avulsos') {
-                const [tipo, servico] = item.split('_');
-                return CurrencyConverter.pricingData.servicos_avulsos[tipo][servico][currency];
-            }
-        } catch (error) {
-            console.error(`Preço não encontrado para: ${category}/${item}/${currency}`);
-            return null;
-        }
-    },
-    
     // Formatar valor monetário
-    formatCurrency: (value, currency, lang) => {
-        const locales = {
-            'pt-PT': 'pt-PT',
-            'pt-BR': 'pt-BR', 
-            'es-ES': 'es-ES',
-            'en-US': 'en-US'
-        };
-        
-        return new Intl.NumberFormat(locales[lang] || 'pt-PT', {
-            style: 'currency',
-            currency: currency || 'EUR',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(value);
+    formatPrice: (value, currency) => {
+        if (currency === 'EUR') {
+            return value.toFixed(2).replace('.', ',');
+        }
+        return value.toString();
     },
     
     // Atualizar símbolo da moeda
     updateCurrencySymbol: (currency) => {
-        const symbol = CurrencyConverter.pricingData?.moedas[currency]?.simbolo || '€';
+        const symbol = CurrencyConverter.getCurrencySymbol(currency);
         const currencyElements = document.querySelectorAll('.pricing-card__currency');
         currencyElements.forEach(el => {
             el.textContent = symbol;
         });
-    },
-    
-    // Atualizar valores em textos que contêm €
-    updateTextWithEuro: (element, targetCurrency, currentLang) => {
-        // Salvar texto original se ainda não foi salvo
-        const originalText = element.getAttribute('data-original-text') || element.textContent;
-        if (!element.getAttribute('data-original-text')) {
-            element.setAttribute('data-original-text', originalText);
-        }
-        
-        if (targetCurrency === 'EUR') {
-            // Restaurar texto original para EUR
-            element.textContent = originalText;
-            return;
-        }
-        
-        // Converter para outra moeda
-        let newText = originalText;
-        const euroMatches = originalText.matchAll(/€(\d+)/g);
-        
-        for (const match of euroMatches) {
-            const euroValue = parseFloat(match[1]);
-            const convertedValue = CurrencyConverter.convertFromEUR(euroValue, targetCurrency);
-            const formatted = CurrencyConverter.formatCurrency(convertedValue, targetCurrency, currentLang);
-            newText = newText.replace(match[0], formatted);
-        }
-        
-        element.textContent = newText;
     },
     
     // Atualizar informações específicas para Brasil/Portugal
@@ -229,11 +159,9 @@ const CurrencyConverter = {
         
         if (mbwayPayment && pixPayment) {
             if (isBrazil) {
-                // Brasil: esconder MBway, mostrar PIX
                 mbwayPayment.style.display = 'none';
                 pixPayment.style.display = 'flex';
             } else {
-                // Portugal: mostrar MBway, esconder PIX
                 mbwayPayment.style.display = 'flex';
                 pixPayment.style.display = 'none';
             }
@@ -241,32 +169,30 @@ const CurrencyConverter = {
     },
     
     // Atualizar valores nos elementos
-    updatePrices: async () => {
-        // Garantir que os dados foram carregados
-        if (!CurrencyConverter.pricingData) {
-            await CurrencyConverter.loadPricingData();
-        }
-        
+    updatePrices: () => {
         const currentLang = CurrencyConverter.getCurrentLang();
         const targetCurrency = CurrencyConverter.getCurrencyForLang(currentLang);
         const isBrazil = currentLang === 'pt-BR';
-        
-        console.log('Atualizando preços:', { currentLang, targetCurrency, isBrazil });
+        const symbol = CurrencyConverter.getCurrencySymbol(targetCurrency);
         
         // Atualizar símbolo da moeda
         CurrencyConverter.updateCurrencySymbol(targetCurrency);
         
-        // Atualizar localização (IVA, métodos de pagamento)
+        // Atualizar localização
         CurrencyConverter.updateLocalization(isBrazil);
         
-        // Atualizar valores principais dos pacotes
+        // Atualizar valores dos pacotes
         const priceAmounts = document.querySelectorAll('.pricing-card__amount');
         priceAmounts.forEach(element => {
             const packageType = element.getAttribute('data-package');
-            if (packageType) {
-                const price = CurrencyConverter.getManualPrice('pacotes', packageType, targetCurrency);
-                if (price !== null) {
-                    element.textContent = price;
+            if (packageType && CurrencyConverter.basePrices[packageType]) {
+                const basePrice = CurrencyConverter.basePrices[packageType];
+                const convertedPrice = CurrencyConverter.convertPrice(basePrice, targetCurrency);
+                
+                if (targetCurrency === 'EUR') {
+                    element.textContent = CurrencyConverter.formatPrice(basePrice, targetCurrency);
+                } else {
+                    element.textContent = convertedPrice;
                 }
             }
         });
@@ -276,65 +202,64 @@ const CurrencyConverter = {
         savingsElements.forEach(element => {
             const packageType = element.getAttribute('data-package-savings');
             if (packageType) {
-                const economia = CurrencyConverter.getManualPrice('economia', packageType, targetCurrency);
-                if (economia !== null) {
-                    const symbol = CurrencyConverter.pricingData.moedas[targetCurrency].simbolo;
-                    // Traduzir "Poupe" para português brasileiro
+                const economiaKey = packageType + '_economia';
+                if (CurrencyConverter.basePrices[economiaKey]) {
+                    const baseEconomia = CurrencyConverter.basePrices[economiaKey];
+                    const convertedEconomia = CurrencyConverter.convertPrice(baseEconomia, targetCurrency);
                     const saveText = isBrazil ? 'Economize' : 'Poupe';
-                    element.textContent = `${saveText} ${symbol}${economia} vs. serviços avulsos`;
+                    element.textContent = `${saveText} ${symbol}${convertedEconomia} vs. serviços avulsos`;
                 }
             }
         });
         
-        // Atualizar preços dos serviços avulsos com IDs específicos
-        const serviceMappings = {
-            'preco-logotipo': 'design_logotipo',
-            'preco-cartao': 'design_cartao_visita',
-            'preco-manual': 'design_manual_marca',
-            'preco-landing': 'websites_landing_page',
-            'preco-site5': 'websites_site_5_paginas',
-            'preco-gestao': 'marketing_gestao_redes_mensal'
+        // Atualizar preços dos serviços avulsos
+        const serviceIds = {
+            'preco-logotipo': 'logotipo',
+            'preco-cartao': 'cartao_visita',
+            'preco-manual': 'manual_marca',
+            'preco-landing': 'landing_page',
+            'preco-site5': 'site_5_paginas'
         };
         
-        Object.entries(serviceMappings).forEach(([id, mapping]) => {
+        Object.entries(serviceIds).forEach(([id, priceKey]) => {
             const element = document.getElementById(id);
-            if (element) {
-                const price = CurrencyConverter.getManualPrice('servicos_avulsos', mapping, targetCurrency);
-                if (price !== null) {
-                    const symbol = CurrencyConverter.pricingData.moedas[targetCurrency].simbolo;
-                    element.textContent = `${symbol}${price}`;
+            if (element && CurrencyConverter.basePrices[priceKey]) {
+                const basePrice = CurrencyConverter.basePrices[priceKey];
+                const convertedPrice = CurrencyConverter.convertPrice(basePrice, targetCurrency);
+                
+                if (targetCurrency === 'EUR') {
+                    element.textContent = `${symbol}${CurrencyConverter.formatPrice(basePrice, targetCurrency)}`;
+                } else {
+                    element.textContent = `${symbol}${convertedPrice}`;
                 }
             }
         });
         
         // Atualizar preços dos cards de serviços
-        const serviceCardMappings = {
-            'preco-branding': 'branding',
-            'preco-redes': 'redes_sociais',
-            'preco-websites': 'websites',
-            'preco-pacotes': 'pacotes_completos'
+        const serviceCardIds = {
+            'preco-branding': 'branding_inicial',
+            'preco-websites': 'websites_inicial',
+            'preco-pacotes': 'pacotes_inicial'
         };
         
-        Object.entries(serviceCardMappings).forEach(([id, service]) => {
+        Object.entries(serviceCardIds).forEach(([id, priceKey]) => {
             const element = document.getElementById(id);
-            if (element) {
-                const price = CurrencyConverter.getManualPrice('servicos_cards', service, targetCurrency);
-                if (price !== null) {
-                    const symbol = CurrencyConverter.pricingData.moedas[targetCurrency].simbolo;
-                    // Traduzir "A partir de" para português brasileiro
-                    const fromText = isBrazil ? 'A partir de' : 'A partir de';
-                    element.textContent = `${fromText} ${symbol}${price}`;
+            if (element && CurrencyConverter.basePrices[priceKey]) {
+                const basePrice = CurrencyConverter.basePrices[priceKey];
+                const convertedPrice = CurrencyConverter.convertPrice(basePrice, targetCurrency);
+                const fromText = 'A partir de';
+                
+                if (targetCurrency === 'EUR') {
+                    element.textContent = `${fromText} ${symbol}${CurrencyConverter.formatPrice(basePrice, targetCurrency)}`;
+                } else {
+                    element.textContent = `${fromText} ${symbol}${convertedPrice}`;
                 }
             }
         });
     },
     
     // Inicializar conversor
-    init: async () => {
-        // Carregar dados de preços primeiro
-        await CurrencyConverter.loadPricingData();
-        
-        // Aguardar DOM estar pronto
+    init: () => {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 CurrencyConverter.initLanguageSelector();
@@ -349,4 +274,3 @@ const CurrencyConverter = {
 
 // Auto-inicializar
 CurrencyConverter.init();
-
