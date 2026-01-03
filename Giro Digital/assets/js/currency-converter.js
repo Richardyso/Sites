@@ -13,8 +13,29 @@ const CurrencyConverter = {
     // Carregar dados de preços do arquivo JSON
     loadPricingData: async () => {
         try {
-            const response = await fetch('assets/js/precos-moedas.json');
+            // Tentar diferentes caminhos possíveis
+            const paths = [
+                'assets/js/precos-moedas.json',
+                '/assets/js/precos-moedas.json',
+                './assets/js/precos-moedas.json'
+            ];
+            
+            let response;
+            for (const path of paths) {
+                try {
+                    response = await fetch(path);
+                    if (response.ok) break;
+                } catch (e) {
+                    continue;
+                }
+            }
+            
+            if (!response || !response.ok) {
+                throw new Error('Arquivo não encontrado');
+            }
+            
             CurrencyConverter.pricingData = await response.json();
+            console.log('Dados de preços carregados:', CurrencyConverter.pricingData);
             return true;
         } catch (error) {
             console.error('Erro ao carregar arquivo de preços:', error);
@@ -74,8 +95,10 @@ const CurrencyConverter = {
             window.GiroTranslations.applyTranslations();
         }
         
-        // Depois atualizar preços
-        CurrencyConverter.updatePrices();
+        // Depois atualizar preços com pequeno delay para garantir que DOM está atualizado
+        setTimeout(() => {
+            CurrencyConverter.updatePrices();
+        }, 100);
     },
     
     // Atualizar visual do seletor de idioma
@@ -228,6 +251,8 @@ const CurrencyConverter = {
         const targetCurrency = CurrencyConverter.getCurrencyForLang(currentLang);
         const isBrazil = currentLang === 'pt-BR';
         
+        console.log('Atualizando preços:', { currentLang, targetCurrency, isBrazil });
+        
         // Atualizar símbolo da moeda
         CurrencyConverter.updateCurrencySymbol(targetCurrency);
         
@@ -254,7 +279,9 @@ const CurrencyConverter = {
                 const economia = CurrencyConverter.getManualPrice('economia', packageType, targetCurrency);
                 if (economia !== null) {
                     const symbol = CurrencyConverter.pricingData.moedas[targetCurrency].simbolo;
-                    element.textContent = `Poupe ${symbol}${economia} vs. serviços avulsos`;
+                    // Traduzir "Poupe" para português brasileiro
+                    const saveText = isBrazil ? 'Economize' : 'Poupe';
+                    element.textContent = `${saveText} ${symbol}${economia} vs. serviços avulsos`;
                 }
             }
         });
@@ -294,7 +321,9 @@ const CurrencyConverter = {
                 const price = CurrencyConverter.getManualPrice('servicos_cards', service, targetCurrency);
                 if (price !== null) {
                     const symbol = CurrencyConverter.pricingData.moedas[targetCurrency].simbolo;
-                    element.textContent = `A partir de ${symbol}${price}`;
+                    // Traduzir "A partir de" para português brasileiro
+                    const fromText = isBrazil ? 'A partir de' : 'A partir de';
+                    element.textContent = `${fromText} ${symbol}${price}`;
                 }
             }
         });

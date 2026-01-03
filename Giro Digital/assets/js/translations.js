@@ -14,9 +14,9 @@ const translations = {
         'nav.quote': 'Orçamento Gratuito',
         
         // Hero Section
-        'hero.title': 'Marketing Digital',
+        'hero.title': 'Sites e Design',
         'hero.highlight': 'Simples e Acessível',
-        'hero.subtitle': 'Ajudamos pequenos negócios a crescer online com soluções completas de branding, redes sociais e websites.',
+        'hero.subtitle': 'Ajudamos pequenos negócios a crescer online com criação de websites profissionais e identidade visual completa.',
         'hero.btn1': 'Ver Pacotes e Preços',
         'hero.btn2': 'Falar Connosco',
         
@@ -31,7 +31,7 @@ const translations = {
         'starter.feature1': 'Logótipo profissional',
         'starter.feature2': 'Cartão de visita digital',
         'starter.feature3': 'Manual de identidade básico',
-        'starter.feature4': '3 publicações para redes sociais',
+        'starter.feature4': '3 artes para divulgação',
         'starter.feature5': 'Website Simples com alojamento Netlify',
         'starter.savings': 'Poupe €28 vs. serviços avulsos',
         'starter.button': 'Começar Agora',
@@ -44,8 +44,8 @@ const translations = {
         'growth.feature1': 'Tudo do pacote Starter',
         'growth.feature2': 'Website responsivo (até 5 páginas)',
         'growth.feature3': 'Optimização SEO básica',
-        'growth.feature4': 'Gestão redes sociais',
-        'growth.feature5': '8 publicações',
+        'growth.feature4': '8 artes para divulgação',
+        'growth.feature5': 'Material gráfico completo',
         'growth.savings': 'Poupe €100 vs. serviços avulsos',
         'growth.button': 'Escolher Este',
         
@@ -154,9 +154,9 @@ const translations = {
         'nav.quote': 'Orçamento Gratuito',
         
         // Hero Section
-        'hero.title': 'Marketing Digital',
+        'hero.title': 'Sites e Design',
         'hero.highlight': 'Simples e Acessível',
-        'hero.subtitle': 'Ajudamos pequenos negócios a crescer online com soluções completas de branding, redes sociais e websites.',
+        'hero.subtitle': 'Ajudamos pequenos negócios a crescer online com criação de websites profissionais e identidade visual completa.',
         'hero.btn1': 'Ver Pacotes e Preços',
         'hero.btn2': 'Falar Conosco',
         
@@ -171,7 +171,7 @@ const translations = {
         'starter.feature1': 'Logotipo profissional',
         'starter.feature2': 'Cartão de visita digital',
         'starter.feature3': 'Manual de identidade básico',
-        'starter.feature4': '3 publicações para redes sociais',
+        'starter.feature4': '3 artes para divulgação',
         'starter.feature5': 'Website Simples com hospedagem Netlify',
         'starter.savings': 'Economize R$28 vs. serviços avulsos',
         'starter.button': 'Começar Agora',
@@ -184,8 +184,8 @@ const translations = {
         'growth.feature1': 'Tudo do pacote Starter',
         'growth.feature2': 'Website responsivo (até 5 páginas)',
         'growth.feature3': 'Otimização SEO básica',
-        'growth.feature4': 'Gestão redes sociais',
-        'growth.feature5': '8 publicações',
+        'growth.feature4': '8 artes para divulgação',
+        'growth.feature5': 'Material gráfico completo',
         'growth.savings': 'Economize R$100 vs. serviços avulsos',
         'growth.button': 'Escolher Este',
         
@@ -204,7 +204,7 @@ const translations = {
         'nav.quote': 'Presupuesto Gratis',
         
         // Hero Section
-        'hero.title': 'Marketing Digital',
+        'hero.title': 'Sites e Design',
         'hero.highlight': 'Simple y Accesible',
         'hero.subtitle': 'Ayudamos a pequeños negocios a crecer online con soluciones completas de branding, redes sociales y sitios web.',
         'hero.btn1': 'Ver Paquetes y Precios',

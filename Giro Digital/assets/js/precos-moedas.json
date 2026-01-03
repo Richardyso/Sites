@@ -15,101 +15,91 @@
   },
   "pacotes": {
     "starter": {
-      "EUR": 99,
-      "BRL": 549,
-      "USD": 109,
+      "EUR": 49.90,
+      "BRL": 319,
+      "USD": 52,
       "economia": {
-        "EUR": 28,
-        "BRL": 155,
-        "USD": 31
+        "EUR": 14,
+        "BRL": 90,
+        "USD": 15
       }
     },
     "crescimento": {
-      "EUR": 199,
-      "BRL": 1099,
-      "USD": 219,
+      "EUR": 99,
+      "BRL": 634,
+      "USD": 103,
       "economia": {
-        "EUR": 100,
-        "BRL": 550,
-        "USD": 110
-      }
-    },
-    "premium": {
-      "EUR": 499,
-      "BRL": 2749,
-      "USD": 549,
-      "economia": {
-        "EUR": 200,
-        "BRL": 1100,
-        "USD": 220
+        "EUR": 50,
+        "BRL": 320,
+        "USD": 52
       }
     }
   },
   "servicos_avulsos": {
     "design": {
       "logotipo": {
-        "EUR": 20,
-        "BRL": 110,
-        "USD": 22
+        "EUR": 10,
+        "BRL": 64,
+        "USD": 10.50
       },
       "cartao_visita": {
-        "EUR": 7,
-        "BRL": 39,
-        "USD": 8
+        "EUR": 3.50,
+        "BRL": 22,
+        "USD": 3.60
       },
       "manual_marca": {
-        "EUR": 50,
-        "BRL": 275,
-        "USD": 55
+        "EUR": 25,
+        "BRL": 160,
+        "USD": 26
       }
     },
     "websites": {
       "landing_page": {
-        "EUR": 50,
-        "BRL": 275,
-        "USD": 55
+        "EUR": 25,
+        "BRL": 160,
+        "USD": 26
       },
       "site_5_paginas": {
-        "EUR": 100,
-        "BRL": 550,
-        "USD": 110
+        "EUR": 50,
+        "BRL": 320,
+        "USD": 52
       }
     },
     "marketing": {
       "gestao_redes_mensal": {
-        "EUR": 100,
-        "BRL": 550,
-        "USD": 110
+        "EUR": 50,
+        "BRL": 275,
+        "USD": 55
       }
     }
   },
   "servicos_cards": {
     "branding": {
       "preco_inicial": {
-        "EUR": 77,
-        "BRL": 424,
-        "USD": 85
+        "EUR": 38.50,
+        "BRL": 246,
+        "USD": 40
       }
     },
     "redes_sociais": {
-      "preco_inicial": {
-        "EUR": 100,
-        "BRL": 550,
-        "USD": 110
-      }
-    },
-    "websites": {
       "preco_inicial": {
         "EUR": 50,
         "BRL": 275,
         "USD": 55
       }
     },
+    "websites": {
+      "preco_inicial": {
+        "EUR": 25,
+        "BRL": 160,
+        "USD": 26
+      }
+    },
     "pacotes_completos": {
       "preco_inicial": {
-        "EUR": 99,
-        "BRL": 549,
-        "USD": 109
+        "EUR": 49.90,
+        "BRL": 319,
+        "USD": 52
       }
     }
   }
