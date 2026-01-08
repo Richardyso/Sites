@@ -1,0 +1,31 @@
+# Headers for Rosa Fucsia Nails website
+# Ensure proper caching and access for social media crawlers
+
+# Headers for all files
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Headers for images to ensure proper caching and access
+/assets/images/*
+  Cache-Control: public, max-age=604800
+  Access-Control-Allow-Origin: *
+  X-Robots-Tag: all
+
+# Specific headers for OG image
+/assets/images/og-image.png
+  Cache-Control: public, max-age=604800, must-revalidate
+  Access-Control-Allow-Origin: *
+  X-Robots-Tag: all
+  Content-Type: image/png
+
+# Headers for HTML pages
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Robots-Tag: all
+
+# Headers for the home page
+/
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Robots-Tag: all

@@ -1,0 +1,28 @@
+# Robots.txt for Rosa Fucsia Nails
+# Allow all crawlers to access the site
+
+User-agent: *
+Allow: /
+Crawl-delay: 0
+
+# Allow specific social media crawlers
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: TwitterBot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Sitemap location (if you have one in the future)
+# Sitemap: https://rosafucsia.netlify.app/sitemap.xml
