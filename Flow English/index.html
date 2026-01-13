@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Flow English - Curso de Inglês com Método de Conversação</title>
+
+    <!-- Meta Tags para SEO -->
+    <meta name="description" content="Aprenda inglês com o método Flow English. Apostilas completas de conversação: Book 1 (Verbo To Be) e Book 2 (Verbos de Ação). Teste de nivelamento gratuito.">
+    <meta name="keywords" content="inglês, curso de inglês, apostila inglês, verbo to be, verbos de ação, conversação em inglês, flow english, aulas de inglês">
+    <meta name="author" content="Flow English">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://flowenglish.netlify.app/">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Flow English - Curso de Inglês com Método de Conversação">
+    <meta property="og:description" content="Apostilas completas: Book 1 (Verbo To Be) e Book 2 (Verbos de Ação). Método de conversação em inglês com teste de nivelamento gratuito.">
+    <meta property="og:image" content="https://flowenglish.netlify.app/assets/imagens/og.png">
+    <meta property="og:url" content="https://flowenglish.netlify.app/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Flow English">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Flow English - Curso de Inglês com Método de Conversação">
+    <meta name="twitter:description" content="Apostilas completas: Book 1 (Verbo To Be) e Book 2 (Verbos de Ação). Método de conversação em inglês com teste de nivelamento gratuito.">
+    <meta name="twitter:image" content="https://flowenglish.netlify.app/assets/imagens/og.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/imagens/favicon.png">
+    <link rel="apple-touch-icon" href="assets/imagens/apple-touch-icon.png">
+
+    <!-- Preconnect para melhor performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="assets/styles.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+
+</head>
+
+<body>
+
+    <!-- Skip to content link para acessibilidade -->
+    <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
+
+    <header role="banner">
+
+        <div class="logo"><i class="fas fa-bullhorn"></i> Flow<span>English</span></div>
+
+        <button class="menu-toggle" aria-label="Abrir menu" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <nav role="navigation" aria-label="Menu principal" id="mainNav">
+
+            <ul>
+                <li><a href="#" onclick="changeBook(1); return false;" aria-label="Acessar conteúdo do Book 1">Book 1</a></li>
+                <li><a href="#" onclick="changeBook(2); return false;" class="nav-book2" aria-label="Acessar conteúdo do Book 2">Book 2 (New)</a></li>
+
+                <li><a href="#test" aria-label="Ir para o teste de nivelamento">Teste de Nível</a></li>
+
+            </ul>
+
+        </nav>
+
+        <a href="https://wa.me/5521986673864" target="_blank" class="btn-whatsapp" aria-label="Contato via WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+            <span>(21) 98667-3864</span>
+        </a>
+
+    </header>
+
+    <main id="main-content" role="main">
+
+    <section class="hero" role="region" aria-label="Apresentação do curso">
+
+        <h1>The Incredible Book 1 & The Magnificent Book 2</h1>
+
+        <p>Apostilas completas: Book 1 (Verbo To Be) e Book 2 (Verbos de Ação).</p>
+
+        
+
+        <div class="download-group">
+
+            <a href="https://drive.google.com/file/d/17GDh96GLeVMgJeLPIbSBH12_E-Gl8HE-/view?usp=drive_link" target="_blank" class="btn-download">
+
+                <i class="fas fa-file-pdf"></i> Baixar Apostila Book 1 (PDF)
+
+            </a>
+
+            <a href="https://drive.google.com/file/d/1p_T3pIFWlceMnH8JHs7td_jCq_fy6vmU/view?usp=drive_link" target="_blank" class="btn-download book2">
+
+                <i class="fas fa-file-pdf"></i> Baixar Apostila Book 2 (PDF)
+
+            </a>
+
+        </div>
+
+    </section>
+
+  
+    <section id="content-book1" class="book-content book-content-section">
+
+        <h2 style="text-align: center; margin-bottom: 30px;">Conteúdo Online Book 1 (To Be)</h2>
+
+        
+
+        <div class="tabs">
+            <button class="tab-btn" onclick="openTab('book1-present', this)">Present (To Be)</button>
+
+            <button class="tab-btn" onclick="openTab('book1-past', this)">Past (To Be)</button>
+
+            <button class="tab-btn" onclick="openTab('book1-future', this)">Future (To Be)</button>
+
+            <button class="tab-btn" onclick="openTab('book1-dialogue', this)">Dialogue 1</button>
+
+        </div>
+
+  
+
+        <div id="book1-present" class="content-tab grammar-detail">
+
+            <h3>1. THE PRESENT TENSE (Presente)</h3>
+            <p>Meaning: Eu sou / Eu estou.</p>
+
+            <h4>A. Affirmative Form (+)</h4>
+            <p>Example: HAPPY (Feliz)</p>
+            <ul>
+                <li>1. I am happy.</li>
+                <li>2. You are happy.</li>
+                <li>3. He is happy.</li>
+                <li>4. She is happy.</li>
+                <li>5. It is happy.</li>
+                <li>6. We are happy.</li>
+                <li>7. You are happy. (Plural)</li>
+                <li>8. They are happy.</li>
+            </ul>
+
+            <h4>B. Negative Form (-)</h4>
+            <p>Example: TIRED (Cansado)</p>
+            <ul>
+                <li>1. I am not tired. (I'm not)</li>
+                <li>2. You are not tired. (aren't)</li>
+                <li>3. He is not tired. (isn't)</li>
+                <li>4. She is not tired. (isn't)</li>
+                <li>5. It is not tired. (isn't)</li>
+                <li>6. We are not tired. (aren't)</li>
+                <li>7. You are not tired. (aren't)</li>
+                <li>8. They are not tired. (aren't)</li>
+            </ul>
+
+            <h4>C. Interrogative Form (?)</h4>
+            <p>O verbo vem antes do sujeito. Example: READY (Pronto)</p>
+            <ul>
+                <li>1. Am I ready?</li>
+                <li>2. Are you ready?</li>
+                <li>3. Is he ready?</li>
+                <li>4. Is she ready?</li>
+                <li>5. Is it ready?</li>
+                <li>6. Are we ready?</li>
+                <li>7. Are you ready?</li>
+                <li>8. Are they ready?</li>
+            </ul>
+        </div>
+
+  
+
+        <div id="book1-past" class="content-tab grammar-detail">
+
+            <h3>2. THE PAST TENSE (Passado)</h3>
+            <p>Meaning: Eu era / Eu estava.</p>
+            <p>Atenção: Singular = WAS | Plural = WERE</p>
+
+            <h4>A. Affirmative Form (+)</h4>
+            <p>Example: AT HOME (Em casa)</p>
+            <ul>
+                <li>1. I was at home.</li>
+                <li>2. You were at home.</li>
+                <li>3. He was at home.</li>
+                <li>4. She was at home.</li>
+                <li>5. It was at home.</li>
+                <li>6. We were at home.</li>
+                <li>7. You were at home.</li>
+                <li>8. They were at home.</li>
+            </ul>
+
+            <h4>B. Negative Form (-)</h4>
+            <p>Example: SICK (Doente)</p>
+            <ul>
+                <li>1. I was not sick. (wasn't)</li>
+                <li>2. You were not sick. (weren't)</li>
+                <li>3. He was not sick. (wasn't)</li>
+                <li>4. She was not sick. (wasn't)</li>
+                <li>5. It was not sick. (wasn't)</li>
+                <li>6. We were not sick. (weren't)</li>
+                <li>7. You were not sick. (weren't)</li>
+                <li>8. They were not sick. (weren't)</li>
+            </ul>
+
+            <h4>C. Interrogative Form (?)</h4>
+            <p>Example: LATE (Atrasado)</p>
+            <ul>
+                <li>1. Was I late?</li>
+                <li>2. Were you late?</li>
+                <li>3. Was he late?</li>
+                <li>4. Was she late?</li>
+                <li>5. Was it late?</li>
+                <li>6. Were we late?</li>
+                <li>7. Were you late?</li>
+                <li>8. Were they late?</li>
+            </ul>
+        </div>
+
+  
+
+        <div id="book1-future" class="content-tab grammar-detail">
+
+            <h3>3. THE FUTURE TENSE (Futuro)</h3>
+            <p>Meaning: Eu serei / Eu estarei.</p>
+            <p>Todos usam "Will be".</p>
+
+            <h4>A. Affirmative Form (+)</h4>
+            <p>Example: HERE (Aqui)</p>
+            <ul>
+                <li>1. I will be here.</li>
+                <li>2. You will be here.</li>
+                <li>3. He will be here.</li>
+                <li>4. She will be here.</li>
+                <li>5. It will be here.</li>
+                <li>6. We will be here.</li>
+                <li>7. You will be here.</li>
+                <li>8. They will be here.</li>
+            </ul>
+
+            <h4>B. Negative Form (-)</h4>
+            <p>Todos usam "Won't be". Example: ANGRY (Com raiva)</p>
+            <ul>
+                <li>1. I won't be angry.</li>
+                <li>2. You won't be angry.</li>
+                <li>3. He won't be angry.</li>
+                <li>4. She won't be angry.</li>
+                <li>5. It won't be angry.</li>
+                <li>6. We won't be angry.</li>
+                <li>7. You won't be angry.</li>
+                <li>8. They won't be angry.</li>
+            </ul>
+
+            <h4>C. Interrogative Form (?)</h4>
+            <p>Example: FAMOUS (Famoso)</p>
+            <ul>
+                <li>1. Will I be famous?</li>
+                <li>2. Will you be famous?</li>
+                <li>3. Will he be famous?</li>
+                <li>4. Will she be famous?</li>
+                <li>5. Will it be famous?</li>
+                <li>6. Will we be famous?</li>
+                <li>7. Will you be famous?</li>
+                <li>8. Will they be famous?</li>
+            </ul>
+        </div>
+
+        
+
+        <div id="book1-dialogue" class="content-tab">
+
+            <h3 style="text-align: center; margin-bottom: 20px; color: var(--dark-bg);">Dialogue 1: Conversation Practice</h3>
+            <p style="text-align: center; font-style: italic;">Instructions: Pair up. Student A is John. Student B is Mary. Read, then swap roles.</p>
+            <div class="dialogue-box">
+                <p><strong>John:</strong> Hello. My name is John.</p>
+                <p><strong>Mary:</strong> Hello John. I am Mary. I am an English student. What are you?</p>
+                <p><strong>John:</strong> I am an engineer. Were you in class yesterday?</p>
+                <p><strong>Mary:</strong> No, I wasn't. I was at home.</p>
+                <p><strong>John:</strong> Will you be here tomorrow?</p>
+                <p><strong>Mary:</strong> Yes, I will be.</p>
+            </div>
+        </div>
+
+    </section>
+    
+    <section id="content-book2" class="book-content book-content-section">
+
+        <h2 style="text-align: center; margin-bottom: 30px; color: var(--brand-red);">Conteúdo Online Book 2 (Action Verbs)</h2>
+
+        
+
+        <div class="tabs">
+            <button class="tab-btn book2" onclick="openTab('book2-present', this)">Present (Do/Does)</button>
+
+            <button class="tab-btn book2" onclick="openTab('book2-past', this)">Past (Did)</button>
+
+            <button class="tab-btn book2" onclick="openTab('book2-future', this)">Future (Will)</button>
+
+            <button class="tab-btn book2" onclick="openTab('book2-dialogue', this)">Dialogue 2</button>
+
+        </div>
+
+  
+
+        <div id="book2-present" class="content-tab grammar-detail">
+
+            <h3>1. PRESENT TENSE (Rotina / Hábito)</h3>
+            <p>Verbo modelo: TO WORK (Trabalhar)</p>
+            <p>Regra: He/She/It ganha "S" na afirmação e usa "Does" na pergunta/negação.</p>
+
+            <h4>A. Affirmative Form (+)</h4>
+            <ul>
+                <li>1. I work every day.</li>
+                <li>2. You work every day.</li>
+                <li>3. He works every day. (Atenção: S)</li>
+                <li>4. She works every day. (Atenção: S)</li>
+                <li>5. It works every day. (Atenção: S)</li>
+                <li>6. We work every day.</li>
+                <li>7. You work every day.</li>
+                <li>8. They work every day.</li>
+            </ul>
+
+            <h4>B. Negative Form (-)</h4>
+            <p>Auxiliar: Don't / Doesn't</p>
+            <ul>
+                <li>1. I don't work on Sundays.</li>
+                <li>2. You don't work on Sundays.</li>
+                <li>3. He doesn't work on Sundays. (Atenção: DOESN'T)</li>
+                <li>4. She doesn't work on Sundays.</li>
+                <li>5. It doesn't work on Sundays.</li>
+                <li>6. We doesn't work on Sundays.</li>
+                <li>7. You don't work on Sundays.</li>
+                <li>8. They don't work on Sundays.</li>
+            </ul>
+
+            <h4>C. Interrogative Form (?)</h4>
+            <p>Auxiliar: Do / Does (O verbo perde o S)</p>
+            <ul>
+                <li>1. Do I work here?</li>
+                <li>2. Do you work here?</li>
+                <li>3. Does he work here? (Atenção: DOES)</li>
+                <li>4. Does she work here?</li>
+                <li>5. Does it work here?</li>
+                <li>6. Do we work here?</li>
+                <li>7. Do you work here?</li>
+                <li>8. Do they work here?</li>
+            </ul>
+        </div>
+
+  
+
+        <div id="book2-past" class="content-tab grammar-detail">
+
+            <h3>2. PAST TENSE (Ação Finalizada)</h3>
+            <p>Verbo modelo: TO WORK (Trabalhar)</p>
+            <p>Regra: Todos usam "ED" na afirmação e "DID" na pergunta/negação. (Verbos Regulares)</p>
+
+            <h4>A. Affirmative Form (+)</h4>
+            <ul>
+                <li>1. I worked yesterday.</li>
+                <li>2. You worked yesterday.</li>
+                <li>3. He worked yesterday.</li>
+                <li>4. She worked yesterday.</li>
+                <li>5. It worked yesterday.</li>
+                <li>6. We worked yesterday.</li>
+                <li>7. You worked yesterday.</li>
+                <li>8. They worked yesterday.</li>
+            </ul>
+
+            <h4>B. Negative Form (-)</h4>
+            <p>Auxiliar: DIDN'T (O verbo volta ao normal: Work)</p>
+            <ul>
+                <li>1. I didn't work last night.</li>
+                <li>2. You didn't work last night.</li>
+                <li>3. He didn't work last night.</li>
+                <li>4. She didn't work last night.</li>
+                <li>5. It didn't work last night.</li>
+                <li>6. We didn't work last night.</li>
+                <li>7. You didn't work last night.</li>
+                <li>8. They didn't work last night.</li>
+            </ul>
+
+            <h4>C. Interrogative Form (?)</h4>
+            <p>Auxiliar: DID (O verbo volta ao normal: Work)</p>
+            <ul>
+                <li>1. Did I work well?</li>
+                <li>2. Did you work well?</li>
+                <li>3. Did he work well?</li>
+                <li>4. Did she work well?</li>
+                <li>5. Did it work well?</li>
+                <li>6. Did we work well?</li>
+                <li>7. Did you work well?</li>
+                <li>8. Did they work well?</li>
+            </ul>
+        </div>
+
+  
+
+        <div id="book2-future" class="content-tab grammar-detail">
+
+            <h3>3. FUTURE TENSE (Planos)</h3>
+            <p>Verbo modelo: TO WORK (Trabalhar)</p>
+            <p>Regra: O mais fácil de todos. Use WILL para todo mundo.</p>
+
+            <h4>A. Affirmative Form (+)</h4>
+            <ul>
+                <li>1. I will work tomorrow.</li>
+                <li>2. You will work tomorrow.</li>
+                <li>3. He will work tomorrow.</li>
+                <li>4. She will work tomorrow.</li>
+                <li>5. It will work tomorrow.</li>
+                <li>6. We will work tomorrow.</li>
+                <li>7. You will work tomorrow.</li>
+                <li>8. They will work tomorrow.</li>
+            </ul>
+
+            <h4>B. Negative Form (-)</h4>
+            <p>Auxiliar: WON'T</p>
+            <ul>
+                <li>1. I won't work alone.</li>
+                <li>2. You won't work alone.</li>
+                <li>3. He won't work alone.</li>
+                <li>4. She won't work alone.</li>
+                <li>5. It won't work alone.</li>
+                <li>6. We won't work alone.</li>
+                <li>7. You won't work alone.</li>
+                <li>8. They won't work alone.</li>
+            </ul>
+
+            <h4>C. Interrogative Form (?)</h4>
+            <p>Auxiliar: WILL (Pula para frente)</p>
+            <ul>
+                <li>1. Will I work with you?</li>
+                <li>2. Will you work with me?</li>
+                <li>3. Will he work with us?</li>
+                <li>4. Will she work with us?</li>
+                <li>5. Will it work well?</li>
+                <li>6. Will we work together?</li>
+                <li>7. Will you work together?</li>
+                <li>8. Will they work together?</li>
+            </ul>
+        </div>
+
+        
+
+        <div id="book2-dialogue" class="content-tab">
+
+            <h3 style="text-align: center; margin-bottom: 20px; color: var(--dark-bg);">Dialogue 2: The Interview</h3>
+            <p style="text-align: center; font-style: italic;">Instructions: Pair up. Student A is the Boss. Student B is the Candidate.</p>
+            <div class="dialogue-box">
+                <p><strong>Boss:</strong> Good morning. Do you work currently?</p>
+                <p><strong>Candidate:</strong> No, I don't work right now. I left my job last month.</p>
+                <p><strong>Boss:</strong> I see. Where did you work before?</p>
+                <p><strong>Candidate:</strong> I worked at a bank for 5 years.</p>
+                <p><strong>Boss:</strong> Did you like the job?</p>
+                <p><strong>Candidate:</strong> Yes, I liked it, but I wanted a change.</p>
+                <p><strong>Boss:</strong> Okay. If I hire you, will you work on weekends?</p>
+                <p><strong>Candidate:</strong> Yes, I will. I will work hard for this company.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="test" class="registration-section">
+
+        <div class="form-container">
+
+            <h2 style="text-align: center; margin-bottom: 10px;">Teste de Nivelamento</h2>
+
+            <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">Responda para sabermos se você começa no Book 1 ou Book 2 (Total: 10 Perguntas).</p>
+
+            <!-- Barra de Progresso -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p class="progress-text">0 de 10 perguntas respondidas</p>
+            </div>
+
+            <form id="levelingForm" onsubmit="sendToWhatsapp(event)" role="form">
+
+                <div class="form-group">
+                    <label for="name">Nome Completo <span aria-label="campo obrigatório">*</span></label>
+                    <input type="text" id="name" name="name" required placeholder="Digite seu nome completo" aria-required="true">
+                </div>
+
+                
+
+                <h4 style="margin-bottom: 15px;"><span class="level-badge bg-blue">Book 1 Level (To Be)</span></h4>
+
+                <div class="test-question">
+                    <label for="q1">1. "I ____ happy today."</label>
+                    <select id="q1" name="q1" aria-label="Pergunta 1: I ___ happy today">
+                        <option value="">Selecione</option>
+                        <option value="is">Is</option>
+                        <option value="are">Are</option>
+                        <option value="am">Am</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q2">2. "Yesterday, they ____ at home."</label>
+                    <select id="q2" name="q2" aria-label="Pergunta 2: Yesterday, they ___ at home">
+                        <option value="">Selecione</option>
+                        <option value="was">Was</option>
+                        <option value="were">Were</option>
+                        <option value="did">Did</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q3">3. "She ____ a doctor right now."</label>
+                    <select id="q3" name="q3" aria-label="Pergunta 3: She ___ a doctor right now">
+                        <option value="">Selecione</option>
+                        <option value="is">Is</option>
+                        <option value="are">Are</option>
+                        <option value="am">Am</option>
+                    </select>
+                </div>
+                
+                <div class="test-question">
+                    <label for="q4">4. "We ____ not ready for the test."</label>
+                    <select id="q4" name="q4" aria-label="Pergunta 4: We ___ not ready for the test">
+                        <option value="">Selecione</option>
+                        <option value="was">Was</option>
+                        <option value="are">Are</option>
+                        <option value="is">Is</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q5">5. "I ____ famous in the future."</label>
+                    <select id="q5" name="q5" aria-label="Pergunta 5: I ___ famous in the future">
+                        <option value="">Selecione</option>
+                        <option value="will be">Will be</option>
+                        <option value="am">Am</option>
+                        <option value="was">Was</option>
+                    </select>
+                </div>
+
+                
+
+                <h4 style="margin-bottom: 15px; margin-top: 30px;"><span class="level-badge bg-red">Book 2 Level (Action Verbs)</span></h4>
+
+                <div class="test-question">
+                    <label for="q6">6. "____ she work here?"</label>
+                    <select id="q6" name="q6" aria-label="Pergunta 6: ___ she work here?">
+                        <option value="">Selecione</option>
+                        <option value="do">Do</option>
+                        <option value="does">Does</option>
+                        <option value="is">Is</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q7">7. "Did you ____ to the beach?"</label>
+                    <select id="q7" name="q7" aria-label="Pergunta 7: Did you ___ to the beach?">
+                        <option value="">Selecione</option>
+                        <option value="go">Go</option>
+                        <option value="went">Went</option>
+                        <option value="gone">Gone</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q8">8. "He ____ every day."</label>
+                    <select id="q8" name="q8" aria-label="Pergunta 8: He ___ every day">
+                        <option value="">Selecione</option>
+                        <option value="work">Work</option>
+                        <option value="works">Works</option>
+                        <option value="worked">Worked</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q9">9. "They ____ not travel last year."</label>
+                    <select id="q9" name="q9" aria-label="Pergunta 9: They ___ not travel last year">
+                        <option value="">Selecione</option>
+                        <option value="do">Do</option>
+                        <option value="did">Did</option>
+                        <option value="are">Are</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q10">10. "I ____ study tomorrow."</label>
+                    <select id="q10" name="q10" aria-label="Pergunta 10: I ___ study tomorrow">
+                        <option value="">Selecione</option>
+                        <option value="will">Will</option>
+                        <option value="do">Do</option>
+                        <option value="did">Did</option>
+                    </select>
+                </div>
+
+
+                <button type="submit" class="btn-submit"><i class="fab fa-whatsapp"></i> Enviar Resultado e Baixar Material</button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+    </main>
+
+    <footer role="contentinfo">
+
+        <p>Flow English - Conversation Method</p>
+
+        <p><i class="fab fa-whatsapp"></i> (21) 98667-3864</p>
+
+    </footer>
+
+  
+
+    <script src="assets/script.js"></script>
+
+</body>
+
+</html> 
