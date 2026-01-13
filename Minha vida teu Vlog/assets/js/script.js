@@ -3,7 +3,7 @@ const translations = {
     'pt-pt': {
         'quickLinks.services': 'Meus<br>Serviços',
         'quickLinks.contact': 'Contato',
-        'about.description': 'Oioi sou a Babi — criadora de conteúdo e designer gráfica. Falo sobre autocuidado, beleza e desenvolvimento pessoal, ajudando-te a viver o teu glow up com propósito, leveza e criatividade. 🌸',
+        'about.description': 'Oi sou a Babi, criadora de conteúdo e designer gráfica. Falo sobre autocuidado, beleza e desenvolvimento pessoal, ajudando-te a viver o teu glow up com propósito, leveza e criatividade. 🌸',
         'about.signature': 'Me Segue',
         'social.title': 'Minhas Redes Sociais',
         'social.tiktokSelfcare': 'Tiktok de Autocuidado',
@@ -17,7 +17,7 @@ const translations = {
     'pt-br': {
         'quickLinks.services': 'Meus<br>Serviços',
         'quickLinks.contact': 'Contato',
-        'about.description': 'Oi, sou a Babi — criadora de conteúdo e designer gráfica. Falo sobre autocuidado, beleza e desenvolvimento pessoal, ajudando você a viver seu glow up com propósito, leveza e criatividade. 🌸',
+        'about.description': 'Oi sou a Babi, criadora de conteúdo e designer gráfica. Falo sobre autocuidado, beleza e desenvolvimento pessoal, ajudando você a viver seu glow up com propósito, leveza e criatividade. 🌸',
         'about.signature': 'Me Segue',
         'social.title': 'Minhas Redes Sociais',
         'social.tiktokSelfcare': 'Tiktok de Autocuidado',
@@ -60,8 +60,9 @@ const translations = {
     }
 };
 
-// Current language
+// Current language and location
 let currentLanguage = localStorage.getItem('language') || 'pt-pt';
+let isFromBrazil = false;
 
 // Change language function
 function changeLanguage(lang) {
@@ -399,10 +400,118 @@ function addNotificationStyles() {
     document.head.appendChild(style);
 }
 
+// Detect location using ipapi.co
+async function detectLocationAndLanguage() {
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        
+        console.log('📍 Localização detectada:', data);
+        
+        // Determine language based on country
+        if (data.country_code === 'BR') {
+            isFromBrazil = true;
+            // Se não houver idioma salvo, define como pt-br para Brasil
+            if (!localStorage.getItem('language')) {
+                currentLanguage = 'pt-br';
+                changeLanguage('pt-br');
+                updateLanguageDisplay('pt-br');
+                // Atualiza o botão ativo
+                document.querySelectorAll('.lang-option').forEach(opt => {
+                    opt.classList.remove('active');
+                    if (opt.getAttribute('data-lang') === 'pt-br') {
+                        opt.classList.add('active');
+                    }
+                });
+            }
+        } else if (data.country_code === 'PT') {
+            // Portugal
+            if (!localStorage.getItem('language')) {
+                currentLanguage = 'pt-pt';
+            }
+        } else if (data.country_code === 'ES' || data.country_code === 'MX' || 
+                   data.country_code === 'AR' || data.country_code === 'CO') {
+            // Países de língua espanhola
+            if (!localStorage.getItem('language')) {
+                currentLanguage = 'es';
+                changeLanguage('es');
+                updateLanguageDisplay('es');
+                document.querySelectorAll('.lang-option').forEach(opt => {
+                    opt.classList.remove('active');
+                    if (opt.getAttribute('data-lang') === 'es') {
+                        opt.classList.add('active');
+                    }
+                });
+            }
+        } else if (data.country_code === 'US' || data.country_code === 'GB' || 
+                   data.country_code === 'CA' || data.country_code === 'AU') {
+            // Países de língua inglesa
+            if (!localStorage.getItem('language')) {
+                currentLanguage = 'en';
+                changeLanguage('en');
+                updateLanguageDisplay('en');
+                document.querySelectorAll('.lang-option').forEach(opt => {
+                    opt.classList.remove('active');
+                    if (opt.getAttribute('data-lang') === 'en') {
+                        opt.classList.add('active');
+                    }
+                });
+            }
+        }
+        
+        // Atualizar WhatsApp baseado na localização
+        updateWhatsAppByLocation();
+        
+    } catch (error) {
+        console.log('❌ Erro ao detectar localização:', error);
+        // Fallback: usar idioma do navegador
+        const browserLang = navigator.language || navigator.userLanguage;
+        if (browserLang.startsWith('pt-BR')) {
+            isFromBrazil = true;
+            if (!localStorage.getItem('language')) {
+                currentLanguage = 'pt-br';
+            }
+        } else if (browserLang.startsWith('es')) {
+            if (!localStorage.getItem('language')) {
+                currentLanguage = 'es';
+            }
+        } else if (browserLang.startsWith('en')) {
+            if (!localStorage.getItem('language')) {
+                currentLanguage = 'en';
+            }
+        }
+        updateWhatsAppByLocation();
+    }
+}
+
+// Update WhatsApp number based on location
+function updateWhatsAppByLocation() {
+    const whatsappLink = document.querySelector('.whatsapp');
+    const whatsappFloat = document.querySelector('.whatsapp-float');
+    
+    if (isFromBrazil) {
+        // Número brasileiro
+        const brazilNumber = '5521997499808';
+        const formattedNumber = '+55 21 99749-9808';
+        const message = encodeURIComponent('Olá, gostaria de saber mais sobre seus serviços.');
+        
+        if (whatsappLink) {
+            whatsappLink.href = `https://wa.me/${brazilNumber}?text=${message}`;
+            whatsappLink.querySelector('span').textContent = formattedNumber;
+        }
+        
+        if (whatsappFloat) {
+            whatsappFloat.href = `https://wa.me/${brazilNumber}?text=${message}`;
+        }
+    }
+    // Se não for do Brasil, mantém o número de Portugal (já está no HTML)
+}
+
 // Initialize all functions when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     initializeSite();
     initLanguageSelector();
+    detectLocationAndLanguage(); // Detectar localização e idioma
     addClickAnimation();
     addQuickLinkEffects();
     setupImageHandlers();
