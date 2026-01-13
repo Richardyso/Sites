@@ -1,6 +1,10 @@
 User-agent: *
 Allow: /
-Disallow: /assets/js/
-Disallow: *.pdf
+
+# Permitir acesso aos arquivos JavaScript do site
+Allow: /assets/js/
+
+# Bloquear apenas PDFs privados (se houver)
+Disallow: /private/*.pdf
 
 Sitemap: https://minhavidateuvlog.netlify.app/sitemap.xml
