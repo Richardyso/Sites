@@ -461,63 +461,88 @@ function detectInitialLanguage() {
 let currentLanguage = detectInitialLanguage();
 let isFromBrazil = false; // Variável global para armazenar se o acesso é do Brasil
 
+// ========== DETECÇÃO RÁPIDA DE LOCALIZAÇÃO ==========
+// Executar IMEDIATAMENTE ao carregar o script (antes mesmo do DOM)
+(function quickBrazilDetection() {
+    try {
+        // Detecção ultra-rápida por timezone
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const brazilTimezones = ['America/Sao_Paulo', 'America/Rio_de_Janeiro', 'America/Brasilia', 
+                                'America/Fortaleza', 'America/Bahia', 'America/Recife'];
+        
+        if (brazilTimezones.some(tz => timezone.includes(tz))) {
+            isFromBrazil = true;
+            console.log('⚡ Brasil detectado instantaneamente por timezone:', timezone);
+            return;
+        }
+    } catch (e) {}
+    
+    // Fallback: detecção por idioma
+    const lang = navigator.language || navigator.userLanguage || '';
+    if (lang.toLowerCase() === 'pt-br') {
+        isFromBrazil = true;
+        console.log('⚡ Brasil detectado instantaneamente por idioma');
+    }
+})();
+
 // ========== GEOLOCATION DETECTION ==========
 async function detectBrazilLocation() {
+    // Primeiro, usar detecção rápida por timezone (instantâneo)
     try {
-        // Método 1: Usar API de geolocalização gratuita (ipapi.co)
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const brazilTimezones = ['America/Sao_Paulo', 'America/Rio_de_Janeiro', 'America/Brasilia', 
+                                'America/Fortaleza', 'America/Bahia', 'America/Recife', 
+                                'America/Belem', 'America/Manaus', 'America/Porto_Velho'];
         
-        if (data && data.country_code === 'BR') {
+        if (brazilTimezones.some(tz => timezone.includes(tz))) {
             isFromBrazil = true;
-            console.log('🇧🇷 Acesso detectado do Brasil');
-        } else if (data && data.country_code) {
-            isFromBrazil = false;
-            console.log(`🌍 Acesso detectado de: ${data.country_name || data.country_code}`);
-        } else {
-            throw new Error('API primária falhou');
+            console.log('🇧🇷 Acesso do Brasil detectado por timezone:', timezone);
+            updateWhatsAppByLocation();
+            return; // Sair imediatamente se detectar Brasil
         }
-    } catch (error) {
-        try {
-            // Método 2: API alternativa (ip-api.com)
-            const response2 = await fetch('https://ip-api.com/json/');
-            const data2 = await response2.json();
-            
-            if (data2 && data2.countryCode === 'BR') {
-                isFromBrazil = true;
-                console.log('🇧🇷 Acesso detectado do Brasil (API alternativa)');
-            } else if (data2 && data2.countryCode) {
-                isFromBrazil = false;
-                console.log(`🌍 Acesso detectado de: ${data2.country || data2.countryCode}`);
-            } else {
-                throw new Error('APIs de geolocalização falharam');
-            }
-        } catch (error2) {
-            // Método 3: Fallback - verificar timezone
-            try {
-                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                isFromBrazil = timezone.includes('Brazil') || timezone.includes('Sao_Paulo') || 
-                              timezone.includes('Rio') || timezone.includes('Brasilia') ||
-                              timezone.includes('Fortaleza') || timezone.includes('Bahia');
-                console.log('📍 Detecção por timezone:', isFromBrazil ? 'Brasil' : 'Outro país');
-            } catch (e) {
-                // Método 4: Fallback final - verificar idioma do navegador
-                const userLang = navigator.language || navigator.userLanguage;
-                isFromBrazil = userLang.toLowerCase() === 'pt-br';
-                console.log('🗣️ Detecção por idioma:', isFromBrazil ? 'Brasil' : 'Outro país');
-            }
-        }
+    } catch (e) {
+        console.log('Erro ao detectar timezone');
     }
     
-    // Atualizar número do WhatsApp baseado na localização
+    // Se não for Brasil por timezone, verificar idioma (também instantâneo)
+    const userLang = navigator.language || navigator.userLanguage;
+    if (userLang.toLowerCase() === 'pt-br') {
+        isFromBrazil = true;
+        console.log('🇧🇷 Acesso do Brasil detectado por idioma');
+        updateWhatsAppByLocation();
+        return;
+    }
+    
+    // Por padrão, assumir que não é Brasil e atualizar imediatamente
+    isFromBrazil = false;
     updateWhatsAppByLocation();
+    
+    // Depois, fazer verificação por IP em background (sem bloquear)
+    try {
+        const response = await fetch('https://ipapi.co/json/', { 
+            signal: AbortSignal.timeout(3000) // timeout de 3 segundos
+        });
+        const data = await response.json();
+        
+        if (data && data.country_code === 'BR' && !isFromBrazil) {
+            // Só atualizar se a detecção rápida estava errada
+            isFromBrazil = true;
+            console.log('🇧🇷 Confirmado: Acesso do Brasil via IP');
+            updateWhatsAppByLocation();
+        } else if (data && data.country_code === 'BR' && isFromBrazil) {
+            console.log('✅ Detecção confirmada: Brasil');
+        }
+    } catch (error) {
+        // Ignorar erros de API - já temos uma decisão rápida
+        console.log('API de geolocalização não disponível, usando detecção local');
+    }
 }
 
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🎨 Barbara - Portfolio Website Loaded');
     
-    // Detectar localização do Brasil
+    // Detectar localização do Brasil IMEDIATAMENTE
     detectBrazilLocation();
     
     // Initialize all functions
