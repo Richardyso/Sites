@@ -459,10 +459,66 @@ function detectInitialLanguage() {
 }
 
 let currentLanguage = detectInitialLanguage();
+let isFromBrazil = false; // Variável global para armazenar se o acesso é do Brasil
+
+// ========== GEOLOCATION DETECTION ==========
+async function detectBrazilLocation() {
+    try {
+        // Método 1: Usar API de geolocalização gratuita (ipapi.co)
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        
+        if (data && data.country_code === 'BR') {
+            isFromBrazil = true;
+            console.log('🇧🇷 Acesso detectado do Brasil');
+        } else if (data && data.country_code) {
+            isFromBrazil = false;
+            console.log(`🌍 Acesso detectado de: ${data.country_name || data.country_code}`);
+        } else {
+            throw new Error('API primária falhou');
+        }
+    } catch (error) {
+        try {
+            // Método 2: API alternativa (ip-api.com)
+            const response2 = await fetch('https://ip-api.com/json/');
+            const data2 = await response2.json();
+            
+            if (data2 && data2.countryCode === 'BR') {
+                isFromBrazil = true;
+                console.log('🇧🇷 Acesso detectado do Brasil (API alternativa)');
+            } else if (data2 && data2.countryCode) {
+                isFromBrazil = false;
+                console.log(`🌍 Acesso detectado de: ${data2.country || data2.countryCode}`);
+            } else {
+                throw new Error('APIs de geolocalização falharam');
+            }
+        } catch (error2) {
+            // Método 3: Fallback - verificar timezone
+            try {
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                isFromBrazil = timezone.includes('Brazil') || timezone.includes('Sao_Paulo') || 
+                              timezone.includes('Rio') || timezone.includes('Brasilia') ||
+                              timezone.includes('Fortaleza') || timezone.includes('Bahia');
+                console.log('📍 Detecção por timezone:', isFromBrazil ? 'Brasil' : 'Outro país');
+            } catch (e) {
+                // Método 4: Fallback final - verificar idioma do navegador
+                const userLang = navigator.language || navigator.userLanguage;
+                isFromBrazil = userLang.toLowerCase() === 'pt-br';
+                console.log('🗣️ Detecção por idioma:', isFromBrazil ? 'Brasil' : 'Outro país');
+            }
+        }
+    }
+    
+    // Atualizar número do WhatsApp baseado na localização
+    updateWhatsAppByLocation();
+}
 
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🎨 Barbara - Portfolio Website Loaded');
+    
+    // Detectar localização do Brasil
+    detectBrazilLocation();
     
     // Initialize all functions
     initLanguageSelector();
@@ -531,6 +587,8 @@ function changeLanguage(lang) {
             element.innerHTML = translations[lang][key];
         }
     });
+    
+    // Número do WhatsApp agora é baseado em localização, não idioma
 }
 
 function updateLanguageDisplay(lang) {
@@ -548,6 +606,52 @@ function updateLanguageDisplay(lang) {
         currentFlag.textContent = langMap[lang].flag;
         currentLang.textContent = langMap[lang].code;
     }
+}
+
+// Função para atualizar o número do WhatsApp baseado na localização
+function updateWhatsAppByLocation() {
+    // Definir números do WhatsApp
+    const brazilNumber = '+5521997499808';
+    const portugalNumber = '+351915437587';
+    
+    const number = isFromBrazil ? brazilNumber : portugalNumber;
+    const formattedNumber = isFromBrazil ? '+55 21 99749-9808' : '+351 915 437 587';
+    const cleanNumber = number.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+    
+    // Atualizar número na seção de contato
+    const whatsappNumberElement = document.getElementById('whatsapp-number');
+    if (whatsappNumberElement) {
+        whatsappNumberElement.textContent = formattedNumber;
+    }
+    
+    // Atualizar número no footer
+    const footerWhatsappNumber = document.getElementById('footer-whatsapp-number');
+    if (footerWhatsappNumber) {
+        footerWhatsappNumber.textContent = formattedNumber;
+    }
+    
+    // Atualizar link do WhatsApp na seção de contato
+    const whatsappLink = document.getElementById('whatsapp-link');
+    if (whatsappLink) {
+        const message = encodeURIComponent('Amei seu Portifólio');
+        whatsappLink.href = `https://wa.me/${cleanNumber}?text=${message}`;
+    }
+    
+    // Atualizar botão flutuante do WhatsApp
+    const whatsappFloat = document.getElementById('whatsapp-float');
+    if (whatsappFloat) {
+        const message = encodeURIComponent('Amei seu Portifólio');
+        whatsappFloat.href = `https://wa.me/${cleanNumber}?text=${message}`;
+    }
+    
+    // Armazenar o número atual para uso na geração do CV
+    window.currentWhatsAppNumber = formattedNumber;
+}
+
+// Função mantida para compatibilidade mas agora não altera o WhatsApp
+function updateWhatsAppNumber(lang) {
+    // Esta função agora não faz nada pois o WhatsApp é baseado em localização
+    // Mantida para não quebrar chamadas existentes
 }
 
 // ========== NAVIGATION FUNCTIONS ==========
@@ -1211,7 +1315,10 @@ function generateCV() {
     // Informações de Contato
     doc.setFontSize(9);
     doc.text('profissionalbarbaracosta@gmail.com', 55, 38);
-    doc.text('+351 915 437 587  |  WhatsApp', 55, 43);
+    
+    // Usar o número do WhatsApp baseado no idioma atual
+    const whatsappNumber = window.currentWhatsAppNumber || '+351 915 437 587';
+    doc.text(whatsappNumber + '  |  WhatsApp', 55, 43);
     
     // Linha decorativa
     doc.setDrawColor(...primaryColor);
