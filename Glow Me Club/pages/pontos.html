@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Pontos - GlowMeClub</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/images/favico.png">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Meus Pontos - GlowMeClub">
+    <meta property="og:description" content="Acompanhe seus BabiPoints no GlowMeClub">
+    <meta property="og:image" content="../assets/images/og.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/pontos.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* Estilos específicos da página de pontos */
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-sm);
+            color: var(--cor-texto-escuro);
+        }
+        
+        .page-subtitle {
+            color: var(--cor-texto-medio);
+            font-size: 1.1rem;
+        }
+        
+        /* Points Summary Card */
+        .points-summary-card {
+            background: linear-gradient(135deg, var(--cor-roxo-medio), var(--cor-roxo-claro));
+            color: var(--cor-branco);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--sombra-forte);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .points-summary-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        .points-total {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .points-label {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* CTA Trocar por recompensas */
+        .btn-redeem-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: var(--spacing-md);
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .btn-redeem-cta:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        
+        /* Como ganhar mais pontos */
+        .earn-points-section {
+            background: var(--cor-branco);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--sombra-suave);
+        }
+        
+        .earn-points-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--cor-texto-escuro);
+            font-size: 1rem;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .earn-points-section h3 i {
+            color: #F59E0B;
+        }
+        
+        .earn-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+        
+        .earn-option {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--cor-lilas-suave);
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .earn-option:hover {
+            background: var(--cor-lilas-medio);
+            transform: translateY(-2px);
+        }
+        
+        .earn-icon {
+            font-size: 2rem;
+        }
+        
+        .earn-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .earn-info strong {
+            color: var(--cor-texto-escuro);
+            font-size: 0.95rem;
+        }
+        
+        .earn-info span {
+            color: var(--cor-roxo-medio);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        /* Level Progress Section */
+        .level-progress-section {
+            background: var(--cor-branco);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--sombra-media);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+        
+        .current-level {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            background: var(--cor-lilas-suave);
+            color: var(--cor-roxo-medio);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+        }
+        
+        .level-emoji {
+            font-size: 1.25rem;
+        }
+        
+        .next-level-info {
+            text-align: right;
+            color: var(--cor-texto-medio);
+        }
+        
+        .progress-bar-container {
+            background: var(--cor-lilas-suave);
+            border-radius: var(--radius-lg);
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cor-roxo-medio), var(--cor-roxo-claro));
+            transition: width 1s ease;
+            position: relative;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: var(--cor-texto-medio);
+        }
+        
+        /* Points History */
+        .history-section {
+            background: var(--cor-branco);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--sombra-media);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--cor-texto-escuro);
+        }
+        
+        .filter-select {
+            padding: var(--spacing-xs) var(--spacing-md);
+            border: 2px solid var(--cor-lilas-suave);
+            border-radius: var(--radius-md);
+            background: var(--cor-branco);
+            color: var(--cor-texto-escuro);
+            font-family: var(--font-body);
+            cursor: pointer;
+            transition: var(--transition-base);
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--cor-roxo-medio);
+        }
+        
+        /* History Table */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th {
+            text-align: left;
+            padding: var(--spacing-md);
+            border-bottom: 2px solid var(--cor-lilas-suave);
+            font-weight: 600;
+            color: var(--cor-texto-medio);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+        
+        .history-table td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--cor-lilas-suave);
+        }
+        
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .history-date {
+            color: var(--cor-texto-medio);
+            font-size: 0.875rem;
+        }
+        
+        .history-action {
+            font-weight: 500;
+            color: var(--cor-texto-escuro);
+        }
+        
+        .history-points {
+            font-weight: 600;
+            text-align: right;
+        }
+        
+        .points-positive {
+            color: var(--cor-verde);
+        }
+        
+        .points-negative {
+            color: #DC2626;
+        }
+        
+        /* Mobile Responsive Table */
+        @media (max-width: 767px) {
+            .history-table {
+                font-size: 0.875rem;
+            }
+            
+            .history-table th,
+            .history-table td {
+                padding: var(--spacing-sm);
+            }
+            
+            .history-table th:first-child,
+            .history-table td:first-child {
+                padding-left: 0;
+            }
+            
+            .history-table th:last-child,
+            .history-table td:last-child {
+                padding-right: 0;
+            }
+        }
+        
+        /* Empty State */
+        .empty-history {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--cor-texto-medio);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--cor-lilas-medio);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        /* Load More */
+        .load-more {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 767px) {
+            .points-total {
+                font-size: 3rem;
+            }
+        }
+        
+        /* Colors */
+        :root {
+            --cor-verde: #10B981;
+        }
+    </style>
+</head>
+<body>
+        <!-- Header -->
+        <header class="app-header">
+            <nav class="app-nav">
+                <a href="/" class="logo-link">
+                    <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img">
+                </a>
+                
+                <!-- Desktop Navigation -->
+                <div class="desktop-nav">
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="metas.html" class="nav-link">Metas</a>
+                    <a href="missoes.html" class="nav-link">Missões</a>
+                    <a href="pontos.html" class="nav-link active">Pontos</a>
+                    <a href="recompensas.html" class="nav-link">Recompensas</a>
+                </div>
+                
+                <!-- User Area -->
+                <div class="user-area">
+                    <a href="perfil.html" class="user-profile-link">
+                        <div class="user-avatar" id="headerAvatar">
+                            <span>U</span>
+                        </div>
+                        <span class="user-name" id="headerUserName">Usuário</span>
+                    </a>
+                    <button class="logout-btn" id="logoutBtn" title="Sair">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="logout-text">Sair</span>
+                    </button>
+                </div>
+            </nav>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Meus Pontos</h1>
+                <p class="page-subtitle">Acompanhe sua evolução e conquistas</p>
+            </div>
+            
+            <!-- Points Summary -->
+            <div class="points-summary-card">
+                <div class="points-total" id="totalPoints">0</div>
+                <div class="points-label">BabiPoints</div>
+                <a href="recompensas.html" class="btn-redeem-cta">
+                    <i class="fas fa-gift"></i> Trocar por recompensas
+                </a>
+            </div>
+            
+            <!-- Como ganhar mais pontos -->
+            <div class="earn-points-section">
+                <h3><i class="fas fa-lightbulb"></i> Como ganhar mais pontos?</h3>
+                <div class="earn-options">
+                    <a href="missoes.html" class="earn-option">
+                        <div class="earn-icon">⭐</div>
+                        <div class="earn-info">
+                            <strong>Missões Diárias</strong>
+                            <span>+10 a +15 pts cada</span>
+                        </div>
+                    </a>
+                    <a href="metas.html" class="earn-option">
+                        <div class="earn-icon">🎯</div>
+                        <div class="earn-info">
+                            <strong>Completar Metas</strong>
+                            <span>+50 a +150 pts</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Level Progress -->
+            <div class="level-progress-section">
+                <div class="level-info">
+                    <div class="current-level">
+                        <span>Nível atual:</span>
+                        <div class="level-badge">
+                            <span class="level-emoji" id="levelEmoji">🌱</span>
+                            <span>Nível <span id="currentLevel">1</span> - <span id="levelName">Plebeia</span></span>
+                        </div>
+                    </div>
+                    <div class="next-level-info">
+                        <div>Próximo nível em:</div>
+                        <strong><span id="pointsToNext">500</span> pontos</strong>
+                    </div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="levelProgressBar" style="width: 0%"></div>
+                </div>
+                
+                <div class="progress-text">
+                    <span><span id="currentLevelPoints">0</span> pts</span>
+                    <span><span id="nextLevelPoints">500</span> pts</span>
+                </div>
+            </div>
+            
+            <!-- Points History -->
+            <div class="history-section">
+                <div class="section-header">
+                    <h2 class="section-title">Histórico de Pontos</h2>
+                    <select class="filter-select" id="filterSelect">
+                        <option value="all">Todos</option>
+                        <option value="earned">Ganhos</option>
+                        <option value="spent">Gastos</option>
+                    </select>
+                </div>
+                
+                <div id="historyContent">
+                    <!-- Tabela será preenchida dinamicamente -->
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Ação</th>
+                                <th>Pontos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Exemplo de linha (será preenchido dinamicamente) -->
+                            <tr>
+                                <td class="history-date">Hoje, 14:30</td>
+                                <td class="history-action">Meta concluída: Meditar 10 minutos</td>
+                                <td class="history-points points-positive">+50 pts</td>
+                            </tr>
+                            <tr>
+                                <td class="history-date">Hoje, 10:15</td>
+                                <td class="history-action">Missão concluída: Beber 2L de água</td>
+                                <td class="history-points points-positive">+10 pts</td>
+                            </tr>
+                            <tr>
+                                <td class="history-date">Ontem, 18:45</td>
+                                <td class="history-action">Recompensa resgatada: E-book de Skincare</td>
+                                <td class="history-points points-negative">-300 pts</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Empty state (escondido quando há dados) -->
+                    <div class="empty-history" id="emptyHistory" style="display: none;">
+                        <div class="empty-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <p>Nenhum histórico de pontos ainda</p>
+                        <p>Complete missões e metas para ganhar seus primeiros pontos!</p>
+                    </div>
+                    
+                    <!-- Load More -->
+                    <div class="load-more" id="loadMoreContainer">
+                        <button class="btn btn-outline" id="loadMoreBtn" onclick="loadMoreHistory()">
+                            Carregar mais
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Bottom Navigation (Mobile) -->
+        <nav class="bottom-nav">
+            <div class="bottom-nav-items">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="metas.html" class="nav-item">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Metas</span>
+                </a>
+                <a href="missoes.html" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>Missões</span>
+                </a>
+                <a href="pontos.html" class="nav-item active">
+                    <i class="fas fa-coins"></i>
+                    <span>Pontos</span>
+                </a>
+                <a href="recompensas.html" class="nav-item">
+                    <i class="fas fa-gift"></i>
+                    <span>Recompensas</span>
+                </a>
+            </div>
+        </nav>
+    
+    <!-- Scripts -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/pontos.js"></script>
+    
+    <script>
+        // Mobile menu
+        function openMobileMenu() {
+            document.getElementById('mobileMenuModal').classList.add('active');
+        }
+        
+        function closeMobileMenu() {
+            document.getElementById('mobileMenuModal').classList.remove('active');
+        }
+        
+        // Load more history
+        function loadMoreHistory() {
+            // Esta função será implementada em points.js
+            console.log('Carregando mais histórico...');
+        }
+        
+        // Filter change
+        document.getElementById('filterSelect').addEventListener('change', function() {
+            // Esta funcionalidade será implementada em points.js
+            console.log('Filtro alterado:', this.value);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redefinir Senha - GlowMeClub</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/images/favico.png">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Redefinir Senha - GlowMeClub">
+    <meta property="og:description" content="Redefina sua senha no GlowMeClub">
+    <meta property="og:image" content="../assets/images/og.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="../assets/css/auth.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* Estilos específicos para página de reset */
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+        
+        .code-input-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 25px 0;
+        }
+        
+        .code-input {
+            width: 50px;
+            height: 60px;
+            font-size: 24px;
+            text-align: center;
+            border: 2px solid var(--cor-lilas-medio);
+            border-radius: 12px;
+            font-weight: 600;
+            color: var(--cor-roxo-escuro);
+            background: var(--cor-branco);
+            transition: all 0.3s ease;
+        }
+        
+        .code-input:focus {
+            border-color: var(--cor-roxo-medio);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+            outline: none;
+        }
+        
+        .code-input.filled {
+            background: var(--cor-lilas-suave);
+            border-color: var(--cor-roxo-medio);
+        }
+        
+        .timer {
+            text-align: center;
+            color: var(--cor-texto-medio);
+            font-size: 0.9rem;
+            margin: 15px 0;
+        }
+        
+        .timer.expired {
+            color: #DC2626;
+        }
+        
+        .resend-link {
+            color: var(--cor-roxo-medio);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .resend-link:hover {
+            color: var(--cor-roxo-escuro);
+        }
+        
+        .resend-link.disabled {
+            color: var(--cor-texto-claro);
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+        
+        .success-animation {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .success-animation .icon {
+            font-size: 64px;
+            color: #10B981;
+            animation: bounceIn 0.6s ease;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .email-display {
+            background: var(--cor-lilas-suave);
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+            color: var(--cor-roxo-escuro);
+            margin: 15px 0;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--cor-lilas-medio);
+            transition: all 0.3s ease;
+        }
+        
+        .step-dot.active {
+            width: 30px;
+            border-radius: 5px;
+            background: var(--cor-roxo-medio);
+        }
+        
+        .step-dot.completed {
+            background: #10B981;
+        }
+    </style>
+</head>
+<body class="auth-page">
+    <!-- Volta ao início -->
+    <a href="login.html" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Voltar ao login
+    </a>
+    
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2>🔐 Recuperar Senha</h2>
+            <p>Não se preocupe, maravilhosa! Vamos te ajudar a voltar.</p>
+        </div>
+        
+        <div class="auth-body">
+            <!-- Indicador de passos -->
+            <div class="step-indicator">
+                <div class="step-dot active" id="dot1"></div>
+                <div class="step-dot" id="dot2"></div>
+                <div class="step-dot" id="dot3"></div>
+            </div>
+            
+            <!-- PASSO 1: Informar email -->
+            <div class="step active" id="step1">
+                <form id="emailForm">
+                    <p style="text-align: center; margin-bottom: 20px;">
+                        Digite seu email e enviaremos um código de verificação.
+                    </p>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-control" 
+                            required
+                            placeholder="seu@email.com"
+                        >
+                    </div>
+                    
+                    <div id="step1Error" class="error-message" style="display: none;"></div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-block" id="sendCodeBtn">
+                            <span class="btn-text">Enviar código</span>
+                            <span class="btn-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Enviando...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- PASSO 2: Inserir código -->
+            <div class="step" id="step2">
+                <form id="codeForm">
+                    <p style="text-align: center;">
+                        Enviamos um código de 6 dígitos para:
+                    </p>
+                    
+                    <div class="email-display" id="emailDisplay">email@exemplo.com</div>
+                    
+                    <p style="text-align: center; font-size: 0.9rem; color: var(--cor-texto-medio);">
+                        Digite o código abaixo:
+                    </p>
+                    
+                    <div class="code-input-container">
+                        <input type="text" class="code-input" maxlength="1" data-index="0" inputmode="numeric">
+                        <input type="text" class="code-input" maxlength="1" data-index="1" inputmode="numeric">
+                        <input type="text" class="code-input" maxlength="1" data-index="2" inputmode="numeric">
+                        <input type="text" class="code-input" maxlength="1" data-index="3" inputmode="numeric">
+                        <input type="text" class="code-input" maxlength="1" data-index="4" inputmode="numeric">
+                        <input type="text" class="code-input" maxlength="1" data-index="5" inputmode="numeric">
+                    </div>
+                    
+                    <div class="timer" id="timer">
+                        Código válido por <span id="timerCount">15:00</span>
+                    </div>
+                    
+                    <div id="step2Error" class="error-message" style="display: none;"></div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-block" id="verifyCodeBtn">
+                            <span class="btn-text">Verificar código</span>
+                            <span class="btn-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Verificando...
+                            </span>
+                        </button>
+                    </div>
+                    
+                    <p style="text-align: center; margin-top: 20px;">
+                        Não recebeu? 
+                        <span class="resend-link disabled" id="resendLink">Reenviar código</span>
+                    </p>
+                </form>
+            </div>
+            
+            <!-- PASSO 3: Nova senha -->
+            <div class="step" id="step3">
+                <form id="passwordForm">
+                    <p style="text-align: center; margin-bottom: 20px;">
+                        Ótimo! Agora crie sua nova senha. 🎉
+                    </p>
+                    
+                    <div class="form-group">
+                        <label for="newPassword" class="form-label">Nova senha</label>
+                        <div class="password-toggle">
+                            <input 
+                                type="password" 
+                                id="newPassword" 
+                                name="newPassword" 
+                                class="form-control" 
+                                required
+                                minlength="8"
+                                placeholder="Mínimo 8 caracteres"
+                            >
+                            <button type="button" class="toggle-btn" onclick="togglePassword('newPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label">Confirmar senha</label>
+                        <div class="password-toggle">
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                name="confirmPassword" 
+                                class="form-control" 
+                                required
+                                minlength="8"
+                                placeholder="Digite novamente"
+                            >
+                            <button type="button" class="toggle-btn" onclick="togglePassword('confirmPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="step3Error" class="error-message" style="display: none;"></div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-block" id="resetPasswordBtn">
+                            <span class="btn-text">Alterar senha</span>
+                            <span class="btn-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Alterando...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- SUCESSO -->
+            <div class="step" id="stepSuccess">
+                <div class="success-animation">
+                    <div class="icon">✅</div>
+                    <h3 style="color: #10B981; margin: 20px 0;">Senha alterada com sucesso!</h3>
+                    <p>Sua senha foi redefinida. Agora você já pode fazer login com a nova senha.</p>
+                </div>
+                
+                <div class="form-actions" style="margin-top: 30px;">
+                    <a href="login.html" class="btn btn-primary btn-block">
+                        <i class="fas fa-sign-in-alt"></i> Fazer login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    
+    <script>
+        // Variáveis globais
+        let userEmail = '';
+        let verificationCode = '';
+        let timerInterval = null;
+        let timeLeft = 15 * 60; // 15 minutos em segundos
+        let canResend = false;
+        
+        // Elementos
+        const steps = document.querySelectorAll('.step');
+        const dots = [
+            document.getElementById('dot1'),
+            document.getElementById('dot2'),
+            document.getElementById('dot3')
+        ];
+        
+        // Navegação entre passos
+        function goToStep(stepNum) {
+            steps.forEach(step => step.classList.remove('active'));
+            document.getElementById(`step${stepNum}`).classList.add('active');
+            
+            dots.forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index + 1 < stepNum) {
+                    dot.classList.add('completed');
+                } else if (index + 1 === stepNum) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+        
+        function goToSuccess() {
+            steps.forEach(step => step.classList.remove('active'));
+            document.getElementById('stepSuccess').classList.add('active');
+            dots.forEach(dot => dot.classList.add('completed'));
+        }
+        
+        // Toggle senha
+        function togglePassword(fieldId, btn) {
+            const field = document.getElementById(fieldId);
+            const icon = btn.querySelector('i');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        // Timer
+        function startTimer() {
+            timeLeft = 15 * 60;
+            canResend = false;
+            document.getElementById('resendLink').classList.add('disabled');
+            
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timerCount').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timer').classList.add('expired');
+                    document.getElementById('timerCount').textContent = 'expirado';
+                    canResend = true;
+                    document.getElementById('resendLink').classList.remove('disabled');
+                }
+                
+                // Permitir reenvio após 60 segundos
+                if (timeLeft <= 14 * 60) {
+                    canResend = true;
+                    document.getElementById('resendLink').classList.remove('disabled');
+                }
+            }, 1000);
+        }
+        
+        // Input do código
+        const codeInputs = document.querySelectorAll('.code-input');
+        
+        codeInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value.replace(/[^0-9]/g, '');
+                e.target.value = value;
+                
+                if (value) {
+                    e.target.classList.add('filled');
+                    if (index < codeInputs.length - 1) {
+                        codeInputs[index + 1].focus();
+                    }
+                } else {
+                    e.target.classList.remove('filled');
+                }
+                
+                // Verificar se todos os campos estão preenchidos
+                const code = Array.from(codeInputs).map(i => i.value).join('');
+                if (code.length === 6) {
+                    verificationCode = code;
+                }
+            });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    codeInputs[index - 1].focus();
+                }
+            });
+            
+            // Permitir colar código
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+                
+                pastedData.split('').forEach((char, i) => {
+                    if (codeInputs[i]) {
+                        codeInputs[i].value = char;
+                        codeInputs[i].classList.add('filled');
+                    }
+                });
+                
+                if (pastedData.length === 6) {
+                    verificationCode = pastedData;
+                    codeInputs[5].focus();
+                }
+            });
+        });
+        
+        // Mostrar/esconder loading no botão
+        function setButtonLoading(btn, loading) {
+            const text = btn.querySelector('.btn-text');
+            const loadingEl = btn.querySelector('.btn-loading');
+            
+            if (loading) {
+                text.style.display = 'none';
+                loadingEl.style.display = 'inline';
+                btn.disabled = true;
+            } else {
+                text.style.display = 'inline';
+                loadingEl.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+        
+        // Mostrar erro
+        function showError(stepId, message) {
+            const errorEl = document.getElementById(`${stepId}Error`);
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+        
+        function hideError(stepId) {
+            const errorEl = document.getElementById(`${stepId}Error`);
+            errorEl.style.display = 'none';
+        }
+        
+        // PASSO 1: Enviar email
+        document.getElementById('emailForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError('step1');
+            
+            const email = document.getElementById('email').value.trim();
+            const btn = document.getElementById('sendCodeBtn');
+            
+            if (!email) {
+                showError('step1', 'Por favor, informe seu email');
+                return;
+            }
+            
+            setButtonLoading(btn, true);
+            
+            try {
+                const response = await window.api.post('/auth/forgot-password', { email });
+                
+                if (response.success) {
+                    userEmail = email;
+                    document.getElementById('emailDisplay').textContent = email;
+                    goToStep(2);
+                    startTimer();
+                    codeInputs[0].focus();
+                } else {
+                    showError('step1', response.message || 'Erro ao enviar código');
+                }
+            } catch (error) {
+                showError('step1', error.message || 'Erro ao enviar código. Tente novamente.');
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        });
+        
+        // PASSO 2: Verificar código
+        document.getElementById('codeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError('step2');
+            
+            const code = Array.from(codeInputs).map(i => i.value).join('');
+            const btn = document.getElementById('verifyCodeBtn');
+            
+            if (code.length !== 6) {
+                showError('step2', 'Digite o código completo de 6 dígitos');
+                return;
+            }
+            
+            setButtonLoading(btn, true);
+            
+            try {
+                const response = await window.api.post('/auth/verify-reset-code', { 
+                    email: userEmail, 
+                    code 
+                });
+                
+                if (response.success) {
+                    verificationCode = code;
+                    goToStep(3);
+                    document.getElementById('newPassword').focus();
+                } else {
+                    showError('step2', response.message || 'Código inválido');
+                }
+            } catch (error) {
+                showError('step2', error.message || 'Código inválido. Tente novamente.');
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        });
+        
+        // PASSO 3: Redefinir senha
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError('step3');
+            
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const btn = document.getElementById('resetPasswordBtn');
+            
+            if (newPassword.length < 8) {
+                showError('step3', 'A senha deve ter pelo menos 8 caracteres');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showError('step3', 'As senhas não coincidem');
+                return;
+            }
+            
+            setButtonLoading(btn, true);
+            
+            try {
+                const response = await window.api.post('/auth/reset-password', {
+                    email: userEmail,
+                    code: verificationCode,
+                    newPassword
+                });
+                
+                if (response.success) {
+                    clearInterval(timerInterval);
+                    goToSuccess();
+                } else {
+                    showError('step3', response.message || 'Erro ao alterar senha');
+                }
+            } catch (error) {
+                showError('step3', error.message || 'Erro ao alterar senha. Tente novamente.');
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        });
+        
+        // Reenviar código
+        document.getElementById('resendLink').addEventListener('click', async () => {
+            if (!canResend) return;
+            
+            hideError('step2');
+            
+            try {
+                const response = await window.api.post('/auth/forgot-password', { email: userEmail });
+                
+                if (response.success) {
+                    // Limpar inputs
+                    codeInputs.forEach(input => {
+                        input.value = '';
+                        input.classList.remove('filled');
+                    });
+                    codeInputs[0].focus();
+                    
+                    // Reiniciar timer
+                    document.getElementById('timer').classList.remove('expired');
+                    startTimer();
+                    
+                    alert('Novo código enviado!');
+                }
+            } catch (error) {
+                showError('step2', 'Erro ao reenviar código. Tente novamente.');
+            }
+        });
+    </script>
+</body>
+</html>

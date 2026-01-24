@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recompensas - GlowMeClub</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/images/favico.png">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Recompensas - GlowMeClub">
+    <meta property="og:description" content="Resgate recompensas exclusivas no GlowMeClub">
+    <meta property="og:image" content="../assets/images/og.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/recompensas.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* Estilos específicos da página de recompensas */
+        .app-layout {
+            min-height: 100vh;
+            background: linear-gradient(to bottom, var(--cor-lilas-suave), var(--cor-branco));
+        }
+        
+        /* Reutiliza estilos do header */
+        .app-header {
+            background: var(--cor-branco);
+            box-shadow: var(--sombra-suave);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .app-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) 0;
+        }
+        
+        .app-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--cor-roxo-medio), var(--cor-rosa-pastel));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Navegação Desktop */
+        .nav-desktop {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .nav-desktop {
+                display: flex;
+                gap: var(--spacing-lg);
+                align-items: center;
+            }
+            
+            .nav-link {
+                color: var(--cor-texto-medio);
+                font-weight: 500;
+                transition: var(--transition-base);
+            }
+            
+            .nav-link:hover,
+            .nav-link.active {
+                color: var(--cor-roxo-medio);
+            }
+        }
+        
+        /* User Menu */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: var(--cor-roxo-medio);
+            color: var(--cor-branco);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            overflow: hidden;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .user-name {
+                display: block;
+            }
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: var(--spacing-xs);
+            background: var(--cor-branco);
+            border-radius: var(--radius-md);
+            box-shadow: var(--sombra-media);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: var(--transition-base);
+        }
+        
+        .user-menu.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            color: var(--cor-texto-escuro);
+            transition: var(--transition-base);
+        }
+        
+        .dropdown-item:hover {
+            background: var(--cor-lilas-suave);
+            color: var(--cor-roxo-medio);
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: var(--cor-lilas-suave);
+            margin: var(--spacing-xs) 0;
+        }
+        
+        /* Menu burger para mobile */
+        .menu-burger {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--spacing-xs);
+        }
+        
+        @media (max-width: 767px) {
+            .menu-burger {
+                display: flex;
+            }
+        }
+        
+        .menu-burger span {
+            width: 25px;
+            height: 3px;
+            background: var(--cor-texto-escuro);
+            border-radius: 2px;
+            transition: var(--transition-base);
+        }
+        
+        /* Conteúdo das Recompensas */
+        .rewards-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xl) var(--spacing-md);
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-sm);
+            color: var(--cor-texto-escuro);
+        }
+        
+        .page-subtitle {
+            color: var(--cor-texto-medio);
+            font-size: 1.1rem;
+        }
+        
+        /* Points Balance */
+        .points-balance {
+            background: linear-gradient(135deg, var(--cor-roxo-medio), var(--cor-roxo-claro));
+            color: var(--cor-branco);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg);
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--sombra-media);
+        }
+        
+        .balance-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .balance-icon {
+            font-size: 2rem;
+        }
+        
+        /* Link para extrato */
+        .btn-history-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: var(--spacing-md);
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-history-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Rewards Tabs */
+        .rewards-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            background: var(--cor-branco);
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--sombra-suave);
+        }
+        
+        .rewards-tab {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            background: none;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            color: var(--cor-texto-medio);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .rewards-tab.active {
+            background: var(--cor-roxo-medio);
+            color: white;
+        }
+        
+        .rewards-tab:hover:not(.active) {
+            background: var(--cor-lilas-suave);
+        }
+        
+        /* Como ganhar mais pontos */
+        .earn-more-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .earn-more-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #92400E;
+        }
+        
+        .earn-more-title i {
+            color: #F59E0B;
+        }
+        
+        .earn-more-links {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+        
+        .earn-more-links a {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 20px;
+            color: var(--cor-texto-escuro);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .earn-more-links a:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--sombra-suave);
+        }
+        
+        .earn-more-links a i {
+            color: var(--cor-roxo-medio);
+        }
+        
+        /* Meus Resgates Section */
+        .my-rewards-section {
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .my-rewards-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        .my-reward-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background: var(--cor-branco);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--sombra-suave);
+        }
+        
+        .my-reward-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            background: var(--cor-lilas-suave);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--cor-roxo-medio);
+        }
+        
+        .my-reward-info {
+            flex: 1;
+        }
+        
+        .my-reward-title {
+            font-weight: 600;
+            color: var(--cor-texto-escuro);
+        }
+        
+        .my-reward-date {
+            font-size: 0.8rem;
+            color: var(--cor-texto-medio);
+        }
+        
+        .my-reward-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .my-reward-status.available {
+            background: #D1FAE5;
+            color: #059669;
+        }
+        
+        .my-reward-status.pending {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+        
+        .my-reward-status.sent {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+        
+        .empty-rewards {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--cor-texto-medio);
+        }
+        
+        .empty-rewards i {
+            font-size: 3rem;
+            color: var(--cor-lilas-medio);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .empty-rewards h3 {
+            color: var(--cor-texto-escuro);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        @media (max-width: 600px) {
+            .earn-more-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .earn-more-links {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Rewards Grid */
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .reward-card {
+            background: var(--cor-branco);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--sombra-suave);
+            transition: var(--transition-base);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .reward-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--sombra-forte);
+        }
+        
+        .reward-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--cor-lilas-suave), var(--cor-rosa-pastel-claro));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--cor-roxo-medio);
+        }
+        
+        .reward-content {
+            padding: var(--spacing-lg);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .reward-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--cor-texto-escuro);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .reward-description {
+            color: var(--cor-texto-medio);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: var(--spacing-md);
+            flex: 1;
+        }
+        
+        .reward-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--cor-lilas-suave);
+        }
+        
+        .reward-cost {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--cor-roxo-medio);
+        }
+        
+        .btn-redeem {
+            background: var(--cor-roxo-medio);
+            color: var(--cor-branco);
+        }
+        
+        .btn-redeem:hover {
+            background: var(--cor-roxo-claro);
+        }
+        
+        .btn-redeem:disabled {
+            background: var(--cor-texto-medio);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        /* Insufficient Points State */
+        .insufficient-points {
+            font-size: 0.875rem;
+            color: #DC2626;
+            font-weight: 500;
+        }
+        
+        /* Tabs de categorias */
+        .category-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xl);
+            overflow-x: auto;
+            padding-bottom: var(--spacing-sm);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .category-tab {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: var(--cor-branco);
+            border: 2px solid var(--cor-lilas-suave);
+            border-radius: var(--radius-lg);
+            color: var(--cor-texto-medio);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-base);
+            white-space: nowrap;
+        }
+        
+        .category-tab:hover {
+            border-color: var(--cor-roxo-medio);
+            color: var(--cor-roxo-medio);
+        }
+        
+        .category-tab.active {
+            background: var(--cor-roxo-medio);
+            border-color: var(--cor-roxo-medio);
+            color: var(--cor-branco);
+        }
+        
+        /* Modal de Confirmação */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md);
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--cor-branco);
+            border-radius: var(--radius-xl);
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--sombra-forte);
+            animation: fadeInUp 0.3s ease;
+            text-align: center;
+        }
+        
+        .modal-header {
+            padding: var(--spacing-xl) var(--spacing-xl) 0;
+        }
+        
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--cor-lilas-suave);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-md);
+            font-size: 2.5rem;
+        }
+        
+        .modal-body {
+            padding: var(--spacing-lg) var(--spacing-xl);
+        }
+        
+        .modal-footer {
+            padding: 0 var(--spacing-xl) var(--spacing-xl);
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: center;
+        }
+        
+        /* Success Animation */
+        @keyframes successPulse {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .success-icon {
+            animation: successPulse 0.5s ease;
+            color: var(--cor-verde);
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 767px) {
+            .rewards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .balance-amount {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Colors */
+        :root {
+            --cor-verde: #10B981;
+        }
+    </style>
+</head>
+<body>
+        <!-- Header -->
+        <header class="app-header">
+            <nav class="app-nav">
+                <a href="/" class="logo-link">
+                    <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img">
+                </a>
+                
+                <!-- Desktop Navigation -->
+                <div class="desktop-nav">
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="metas.html" class="nav-link">Metas</a>
+                    <a href="missoes.html" class="nav-link">Missões</a>
+                    <a href="pontos.html" class="nav-link">Pontos</a>
+                    <a href="recompensas.html" class="nav-link active">Recompensas</a>
+                </div>
+                
+                <!-- User Area -->
+                <div class="user-area">
+                    <a href="perfil.html" class="user-profile-link">
+                        <div class="user-avatar" id="headerAvatar">
+                            <span>U</span>
+                        </div>
+                        <span class="user-name" id="headerUserName">Usuário</span>
+                    </a>
+                    <button class="logout-btn" id="logoutBtn" title="Sair">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="logout-text">Sair</span>
+                    </button>
+                </div>
+            </nav>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Recompensas</h1>
+                <p class="page-subtitle">Troque seus pontos por prêmios exclusivos</p>
+            </div>
+            
+            <!-- Points Balance -->
+            <div class="points-balance">
+                <div class="balance-label">Seus pontos disponíveis</div>
+                <div class="balance-amount">
+                    <i class="fas fa-coins balance-icon"></i>
+                    <span id="userPoints">0</span>
+                    <span>pts</span>
+                </div>
+                <a href="pontos.html" class="btn-history-link">
+                    <i class="fas fa-history"></i> Ver extrato de pontos
+                </a>
+            </div>
+            
+            <!-- Tabs: Recompensas / Meus Resgates -->
+            <div class="rewards-tabs">
+                <button class="rewards-tab active" onclick="showTab('rewards')">
+                    <i class="fas fa-gift"></i> Recompensas
+                </button>
+                <button class="rewards-tab" onclick="showTab('myrewards')">
+                    <i class="fas fa-box-open"></i> Meus Resgates
+                </button>
+            </div>
+            
+            <!-- Meus Resgates Section (hidden by default) -->
+            <div class="my-rewards-section" id="myRewardsSection" style="display: none;">
+                <div class="my-rewards-list" id="myRewardsList">
+                    <!-- Será preenchido dinamicamente -->
+                </div>
+                <div class="empty-rewards" id="emptyMyRewards">
+                    <i class="fas fa-box-open"></i>
+                    <h3>Nenhum resgate ainda</h3>
+                    <p>Quando você resgatar uma recompensa, ela aparecerá aqui!</p>
+                </div>
+            </div>
+            
+            <!-- Rewards Section -->
+            <div id="rewardsSection">
+            
+            <!-- Como ganhar mais pontos -->
+            <div class="earn-more-section">
+                <span class="earn-more-title">
+                    <i class="fas fa-lightbulb"></i> Quer mais pontos?
+                </span>
+                <div class="earn-more-links">
+                    <a href="missoes.html"><i class="fas fa-star"></i> Missões (+10-15 pts)</a>
+                    <a href="metas.html"><i class="fas fa-bullseye"></i> Metas (+50-150 pts)</a>
+                </div>
+            </div>
+            
+            <!-- Category Tabs -->
+            <div class="category-tabs">
+                <button class="category-tab active" onclick="filterCategory('all')">Todas</button>
+                <button class="category-tab" onclick="filterCategory('ebooks')">E-books</button>
+                <button class="category-tab" onclick="filterCategory('aulas')">Aulas</button>
+                <button class="category-tab" onclick="filterCategory('badges')">Badges</button>
+                <button class="category-tab" onclick="filterCategory('digital')">Digital</button>
+            </div>
+            
+            <!-- Rewards Grid -->
+            <div class="rewards-grid" id="rewardsGrid">
+                <!-- E-book de Skincare -->
+                <div class="reward-card" data-category="ebooks" data-reward-id="1">
+                    <div class="reward-image">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="reward-content">
+                        <h3 class="reward-title">E-book de Skincare</h3>
+                        <p class="reward-description">
+                            Guia completo com rotina de cuidados com a pele, dicas de produtos e receitas caseiras para um glow natural.
+                        </p>
+                        <div class="reward-footer">
+                            <div class="reward-cost">
+                                <i class="fas fa-coins"></i>
+                                <span>300</span>
+                            </div>
+                            <button class="btn btn-redeem" onclick="openRedeemModal(1, 'E-book de Skincare', 300)">
+                                Resgatar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Aula de Autocuidado -->
+                <div class="reward-card" data-category="aulas" data-reward-id="2">
+                    <div class="reward-image">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="reward-content">
+                        <h3 class="reward-title">Aula de Autocuidado</h3>
+                        <p class="reward-description">
+                            Aula online ao vivo sobre técnicas de autocuidado, meditação e desenvolvimento de hábitos saudáveis.
+                        </p>
+                        <div class="reward-footer">
+                            <div class="reward-cost">
+                                <i class="fas fa-coins"></i>
+                                <span>500</span>
+                            </div>
+                            <button class="btn btn-redeem" onclick="openRedeemModal(2, 'Aula de Autocuidado', 500)">
+                                Resgatar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sessão de Mentoria -->
+                <div class="reward-card" data-category="aulas" data-reward-id="3">
+                    <div class="reward-image">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="reward-content">
+                        <h3 class="reward-title">Sessão de Mentoria</h3>
+                        <p class="reward-description">
+                            Sessão individual de 1 hora com uma mentora especializada em desenvolvimento pessoal feminino.
+                        </p>
+                        <div class="reward-footer">
+                            <div class="reward-cost">
+                                <i class="fas fa-coins"></i>
+                                <span>1000</span>
+                            </div>
+                            <button class="btn btn-redeem" onclick="openRedeemModal(3, 'Sessão de Mentoria', 1000)">
+                                Resgatar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Badge Exclusiva: Guerreira -->
+                <div class="reward-card" data-category="badges" data-reward-id="4">
+                    <div class="reward-image">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <div class="reward-content">
+                        <h3 class="reward-title">Badge Exclusiva: Guerreira</h3>
+                        <p class="reward-description">
+                            Badge especial para seu perfil mostrando que você é uma verdadeira guerreira do autocuidado.
+                        </p>
+                        <div class="reward-footer">
+                            <div class="reward-cost">
+                                <i class="fas fa-coins"></i>
+                                <span>200</span>
+                            </div>
+                            <button class="btn btn-redeem" onclick="openRedeemModal(4, 'Badge Exclusiva: Guerreira', 200)">
+                                Resgatar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Planner Digital -->
+                <div class="reward-card" data-category="digital" data-reward-id="5">
+                    <div class="reward-image">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="reward-content">
+                        <h3 class="reward-title">Planner Digital</h3>
+                        <p class="reward-description">
+                            Planner digital personalizado com páginas para metas, hábitos, gratidão e acompanhamento mensal.
+                        </p>
+                        <div class="reward-footer">
+                            <div class="reward-cost">
+                                <i class="fas fa-coins"></i>
+                                <span>400</span>
+                            </div>
+                            <button class="btn btn-redeem" onclick="openRedeemModal(5, 'Planner Digital', 400)">
+                                Resgatar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kit de Meditações Guiadas -->
+                <div class="reward-card" data-category="digital" data-reward-id="6">
+                    <div class="reward-image">
+                        <i class="fas fa-headphones"></i>
+                    </div>
+                    <div class="reward-content">
+                        <h3 class="reward-title">Kit de Meditações Guiadas</h3>
+                        <p class="reward-description">
+                            10 meditações guiadas em áudio para diferentes momentos: manhã, ansiedade, sono e autoestima.
+                        </p>
+                        <div class="reward-footer">
+                            <div class="reward-cost">
+                                <i class="fas fa-coins"></i>
+                                <span>350</span>
+                            </div>
+                            <button class="btn btn-redeem" onclick="openRedeemModal(6, 'Kit de Meditações Guiadas', 350)">
+                                Resgatar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            </div><!-- End rewardsSection -->
+        </main>
+        
+        <!-- Bottom Navigation (Mobile) -->
+        <nav class="bottom-nav">
+            <div class="bottom-nav-items">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="metas.html" class="nav-item">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Metas</span>
+                </a>
+                <a href="missoes.html" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>Missões</span>
+                </a>
+                <a href="pontos.html" class="nav-item">
+                    <i class="fas fa-coins"></i>
+                    <span>Pontos</span>
+                </a>
+                <a href="recompensas.html" class="nav-item active">
+                    <i class="fas fa-gift"></i>
+                    <span>Recompensas</span>
+                </a>
+            </div>
+        </nav>
+    
+    <!-- Modal de Confirmação de Resgate -->
+    <div class="modal" id="redeemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <h3 id="modalRewardTitle">Confirmar Resgate</h3>
+            </div>
+            
+            <div class="modal-body">
+                <p>Você está prestes a resgatar:</p>
+                <h4 id="modalRewardName" style="color: var(--cor-roxo-medio); margin: var(--spacing-md) 0;">Nome da Recompensa</h4>
+                <p>Custo: <strong id="modalRewardCost">0</strong> pontos</p>
+                <p id="modalMessage" style="margin-top: var(--spacing-md);">Após o resgate, você receberá as instruções por e-mail.</p>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeRedeemModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmRedeemBtn" onclick="confirmRedeem()">
+                    Confirmar Resgate
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Sucesso -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>Resgate Realizado!</h3>
+            </div>
+            
+            <div class="modal-body">
+                <p style="font-size: 1.1rem; margin-bottom: var(--spacing-md);">Parabéns! 🎉</p>
+                <p>Sua recompensa foi resgatada com sucesso.</p>
+                <p>Você receberá um e-mail com todas as instruções.</p>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="closeSuccessModal()">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/recompensas.js"></script>
+    
+    <script>
+        // Toggle dropdown menu
+        function toggleDropdown() {
+            document.querySelector('.user-menu').classList.toggle('active');
+        }
+        
+        // Fechar dropdown ao clicar fora
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                document.querySelector('.user-menu').classList.remove('active');
+            }
+        });
+        
+        // Mobile menu
+        function openMobileMenu() {
+            document.getElementById('mobileMenuModal').classList.add('active');
+        }
+        
+        function closeMobileMenu() {
+            document.getElementById('mobileMenuModal').classList.remove('active');
+        }
+        
+        // Filter categories
+        function filterCategory(category) {
+            // Update active tab
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filter cards
+            const cards = document.querySelectorAll('.reward-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Redeem modal
+        let currentRewardId = null;
+        let currentRewardCost = 0;
+        
+        function openRedeemModal(rewardId, rewardName, cost) {
+            currentRewardId = rewardId;
+            currentRewardCost = cost;
+            
+            document.getElementById('modalRewardName').textContent = rewardName;
+            document.getElementById('modalRewardCost').textContent = cost;
+            
+            // Verificar se tem pontos suficientes
+            const userPoints = parseInt(document.getElementById('userPoints').textContent);
+            const confirmBtn = document.getElementById('confirmRedeemBtn');
+            
+            if (userPoints < cost) {
+                document.getElementById('modalMessage').innerHTML = 
+                    `<span style="color: #DC2626;">Você precisa de mais ${cost - userPoints} pontos para resgatar esta recompensa.</span>`;
+                confirmBtn.disabled = true;
+            } else {
+                document.getElementById('modalMessage').textContent = 
+                    'Após o resgate, você receberá as instruções por e-mail.';
+                confirmBtn.disabled = false;
+            }
+            
+            document.getElementById('redeemModal').classList.add('active');
+        }
+        
+        function closeRedeemModal() {
+            document.getElementById('redeemModal').classList.remove('active');
+            currentRewardId = null;
+            currentRewardCost = 0;
+        }
+        
+        function confirmRedeem() {
+            // Esta função será implementada em rewards.js
+            console.log('Resgatando recompensa:', currentRewardId, 'Custo:', currentRewardCost);
+            
+            // Por enquanto, vamos simular o sucesso
+            closeRedeemModal();
+            setTimeout(() => {
+                document.getElementById('successModal').classList.add('active');
+            }, 300);
+        }
+        
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('active');
+            // Atualizar pontos e recarregar página
+            location.reload();
+        }
+        
+        // Tab switching
+        function showTab(tab) {
+            document.querySelectorAll('.rewards-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tab === 'myrewards') {
+                document.getElementById('rewardsSection').style.display = 'none';
+                document.getElementById('myRewardsSection').style.display = 'block';
+                loadMyRewards();
+            } else {
+                document.getElementById('rewardsSection').style.display = 'block';
+                document.getElementById('myRewardsSection').style.display = 'none';
+            }
+        }
+        
+        // Load my rewards
+        function loadMyRewards() {
+            const cachedData = localStorage.getItem('cachedUserData');
+            if (!cachedData) return;
+            
+            const userData = JSON.parse(cachedData);
+            const myRewards = userData.redeemedRewards || [];
+            
+            const listContainer = document.getElementById('myRewardsList');
+            const emptyState = document.getElementById('emptyMyRewards');
+            
+            if (myRewards.length === 0) {
+                listContainer.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            const statusLabels = {
+                'available': 'Disponível',
+                'pending': 'Pendente',
+                'sent': 'Enviado'
+            };
+            
+            const icons = {
+                'ebooks': 'fa-book',
+                'aulas': 'fa-video',
+                'badges': 'fa-medal',
+                'digital': 'fa-download'
+            };
+            
+            listContainer.innerHTML = myRewards.map(reward => `
+                <div class="my-reward-item">
+                    <div class="my-reward-icon">
+                        <i class="fas ${icons[reward.category] || 'fa-gift'}"></i>
+                    </div>
+                    <div class="my-reward-info">
+                        <div class="my-reward-title">${reward.title}</div>
+                        <div class="my-reward-date">Resgatado em ${formatDate(reward.redeemedAt)}</div>
+                    </div>
+                    <span class="my-reward-status ${reward.status || 'available'}">
+                        ${statusLabels[reward.status] || 'Disponível'}
+                    </span>
+                </div>
+            `).join('');
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('pt-BR');
+        }
+        
+        // Fechar modais ao clicar fora
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this && this.id !== 'mobileMenuModal') {
+                    this.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

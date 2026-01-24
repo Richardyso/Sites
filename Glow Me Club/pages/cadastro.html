@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - GlowMeClub</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/images/favico.png">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Cadastro - GlowMeClub">
+    <meta property="og:description" content="Crie sua conta no GlowMeClub e comece sua jornada">
+    <meta property="og:image" content="../assets/images/og.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="../assets/css/auth.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* Estilos específicos da página de cadastro */
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--cor-lilas-suave) 0%, var(--cor-rosa-pastel-claro) 100%);
+            padding: var(--spacing-lg) 0;
+        }
+        
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--cor-branco);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--sombra-forte);
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        .auth-header {
+            background: linear-gradient(135deg, var(--cor-roxo-medio), var(--cor-roxo-claro));
+            color: var(--cor-branco);
+            padding: var(--spacing-xl) var(--spacing-lg);
+            text-align: center;
+        }
+        
+        .auth-header h2 {
+            color: var(--cor-branco);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .auth-header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        .auth-body {
+            padding: var(--spacing-xl) var(--spacing-lg);
+        }
+        
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-weight: 500;
+            color: var(--cor-texto-escuro);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--cor-lilas-suave);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-family: var(--font-body);
+            transition: var(--transition-base);
+            background: var(--cor-branco);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--cor-roxo-medio);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+        
+        .form-control.error {
+            border-color: #DC2626;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            margin-top: var(--spacing-xs);
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: var(--transition-base);
+            border: 3px solid transparent;
+            position: relative;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border-color: var(--cor-texto-escuro);
+        }
+        
+        .color-option.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .password-toggle {
+            position: relative;
+        }
+        
+        .password-toggle .toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--cor-texto-medio);
+            padding: 4px;
+        }
+        
+        .password-toggle .toggle-btn:hover {
+            color: var(--cor-roxo-medio);
+        }
+        
+        .form-text {
+            font-size: 0.875rem;
+            color: var(--cor-texto-medio);
+            margin-top: var(--spacing-xs);
+        }
+        
+        .form-actions {
+            margin-top: var(--spacing-lg);
+        }
+        
+        .auth-footer {
+            text-align: center;
+            padding: var(--spacing-lg);
+            background: var(--cor-lilas-suave);
+        }
+        
+        .auth-footer p {
+            color: var(--cor-texto-medio);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .back-link {
+            position: absolute;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            color: var(--cor-texto-escuro);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            color: var(--cor-roxo-medio);
+        }
+        
+        /* Loading state */
+        .btn-loading {
+            position: relative;
+            color: transparent;
+            pointer-events: none;
+        }
+        
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid var(--cor-branco);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Mensagens */
+        .error-message {
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            font-size: 0.9rem;
+        }
+        
+        .success-message {
+            background: #D1FAE5;
+            color: #059669;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Voltar
+    </a>
+    
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2>Entrar no GlowMeClub</h2>
+                <p>Comece sua jornada de evolução pessoal</p>
+            </div>
+            
+            <div class="auth-body">
+                <form id="signupForm">
+                    <!-- Nome -->
+                    <div class="form-group">
+                        <label for="name" class="form-label">Nome completo</label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            class="form-control" 
+                            required
+                            placeholder="Digite seu nome completo"
+                        >
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-control" 
+                            required
+                            placeholder="seu@email.com"
+                        >
+                    </div>
+                    
+                    <!-- Senha -->
+                    <div class="form-group">
+                        <label for="password" class="form-label">Senha</label>
+                        <div class="password-toggle">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                class="form-control" 
+                                required
+                                minlength="8"
+                                placeholder="Mínimo 8 caracteres"
+                            >
+                            <button type="button" class="toggle-btn" data-toggle="password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmar Senha -->
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label">Confirmar senha</label>
+                        <div class="password-toggle">
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                name="confirmPassword" 
+                                class="form-control" 
+                                required
+                                minlength="8"
+                                placeholder="Digite a senha novamente"
+                            >
+                            <button type="button" class="toggle-btn" data-toggle="confirmPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Cor Preferida -->
+                    <div class="form-group">
+                        <label class="form-label">Cor preferida</label>
+                        <div class="color-picker">
+                            <div class="color-option selected" style="background: #DDD6FE" data-color="#DDD6FE"></div>
+                            <div class="color-option" style="background: #C4B5FD" data-color="#C4B5FD"></div>
+                            <div class="color-option" style="background: #A78BFA" data-color="#A78BFA"></div>
+                            <div class="color-option" style="background: #8B5CF6" data-color="#8B5CF6"></div>
+                            <div class="color-option" style="background: #FFC0CB" data-color="#FFC0CB"></div>
+                            <div class="color-option" style="background: #FFB6C1" data-color="#FFB6C1"></div>
+                            <div class="color-option" style="background: #F9A8D4" data-color="#F9A8D4"></div>
+                            <div class="color-option" style="background: #FCD34D" data-color="#FCD34D"></div>
+                        </div>
+                        <input type="hidden" id="preferredColor" name="preferredColor" value="#DDD6FE">
+                    </div>
+                    
+                    <!-- Área de Foco -->
+                    <div class="form-group">
+                        <label for="focusArea" class="form-label">Área de foco principal</label>
+                        <select id="focusArea" name="focusArea" class="form-control" required>
+                            <option value="">Selecione uma área</option>
+                            <option value="Mental">🧠 Mental</option>
+                            <option value="Físico">💪 Físico</option>
+                            <option value="Emocional">💗 Emocional</option>
+                            <option value="Espiritual">🕊️ Espiritual</option>
+                            <option value="Financeiro">💰 Financeiro</option>
+                            <option value="Aparência">✨ Aparência</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Mensagem de erro -->
+                    <div id="errorMessage" class="error-message" style="display: none;"></div>
+                    
+                    <!-- Mensagem de sucesso -->
+                    <div id="successMessage" class="success-message" style="display: none;"></div>
+                    
+                    <!-- Botão de cadastro -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            <span>Entrar no GlowMeClub</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="auth-footer">
+                <p>Já tem uma conta?</p>
+                <a href="login.html">Faça login</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Autenticação Local (sem Firebase) -->
+    <!-- Scripts -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Seletor de cor
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    document.getElementById('preferredColor').value = this.dataset.color;
+                });
+            });
+            
+            // Toggle senha - usando data attributes
+            document.querySelectorAll('.toggle-btn[data-toggle]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const fieldId = this.dataset.toggle;
+                    const field = document.getElementById(fieldId);
+                    const icon = this.querySelector('i');
+                    
+                    if (field.type === 'password') {
+                        field.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        field.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

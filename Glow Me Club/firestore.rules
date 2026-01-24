@@ -1,0 +1,130 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Função auxiliar para verificar se o usuário está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Função auxiliar para verificar se o usuário é o dono do documento
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Função para validar campos de usuário
+    function validUserData() {
+      return request.resource.data.keys().hasAll(['name', 'email', 'preferredColor', 'focusArea', 'totalPoints', 'currentLevel']) &&
+             request.resource.data.name is string &&
+             request.resource.data.email is string &&
+             request.resource.data.preferredColor is string &&
+             request.resource.data.focusArea is string &&
+             request.resource.data.totalPoints is number &&
+             request.resource.data.currentLevel is number &&
+             request.resource.data.totalPoints >= 0 &&
+             request.resource.data.currentLevel >= 1 &&
+             request.resource.data.currentLevel <= 5;
+    }
+    
+    // Função para validar dados de meta
+    function validGoalData() {
+      return request.resource.data.keys().hasAll(['title', 'category', 'progress', 'completed']) &&
+             request.resource.data.title is string &&
+             request.resource.data.category is string &&
+             request.resource.data.progress is number &&
+             request.resource.data.completed is bool &&
+             request.resource.data.progress >= 0 &&
+             request.resource.data.progress <= 100;
+    }
+    
+    // Função para validar dados de missão
+    function validMissionData() {
+      return request.resource.data.keys().hasAll(['description', 'pointsEarned', 'completed', 'date']) &&
+             request.resource.data.description is string &&
+             request.resource.data.pointsEarned is number &&
+             request.resource.data.completed is bool &&
+             request.resource.data.date is string &&
+             request.resource.data.pointsEarned > 0;
+    }
+    
+    // ===== REGRAS PARA USUÁRIOS =====
+    match /users/{userId} {
+      // Leitura: apenas o próprio usuário
+      allow read: if isOwner(userId);
+      
+      // Criação: usuário autenticado criando seu próprio documento
+      allow create: if isAuthenticated() && 
+                      request.auth.uid == userId &&
+                      validUserData() &&
+                      request.resource.data.totalPoints == 0 &&
+                      request.resource.data.currentLevel == 1;
+      
+      // Atualização: apenas o próprio usuário, com restrições
+      allow update: if isOwner(userId) &&
+                      // Não pode alterar o email
+                      (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['email'])) &&
+                      // Pontos só podem aumentar ou diminuir por recompensas
+                      (request.resource.data.totalPoints >= 0);
+      
+      // Deleção: não permitida
+      allow delete: if false;
+      
+      // ===== SUBCOLEÇÕES =====
+      
+      // Metas
+      match /goals/{goalId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && validGoalData();
+        allow update: if isOwner(userId) && validGoalData();
+        allow delete: if isOwner(userId);
+      }
+      
+      // Missões
+      match /missions/{missionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && validMissionData();
+        allow update: if isOwner(userId) && 
+                        validMissionData() &&
+                        // Não pode desmarcar missão completada
+                        (resource.data.completed == false || request.resource.data.completed == true);
+        allow delete: if false;
+      }
+      
+      // Histórico de pontos (somente leitura e criação)
+      match /pointsHistory/{historyId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                        request.resource.data.keys().hasAll(['action', 'points', 'timestamp']) &&
+                        request.resource.data.action is string &&
+                        request.resource.data.points is number;
+        allow update: if false;
+        allow delete: if false;
+      }
+      
+      // Recompensas resgatadas (somente leitura e criação)
+      match /rewards/{rewardId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                        request.resource.data.keys().hasAll(['rewardId', 'rewardTitle', 'pointsCost', 'redeemedAt']) &&
+                        request.resource.data.rewardId is string &&
+                        request.resource.data.rewardTitle is string &&
+                        request.resource.data.pointsCost is number &&
+                        request.resource.data.pointsCost > 0;
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+    
+    // ===== CATÁLOGO DE RECOMPENSAS (somente leitura) =====
+    match /rewardsLibrary/{rewardId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+    
+    // ===== CONFIGURAÇÕES GLOBAIS (somente leitura) =====
+    match /config/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+  }
+}

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Metas - GlowMeClub</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/images/favico.png">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Minhas Metas - GlowMeClub">
+    <meta property="og:description" content="Defina e acompanhe suas metas no GlowMeClub">
+    <meta property="og:image" content="../assets/images/og.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/metas.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <nav class="app-nav">
+            <a href="/" class="logo-link">
+                <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img">
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="desktop-nav">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="metas.html" class="nav-link active">Metas</a>
+                <a href="missoes.html" class="nav-link">Missões</a>
+                <a href="pontos.html" class="nav-link">Pontos</a>
+                <a href="recompensas.html" class="nav-link">Recompensas</a>
+            </div>
+            
+            <!-- User Area -->
+            <div class="user-area">
+                <a href="perfil.html" class="user-profile-link">
+                    <div class="user-avatar" id="headerAvatar">
+                        <span>U</span>
+                    </div>
+                    <span class="user-name" id="headerUserName">Usuário</span>
+                </a>
+                <button class="logout-btn" id="logoutBtn" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="logout-text">Sair</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Minhas Metas</h1>
+            <p class="page-subtitle">Defina objetivos claros e acompanhe seu progresso</p>
+        </div>
+
+        <!-- Goals Grid -->
+        <div class="goals-grid" id="goalsGrid">
+            <!-- Metas serão carregadas dinamicamente -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-goals" id="emptyState" style="display: none;">
+            <span class="empty-icon">
+                <i class="fas fa-bullseye"></i>
+            </span>
+            <h3>Nenhuma meta ainda</h3>
+            <p>Comece criando sua primeira meta para acompanhar seu progresso!</p>
+        </div>
+    </main>
+
+    <!-- Add Goal Button -->
+    <button class="add-goal-btn" id="addGoalBtn" aria-label="Adicionar nova meta">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-items">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="metas.html" class="nav-item active">
+                <i class="fas fa-bullseye"></i>
+                <span>Metas</span>
+            </a>
+            <a href="missoes.html" class="nav-item">
+                <i class="fas fa-star"></i>
+                <span>Missões</span>
+            </a>
+            <a href="pontos.html" class="nav-item">
+                <i class="fas fa-coins"></i>
+                <span>Pontos</span>
+            </a>
+            <a href="recompensas.html" class="nav-item">
+                <i class="fas fa-gift"></i>
+                <span>Recompensas</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Goal Modal -->
+    <div class="modal" id="goalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nova Meta</h3>
+                <button class="close-btn" id="closeModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="goalForm">
+                <div class="modal-body">
+                    <!-- Título da Meta -->
+                    <div class="form-group">
+                        <label for="goalTitle" class="form-label">Título da meta</label>
+                        <input 
+                            type="text" 
+                            id="goalTitle" 
+                            class="form-input"
+                            placeholder="Ex: Ler 2 livros este mês"
+                            required
+                        >
+                    </div>
+
+                    <!-- Categoria -->
+                    <div class="form-group">
+                        <label for="goalCategory" class="form-label">Categoria</label>
+                        <select id="goalCategory" class="form-select" required>
+                            <option value="">Selecione uma categoria</option>
+                            <option value="mental">Mental</option>
+                            <option value="fisico">Físico</option>
+                            <option value="emocional">Emocional</option>
+                            <option value="espiritual">Espiritual</option>
+                            <option value="financeiro">Financeiro</option>
+                            <option value="aparencia">Aparência</option>
+                        </select>
+                    </div>
+
+                    <!-- Descrição -->
+                    <div class="form-group">
+                        <label for="goalDescription" class="form-label">Descrição (opcional)</label>
+                        <textarea 
+                            id="goalDescription"
+                            class="form-textarea"
+                            placeholder="Detalhes sobre sua meta..."
+                            rows="3"
+                        ></textarea>
+                    </div>
+
+                    <!-- Meta -->
+                    <div class="form-group">
+                        <label for="goalTarget" class="form-label">Meta numérica</label>
+                        <input 
+                            type="number" 
+                            id="goalTarget" 
+                            class="form-input"
+                            placeholder="Ex: 30"
+                            min="1"
+                            required
+                        >
+                    </div>
+
+                    <!-- Prazo -->
+                    <div class="form-group">
+                        <label for="goalDeadline" class="form-label">Prazo</label>
+                        <input 
+                            type="date" 
+                            id="goalDeadline" 
+                            class="form-input"
+                            required
+                        >
+                    </div>
+
+                    <!-- Pontos de Recompensa -->
+                    <div class="form-group">
+                        <label for="goalPoints" class="form-label">Pontos ao completar</label>
+                        <input 
+                            type="number" 
+                            id="goalPoints" 
+                            class="form-input"
+                            placeholder="Ex: 100"
+                            min="10"
+                            step="10"
+                            value="50"
+                            required
+                        >
+                    </div>
+                    
+                    <!-- Micro-etapas (Check-ins) -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-check-double"></i> Micro-etapas (opcional)
+                        </label>
+                        <p class="form-hint">Divida sua meta em pequenos passos e ganhe pontos parciais a cada check-in!</p>
+                        <div class="checkins-config">
+                            <div class="checkins-toggle">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="enableCheckins">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Habilitar check-ins</span>
+                            </div>
+                            <div class="checkins-options" id="checkinsOptions" style="display: none;">
+                                <div class="checkin-setting">
+                                    <label>Número de check-ins:</label>
+                                    <select id="numCheckins" class="form-input">
+                                        <option value="3">3 etapas</option>
+                                        <option value="4">4 etapas</option>
+                                        <option value="5" selected>5 etapas</option>
+                                        <option value="7">7 etapas</option>
+                                        <option value="10">10 etapas</option>
+                                    </select>
+                                </div>
+                                <div class="checkin-setting">
+                                    <label>Pontos por check-in:</label>
+                                    <input type="number" id="pointsPerCheckin" class="form-input" value="5" min="1" max="20">
+                                </div>
+                                <p class="checkin-preview">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span id="checkinPreview">5 check-ins × 5 pts = +25 pts extras!</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelGoalBtn">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Criar Meta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/metas.js"></script>
+    <script>
+        // Template para criar cards de metas - acessível globalmente
+        window.createGoalCard = function(goal) {
+            const progress = (goal.current / goal.target) * 100;
+            const categoryIcons = {
+                mental: '🧠',
+                fisico: '💪',
+                emocional: '❤️',
+                espiritual: '✨',
+                financeiro: '💰',
+                aparencia: '💄'
+            };
+
+            const card = document.createElement('div');
+            card.className = 'goal-card';
+            card.dataset.goalId = goal.id;
+            if (goal.completed) {
+                card.classList.add('completed');
+            }
+
+            // Gerar HTML de check-ins se habilitado
+            let checkinsHtml = '';
+            if (goal.checkins && goal.checkins.enabled) {
+                const totalCheckins = goal.checkins.total || 5;
+                const completedCheckins = goal.checkins.completed || 0;
+                const pointsPerCheckin = goal.checkins.pointsEach || 5;
+                
+                let dotsHtml = '';
+                for (let i = 0; i < totalCheckins; i++) {
+                    const isCompleted = i < completedCheckins;
+                    dotsHtml += `<span class="checkin-dot ${isCompleted ? 'completed' : ''}" data-index="${i}"></span>`;
+                }
+                
+                checkinsHtml = `
+                    <div class="goal-checkins">
+                        <div class="checkins-header">
+                            <span class="checkins-title">
+                                <i class="fas fa-check-double"></i> 
+                                Check-ins: ${completedCheckins}/${totalCheckins}
+                            </span>
+                            <span class="checkins-reward">+${pointsPerCheckin} pts cada</span>
+                        </div>
+                        <div class="checkins-dots">${dotsHtml}</div>
+                        ${!goal.completed && completedCheckins < totalCheckins ? `
+                            <button class="btn-checkin" data-action="checkin" data-id="${goal.id}">
+                                <i class="fas fa-plus"></i> Fazer check-in (+${pointsPerCheckin} pts)
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="goal-header">
+                    <div class="goal-checkbox ${goal.completed ? 'checked' : ''}" data-action="toggle" data-id="${goal.id}"></div>
+                    <div class="goal-info">
+                        <h3>${goal.title}</h3>
+                        <span class="goal-category">
+                            <span class="category-icon category-${goal.category}">${categoryIcons[goal.category] || '🎯'}</span>
+                            ${goal.category.charAt(0).toUpperCase() + goal.category.slice(1)}
+                        </span>
+                    </div>
+                    <div class="goal-actions">
+                        <button class="goal-action" data-action="edit" data-id="${goal.id}" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="goal-action" data-action="delete" data-id="${goal.id}" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="goal-progress">
+                    <div class="progress-info">
+                        <span class="progress-label">Progresso</span>
+                        <span class="progress-percentage">${Math.round(progress)}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span class="progress-value">${goal.current} / ${goal.target}</span>
+                    </div>
+                </div>
+                
+                ${checkinsHtml}
+                
+                <div class="goal-details">
+                    <div class="goal-deadline">
+                        <i class="fas fa-calendar"></i>
+                        ${formatDate(goal.deadline)}
+                    </div>
+                    <div class="goal-reward">
+                        <i class="fas fa-coins"></i>
+                        ${goal.points} pontos
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Formatar data
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            return date.toLocaleDateString('pt-BR', options);
+        }
+
+        // Event delegation para ações nos cards de metas
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('[data-action]');
+            if (!target) return;
+            
+            const action = target.dataset.action;
+            const goalId = target.dataset.id;
+            
+            if (action === 'toggle' && window.toggleGoal) {
+                window.toggleGoal(goalId);
+            } else if (action === 'edit' && window.editGoal) {
+                window.editGoal(goalId);
+            } else if (action === 'delete' && window.deleteGoal) {
+                window.deleteGoal(goalId);
+            } else if (action === 'checkin' && window.doCheckin) {
+                window.doCheckin(goalId);
+            }
+        });
+        
+        // Toggle check-ins options
+        document.getElementById('enableCheckins')?.addEventListener('change', function() {
+            const options = document.getElementById('checkinsOptions');
+            if (options) {
+                options.style.display = this.checked ? 'block' : 'none';
+            }
+        });
+        
+        // Update check-in preview
+        function updateCheckinPreview() {
+            const num = parseInt(document.getElementById('numCheckins')?.value || 5);
+            const pts = parseInt(document.getElementById('pointsPerCheckin')?.value || 5);
+            const preview = document.getElementById('checkinPreview');
+            if (preview) {
+                preview.textContent = `${num} check-ins × ${pts} pts = +${num * pts} pts extras!`;
+            }
+        }
+        
+        document.getElementById('numCheckins')?.addEventListener('change', updateCheckinPreview);
+        document.getElementById('pointsPerCheckin')?.addEventListener('input', updateCheckinPreview);
+    </script>
+</body>
+</html>

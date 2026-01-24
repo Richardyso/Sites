@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - GlowMeClub</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/images/favico.png">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Meu Perfil - GlowMeClub">
+    <meta property="og:description" content="Gerencie seu perfil no GlowMeClub">
+    <meta property="og:image" content="../assets/images/og.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/perfil.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <nav class="app-nav">
+            <a href="/" class="logo-link">
+                <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img">
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="desktop-nav">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="metas.html" class="nav-link">Metas</a>
+                <a href="missoes.html" class="nav-link">Missões</a>
+                <a href="pontos.html" class="nav-link">Pontos</a>
+                <a href="recompensas.html" class="nav-link">Recompensas</a>
+            </div>
+            
+            <!-- User Area -->
+            <div class="user-area">
+                <a href="perfil.html" class="user-profile-link">
+                    <div class="user-avatar" id="headerAvatar">
+                        <span>U</span>
+                    </div>
+                    <span class="user-name" id="headerUserName">Usuário</span>
+                </a>
+                <button class="logout-btn" id="logoutBtn" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="logout-text">Sair</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Meu Perfil</h1>
+            <p class="page-subtitle">Gerencie suas informações pessoais</p>
+        </div>
+
+        <!-- Profile Form Card -->
+        <div class="profile-form-card">
+            <form id="profileForm">
+                <!-- Avatar Section -->
+                <div class="avatar-section">
+                    <div class="avatar-container">
+                        <div class="profile-avatar-large" id="profileAvatar">
+                            <span id="avatarInitial">U</span>
+                            <img id="avatarImage" src="" alt="Avatar" style="display: none;">
+                        </div>
+                        <label for="avatarInput" class="avatar-edit-btn" title="Alterar foto">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="avatar-info">
+                        <p class="avatar-hint">Clique no ícone da câmera para alterar sua foto</p>
+                        <p class="avatar-hint-small">Formatos: JPG, PNG, GIF (máx. 5MB)</p>
+                        <button type="button" id="removeAvatarBtn" class="btn-text" style="display: none;">
+                            <i class="fas fa-trash"></i> Remover foto
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Informações Pessoais
+                    </h3>
+                    
+                    <!-- Nome -->
+                    <div class="form-group">
+                        <label for="userName" class="form-label">Nome completo</label>
+                        <input 
+                            type="text" 
+                            id="userName" 
+                            name="name" 
+                            class="form-input"
+                            placeholder="Seu nome"
+                            required
+                        >
+                    </div>
+                    
+                    <!-- Email (readonly) -->
+                    <div class="form-group">
+                        <label for="userEmail" class="form-label">E-mail</label>
+                        <input 
+                            type="email" 
+                            id="userEmail" 
+                            name="email" 
+                            class="form-input"
+                            readonly
+                            disabled
+                        >
+                        <span class="form-hint">O e-mail não pode ser alterado</span>
+                    </div>
+                </div>
+
+                <!-- Preferences Section -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-palette"></i>
+                        Preferências
+                    </h3>
+                    
+                    <!-- Cor Preferida -->
+                    <div class="form-group">
+                        <label class="form-label">Cor preferida</label>
+                        <button type="button" class="color-selector-btn" id="colorSelectorBtn">
+                            <span class="selected-color-preview" id="selectedColorPreview" style="background: #8B5CF6"></span>
+                            <span class="selected-color-name" id="selectedColorName">Roxo médio</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <input type="hidden" id="preferredColor" name="preferredColor" value="#8B5CF6">
+                    </div>
+                    
+                    <!-- Área de Foco -->
+                    <div class="form-group">
+                        <label for="focusArea" class="form-label">Área de foco principal</label>
+                        <select id="focusArea" name="focusArea" class="form-select" required>
+                            <option value="Mental">🧠 Mental</option>
+                            <option value="Físico">💪 Físico</option>
+                            <option value="Emocional">💗 Emocional</option>
+                            <option value="Espiritual">🕊️ Espiritual</option>
+                            <option value="Financeiro">💰 Financeiro</option>
+                            <option value="Aparência">✨ Aparência</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Stats Section (readonly) -->
+                <div class="form-section stats-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        Suas Estatísticas
+                    </h3>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="totalPoints">0</span>
+                                <span class="stat-label">BabiPoints</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="currentLevel">1</span>
+                                <span class="stat-label">Nível</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="memberSince">-</span>
+                                <span class="stat-label">Membro desde</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Level Progress -->
+                    <div class="level-progress-section">
+                        <div class="level-info">
+                            <span class="level-badge" id="levelBadge">
+                                <span id="levelEmoji">🌱</span>
+                                <span>Nível <span id="levelNumber">1</span></span>
+                            </span>
+                            <span class="level-name" id="levelName">Plebeia</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-info">
+                            <span id="currentPointsLabel">0 pts</span>
+                            <span id="nextLevelLabel">500 pts para próximo nível</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Jornada / Mapa do Glow -->
+                    <div class="journey-section">
+                        <h4><i class="fas fa-map-marked-alt"></i> Sua Jornada</h4>
+                        <div class="journey-map">
+                            <div class="journey-step" data-level="1">
+                                <div class="journey-marker completed">🌱</div>
+                                <span>Plebeia</span>
+                            </div>
+                            <div class="journey-line" data-progress="0"></div>
+                            <div class="journey-step" data-level="2">
+                                <div class="journey-marker">👑</div>
+                                <span>Princesa</span>
+                            </div>
+                            <div class="journey-line"></div>
+                            <div class="journey-step" data-level="3">
+                                <div class="journey-marker">✨</div>
+                                <span>Rainha</span>
+                            </div>
+                            <div class="journey-line"></div>
+                            <div class="journey-step" data-level="4">
+                                <div class="journey-marker">💎</div>
+                                <span>Imperatriz</span>
+                            </div>
+                            <div class="journey-line"></div>
+                            <div class="journey-step" data-level="5">
+                                <div class="journey-marker">🔥</div>
+                                <span>Deusa</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Badges Section -->
+                <div class="form-section badges-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-medal"></i>
+                        Suas Conquistas
+                    </h3>
+                    <p class="section-desc">Conquiste badges ao atingir marcos especiais!</p>
+                    
+                    <div class="badges-grid" id="badgesGrid">
+                        <div class="badge-item" data-badge="hidratada">
+                            <div class="badge-icon locked">💧</div>
+                            <span class="badge-name">Hidratada</span>
+                            <span class="badge-desc">Complete 7 dias bebendo água</span>
+                        </div>
+                        <div class="badge-item" data-badge="mente-paz">
+                            <div class="badge-icon locked">🧘</div>
+                            <span class="badge-name">Mente em Paz</span>
+                            <span class="badge-desc">Medite por 5 dias seguidos</span>
+                        </div>
+                        <div class="badge-item" data-badge="constancia">
+                            <div class="badge-icon locked">🔥</div>
+                            <span class="badge-name">Constância</span>
+                            <span class="badge-desc">Mantenha streak de 7 dias</span>
+                        </div>
+                        <div class="badge-item" data-badge="guerreira">
+                            <div class="badge-icon locked">⚔️</div>
+                            <span class="badge-name">Guerreira</span>
+                            <span class="badge-desc">Complete 10 metas</span>
+                        </div>
+                        <div class="badge-item" data-badge="madrugadora">
+                            <div class="badge-icon locked">🌅</div>
+                            <span class="badge-name">Madrugadora</span>
+                            <span class="badge-desc">Faça check-in antes das 8h por 5 dias</span>
+                        </div>
+                        <div class="badge-item" data-badge="equilibrada">
+                            <div class="badge-icon locked">⚖️</div>
+                            <span class="badge-name">Equilibrada</span>
+                            <span class="badge-desc">Metas em 3 categorias diferentes</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Email Preferences -->
+                <div class="form-section email-prefs-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-envelope"></i>
+                        Preferências de Email
+                    </h3>
+                    <p class="section-desc">Escolha quais emails você quer receber</p>
+                    
+                    <div class="email-prefs-list">
+                        <label class="email-pref-item">
+                            <input type="checkbox" id="emailWeekly" name="emailWeekly" checked>
+                            <div class="pref-info">
+                                <span class="pref-title">📊 Resumo Semanal</span>
+                                <span class="pref-desc">Receba um resumo fofo da sua semana todos os domingos</span>
+                            </div>
+                        </label>
+                        
+                        <label class="email-pref-item">
+                            <input type="checkbox" id="emailRewards" name="emailRewards" checked>
+                            <div class="pref-info">
+                                <span class="pref-title">🎁 Recompensas</span>
+                                <span class="pref-desc">Notificação quando resgatar recompensas</span>
+                            </div>
+                        </label>
+                        
+                        <label class="email-pref-item">
+                            <input type="checkbox" id="emailLevelUp" name="emailLevelUp" checked>
+                            <div class="pref-info">
+                                <span class="pref-title">👑 Level Up</span>
+                                <span class="pref-desc">Celebre quando subir de nível</span>
+                            </div>
+                        </label>
+                        
+                        <label class="email-pref-item">
+                            <input type="checkbox" id="emailReminders" name="emailReminders">
+                            <div class="pref-info">
+                                <span class="pref-title">⏰ Lembretes</span>
+                                <span class="pref-desc">Receba lembretes para manter seu streak</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-save" id="saveBtn">
+                        <i class="fas fa-save"></i>
+                        Salvar alterações
+                    </button>
+                    <button type="button" class="btn btn-outline btn-logout" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Sair da conta
+                    </button>
+                </div>
+
+                <!-- Status Messages -->
+                <div id="statusMessage" class="status-message" style="display: none;"></div>
+            </form>
+        </div>
+    </main>
+    
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-items">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="metas.html" class="nav-item">
+                <i class="fas fa-bullseye"></i>
+                <span>Metas</span>
+            </a>
+            <a href="missoes.html" class="nav-item">
+                <i class="fas fa-star"></i>
+                <span>Missões</span>
+            </a>
+            <a href="pontos.html" class="nav-item">
+                <i class="fas fa-coins"></i>
+                <span>Pontos</span>
+            </a>
+            <a href="recompensas.html" class="nav-item">
+                <i class="fas fa-gift"></i>
+                <span>Recompensas</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Image Crop Modal -->
+    <div class="modal" id="cropModal">
+        <div class="modal-content crop-modal-content">
+            <div class="modal-header">
+                <h3>Ajustar Imagem</h3>
+                <button type="button" class="close-btn" id="closeCropModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="crop-preview-container">
+                    <img id="cropPreview" src="" alt="Preview">
+                </div>
+                <p class="crop-hint">A imagem será redimensionada e comprimida automaticamente</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelCrop">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmCrop">
+                    <i class="fas fa-check"></i> Usar esta imagem
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Picker Modal -->
+    <div class="modal" id="colorPickerModal">
+        <div class="modal-content color-picker-modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-palette"></i> Escolha sua cor favorita</h3>
+                <button type="button" class="close-btn" id="closeColorModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="color-grid" id="colorGrid">
+                    <!-- Vermelhos -->
+                    <div class="color-option" style="background: #EF4444" data-color="#EF4444" data-name="Vermelho"></div>
+                    <div class="color-option" style="background: #DC2626" data-color="#DC2626" data-name="Vermelho escuro"></div>
+                    <div class="color-option" style="background: #F87171" data-color="#F87171" data-name="Vermelho claro"></div>
+                    <!-- Laranjas -->
+                    <div class="color-option" style="background: #F97316" data-color="#F97316" data-name="Laranja"></div>
+                    <div class="color-option" style="background: #EA580C" data-color="#EA580C" data-name="Laranja escuro"></div>
+                    <div class="color-option" style="background: #FB923C" data-color="#FB923C" data-name="Laranja claro"></div>
+                    <!-- Amarelos -->
+                    <div class="color-option" style="background: #EAB308" data-color="#EAB308" data-name="Amarelo"></div>
+                    <div class="color-option" style="background: #FCD34D" data-color="#FCD34D" data-name="Amarelo claro"></div>
+                    <div class="color-option" style="background: #FBBF24" data-color="#FBBF24" data-name="Dourado"></div>
+                    <!-- Verdes -->
+                    <div class="color-option" style="background: #22C55E" data-color="#22C55E" data-name="Verde"></div>
+                    <div class="color-option" style="background: #16A34A" data-color="#16A34A" data-name="Verde escuro"></div>
+                    <div class="color-option" style="background: #4ADE80" data-color="#4ADE80" data-name="Verde claro"></div>
+                    <div class="color-option" style="background: #10B981" data-color="#10B981" data-name="Esmeralda"></div>
+                    <div class="color-option" style="background: #14B8A6" data-color="#14B8A6" data-name="Turquesa"></div>
+                    <!-- Azuis -->
+                    <div class="color-option" style="background: #06B6D4" data-color="#06B6D4" data-name="Ciano"></div>
+                    <div class="color-option" style="background: #0EA5E9" data-color="#0EA5E9" data-name="Azul céu"></div>
+                    <div class="color-option" style="background: #3B82F6" data-color="#3B82F6" data-name="Azul"></div>
+                    <div class="color-option" style="background: #2563EB" data-color="#2563EB" data-name="Azul royal"></div>
+                    <div class="color-option" style="background: #1D4ED8" data-color="#1D4ED8" data-name="Azul escuro"></div>
+                    <!-- Roxos -->
+                    <div class="color-option" style="background: #6366F1" data-color="#6366F1" data-name="Índigo"></div>
+                    <div class="color-option" style="background: #8B5CF6" data-color="#8B5CF6" data-name="Roxo médio"></div>
+                    <div class="color-option" style="background: #A78BFA" data-color="#A78BFA" data-name="Roxo claro"></div>
+                    <div class="color-option" style="background: #7C3AED" data-color="#7C3AED" data-name="Violeta"></div>
+                    <!-- Rosas -->
+                    <div class="color-option" style="background: #D946EF" data-color="#D946EF" data-name="Fúcsia"></div>
+                    <div class="color-option" style="background: #EC4899" data-color="#EC4899" data-name="Pink"></div>
+                    <div class="color-option" style="background: #F472B6" data-color="#F472B6" data-name="Rosa"></div>
+                    <div class="color-option" style="background: #F9A8D4" data-color="#F9A8D4" data-name="Rosa claro"></div>
+                    <!-- Neutros -->
+                    <div class="color-option" style="background: #78716C" data-color="#78716C" data-name="Cinza quente"></div>
+                    <div class="color-option" style="background: #57534E" data-color="#57534E" data-name="Marrom"></div>
+                    <div class="color-option" style="background: #1F2937" data-color="#1F2937" data-name="Carvão"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelColorPicker">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/profile.js"></script>
+</body>
+</html>

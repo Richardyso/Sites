@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - GlowMeClub</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/images/favico.png">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Dashboard - GlowMeClub">
+    <meta property="og:description" content="Acompanhe sua evolução pessoal no GlowMeClub">
+    <meta property="og:image" content="../assets/images/og.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <nav class="app-nav">
+            <a href="/" class="logo-link">
+                <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img">
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="desktop-nav">
+                <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="metas.html" class="nav-link">Metas</a>
+                <a href="missoes.html" class="nav-link">Missões</a>
+                <a href="pontos.html" class="nav-link">Pontos</a>
+                <a href="recompensas.html" class="nav-link">Recompensas</a>
+            </div>
+            
+            <!-- User Area -->
+            <div class="user-area">
+                <a href="perfil.html" class="user-profile-link">
+                    <div class="user-avatar" id="headerAvatar">
+                        <span>U</span>
+                    </div>
+                    <span class="user-name" id="headerUserName">Usuário</span>
+                </a>
+                <button class="logout-btn" id="logoutBtn" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="logout-text">Sair</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <h1 class="welcome-title">Olá, <span id="userName">Usuária</span>! ✨</h1>
+                <p class="welcome-subtitle">Vamos continuar sua jornada de evolução hoje?</p>
+            </section>
+            
+            <!-- Action Hub - Nova seção de engajamento -->
+            <section class="action-hub">
+                <!-- Recomendação do dia -->
+                <div class="hub-card recommendation-card" id="recommendationCard">
+                    <div class="hub-icon">💡</div>
+                    <div class="hub-content">
+                        <span class="hub-label">Próxima ação</span>
+                        <strong id="recommendationText">Complete 1 missão e ganhe +10 pontos!</strong>
+                    </div>
+                    <a href="missoes.html" class="hub-action">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <!-- Streak do dia -->
+                <div class="hub-card streak-card">
+                    <div class="streak-header">
+                        <span class="streak-emoji" id="streakEmoji">🔥</span>
+                        <span class="streak-count" id="streakCount">0</span>
+                        <span class="streak-label">dias cuidando de você</span>
+                    </div>
+                    <div class="streak-progress">
+                        <div class="streak-dots">
+                            <span class="streak-dot" id="dot1"></span>
+                            <span class="streak-dot" id="dot2"></span>
+                            <span class="streak-dot" id="dot3"></span>
+                            <span class="streak-dot" id="dot4"></span>
+                            <span class="streak-dot" id="dot5"></span>
+                        </div>
+                        <span class="streak-goal"><span id="missionsToday">0</span>/5 missões hoje</span>
+                    </div>
+                </div>
+                
+                <!-- CTA Recompensa -->
+                <div class="hub-card reward-cta-card" id="rewardCtaCard">
+                    <div class="hub-icon">🎁</div>
+                    <div class="hub-content">
+                        <span class="hub-label">Quase lá!</span>
+                        <strong id="rewardCtaText">Faltam 50 pontos para resgatar E-book de Skincare</strong>
+                    </div>
+                    <a href="recompensas.html" class="hub-action">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions-section">
+                <div class="quick-actions">
+                    <a href="missoes.html" class="quick-action">
+                        <i class="fas fa-star"></i>
+                        <span>Missões do Dia</span>
+                    </a>
+                    <a href="metas.html" class="quick-action">
+                        <i class="fas fa-bullseye"></i>
+                        <span>Minhas Metas</span>
+                    </a>
+                    <a href="recompensas.html" class="quick-action">
+                        <i class="fas fa-gift"></i>
+                        <span>Recompensas</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Dashboard Grid with Ranking -->
+            <div class="dashboard-layout">
+                <!-- Left Side - User Cards -->
+                <div class="dashboard-cards">
+                    <!-- Nível Atual com Imagem -->
+                    <div class="level-showcase-card">
+                        <div class="level-image-container">
+                            <img src="../assets/images/plebeia.png" alt="Nível Plebeia" id="levelImage" class="level-image">
+                            <div class="level-glow"></div>
+                        </div>
+                        <div class="level-details">
+                            <h3>Nível Atual</h3>
+                            <div class="card-value">
+                                <span id="levelName" class="level-name">Plebeia</span>
+                            </div>
+                            <div class="level-message">"O primeiro passo para a transformação"</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="levelProgress" style="width: 0%"></div>
+                                </div>
+                                <div class="card-label">
+                                    <span id="levelProgressText">0/500 pontos para Princesa</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <!-- Total de Pontos -->
+                        <a href="pontos.html" class="dashboard-card card-sparkle">
+                            <div class="card-icon card-points">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                            <h3>BabiPoints</h3>
+                            <div class="points-display">
+                                <div class="points-number" id="totalPoints">0</div>
+                                <div class="card-label">Pontos conquistados</div>
+                            </div>
+                        </a>
+
+                        <!-- Metas Ativas -->
+                        <a href="metas.html" class="dashboard-card">
+                            <div class="card-icon card-goals">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <h3>Metas Ativas</h3>
+                            <div class="card-value" id="activeGoalsCount">0</div>
+                            <div class="card-label">Em andamento</div>
+                        </a>
+
+                        <!-- Missões de Hoje -->
+                        <a href="missoes.html" class="dashboard-card">
+                            <div class="card-icon card-missions">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h3>Missões de Hoje</h3>
+                            <div class="card-value">
+                                <span id="completedMissions">0</span>/<span id="totalMissions">3</span>
+                            </div>
+                            <div class="card-label">Completadas</div>
+                        </a>
+
+                        <!-- Recompensas Disponíveis -->
+                        <a href="recompensas.html" class="dashboard-card">
+                            <div class="card-icon card-rewards">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <h3>Recompensas</h3>
+                            <div class="card-value" id="availableRewards">5</div>
+                            <div class="card-label">Disponíveis</div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Side - Ranking -->
+                <div class="ranking-section">
+                    <div class="ranking-card">
+                        <div class="ranking-header">
+                            <h3><i class="fas fa-trophy"></i> Ranking Glow</h3>
+                            <span class="ranking-subtitle">Top 10 Deusas</span>
+                        </div>
+                        <div class="ranking-list" id="rankingList">
+                            <!-- Rankings serão carregados dinamicamente -->
+                            <div class="ranking-item">
+                                <div class="rank-position rank-1">1º</div>
+                                <div class="rank-avatar">
+                                    <img src="../assets/images/deusa.png" alt="Deusa">
+                                </div>
+                                <div class="rank-info">
+                                    <div class="rank-name">Ana Silva</div>
+                                    <div class="rank-level">Deusa Glow</div>
+                                </div>
+                                <div class="rank-points">
+                                    <i class="fas fa-gem"></i>
+                                    <span>15.420</span>
+                                </div>
+                            </div>
+                            <div class="ranking-item">
+                                <div class="rank-position rank-2">2º</div>
+                                <div class="rank-avatar">
+                                    <img src="../assets/images/imperatriz.png" alt="Imperatriz">
+                                </div>
+                                <div class="rank-info">
+                                    <div class="rank-name">Maria Santos</div>
+                                    <div class="rank-level">Imperatriz</div>
+                                </div>
+                                <div class="rank-points">
+                                    <i class="fas fa-gem"></i>
+                                    <span>12.340</span>
+                                </div>
+                            </div>
+                            <div class="ranking-item">
+                                <div class="rank-position rank-3">3º</div>
+                                <div class="rank-avatar">
+                                    <img src="../assets/images/imperatriz.png" alt="Imperatriz">
+                                </div>
+                                <div class="rank-info">
+                                    <div class="rank-name">Julia Costa</div>
+                                    <div class="rank-level">Imperatriz</div>
+                                </div>
+                                <div class="rank-points">
+                                    <i class="fas fa-gem"></i>
+                                    <span>11.250</span>
+                                </div>
+                            </div>
+                            <div class="ranking-item">
+                                <div class="rank-position">4º</div>
+                                <div class="rank-avatar">
+                                    <img src="../assets/images/rainha.png" alt="Rainha">
+                                </div>
+                                <div class="rank-info">
+                                    <div class="rank-name">Laura Oliveira</div>
+                                    <div class="rank-level">Rainha</div>
+                                </div>
+                                <div class="rank-points">
+                                    <i class="fas fa-gem"></i>
+                                    <span>8.920</span>
+                                </div>
+                            </div>
+                            <div class="ranking-item">
+                                <div class="rank-position">5º</div>
+                                <div class="rank-avatar">
+                                    <img src="../assets/images/rainha.png" alt="Rainha">
+                                </div>
+                                <div class="rank-info">
+                                    <div class="rank-name">Beatriz Lima</div>
+                                    <div class="rank-level">Rainha</div>
+                                </div>
+                                <div class="rank-points">
+                                    <i class="fas fa-gem"></i>
+                                    <span>7.540</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ranking-footer">
+                            <div class="user-ranking">
+                                <span>Sua posição:</span>
+                                <strong id="userRankPosition">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </main>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-items">
+            <a href="dashboard.html" class="nav-item active">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="metas.html" class="nav-item">
+                <i class="fas fa-bullseye"></i>
+                <span>Metas</span>
+            </a>
+            <a href="missoes.html" class="nav-item">
+                <i class="fas fa-star"></i>
+                <span>Missões</span>
+            </a>
+            <a href="pontos.html" class="nav-item">
+                <i class="fas fa-coins"></i>
+                <span>Pontos</span>
+            </a>
+            <a href="recompensas.html" class="nav-item">
+                <i class="fas fa-gift"></i>
+                <span>Recompensas</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/dashboard.js"></script>
+</body>
+</html>

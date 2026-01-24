@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missões Diárias - GlowMeClub</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/images/favico.png">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Missões Diárias - GlowMeClub">
+    <meta property="og:description" content="Complete missões diárias no GlowMeClub">
+    <meta property="og:image" content="../assets/images/og.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/missoes.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <nav class="app-nav">
+            <a href="/" class="logo-link">
+                <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img">
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="desktop-nav">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="metas.html" class="nav-link">Metas</a>
+                <a href="missoes.html" class="nav-link active">Missões</a>
+                <a href="pontos.html" class="nav-link">Pontos</a>
+                <a href="recompensas.html" class="nav-link">Recompensas</a>
+            </div>
+            
+            <!-- User Area -->
+            <div class="user-area">
+                <a href="perfil.html" class="user-profile-link">
+                    <div class="user-avatar" id="headerAvatar">
+                        <span>U</span>
+                    </div>
+                    <span class="user-name" id="headerUserName">Usuário</span>
+                </a>
+                <button class="logout-btn" id="logoutBtn" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="logout-text">Sair</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Missões Diárias</h1>
+            <p class="page-subtitle">Complete suas missões e ganhe pontos para evoluir!</p>
+        </div>
+
+        <!-- Daily Progress Card -->
+        <div class="daily-progress" id="dailyProgress">
+            <div class="progress-header">
+                <h2 class="progress-title">Progresso Diário</h2>
+                <div class="progress-count" id="missionCounter">0/5</div>
+            </div>
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar-fill" id="missionProgressBar" style="width: 0%"></div>
+            </div>
+            <p class="progress-message" id="progressMessage">
+                Complete suas missões diárias para ganhar pontos!
+            </p>
+        </div>
+
+        <!-- Missions Grid -->
+        <div class="missions-grid" id="missionsGrid">
+            <!-- Missões serão carregadas dinamicamente -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-missions" id="emptyState" style="display: none;">
+            <span class="empty-icon">
+                <i class="fas fa-star"></i>
+            </span>
+            <h3>Nenhuma missão disponível</h3>
+            <p>Volte amanhã para novas missões!</p>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-items">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="metas.html" class="nav-item">
+                <i class="fas fa-bullseye"></i>
+                <span>Metas</span>
+            </a>
+            <a href="missoes.html" class="nav-item active">
+                <i class="fas fa-star"></i>
+                <span>Missões</span>
+            </a>
+            <a href="pontos.html" class="nav-item">
+                <i class="fas fa-coins"></i>
+                <span>Pontos</span>
+            </a>
+            <a href="recompensas.html" class="nav-item">
+                <i class="fas fa-gift"></i>
+                <span>Recompensas</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/missoes.js"></script>
+</body>
+</html>

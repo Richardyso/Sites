@@ -1,0 +1,684 @@
+// ===== PERFIL - Edição Completa com Imagem =====
+
+// Verificar se as dependências estão carregadas
+if (!window.appConfig || !window.api) {
+    console.error('Dependências não encontradas. Certifique-se de carregar config.js e api.js primeiro.');
+}
+
+// Dados do usuário atual
+let currentUser = null;
+let originalData = null;
+let selectedImageBase64 = null;
+let hasUnsavedChanges = false;
+
+// ===== INICIALIZAÇÃO =====
+document.addEventListener('DOMContentLoaded', () => {
+    logger.info('Carregando página de perfil...');
+    
+    initializeProfile();
+    setupEventListeners();
+});
+
+// Inicializar perfil
+async function initializeProfile() {
+    const token = window.api.getToken();
+    
+    if (!token) {
+        logger.error('Sem token, redirecionando para login...');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    try {
+        showLoading(true);
+        
+        // Buscar dados do usuário
+        const data = await window.api.get('/auth/me');
+        currentUser = data.user;
+        originalData = { ...currentUser };
+        
+        logger.info('Dados do perfil carregados');
+        
+        // Preencher formulário
+        populateForm();
+        updateHeaderAvatarLocal();
+        
+    } catch (error) {
+        logger.error('Erro ao carregar perfil:', error);
+        
+        // Tentar usar dados do cache
+        const cachedData = localStorage.getItem('cachedUserData');
+        if (cachedData) {
+            try {
+                currentUser = JSON.parse(cachedData);
+                originalData = { ...currentUser };
+                populateForm();
+                updateHeaderAvatarLocal();
+                showStatus('Usando dados offline', 'warning');
+                return;
+            } catch (e) {
+                logger.error('Erro ao parsear cache');
+            }
+        }
+        
+        // Se não conseguir usar cache e for erro de autenticação
+        if (error.status === 401) {
+            window.api.removeToken();
+            window.location.href = 'login.html';
+        } else {
+            showStatus('Erro ao carregar perfil. Tente novamente.', 'error');
+        }
+    } finally {
+        showLoading(false);
+    }
+}
+
+// ===== POPULAR FORMULÁRIO =====
+function populateForm() {
+    if (!currentUser) return;
+    
+    // Campos de texto
+    document.getElementById('userName').value = currentUser.name || '';
+    document.getElementById('userEmail').value = currentUser.email || '';
+    
+    // Cor preferida
+    const preferredColor = currentUser.preferredColor || '#8B5CF6';
+    document.getElementById('preferredColor').value = preferredColor;
+    
+    // Buscar nome da cor no grid de cores
+    const colorOption = document.querySelector(`#colorGrid .color-option[data-color="${preferredColor}"]`);
+    const colorName = colorOption ? colorOption.dataset.name : 'Cor personalizada';
+    selectColor(preferredColor, colorName);
+    
+    // Área de foco
+    document.getElementById('focusArea').value = currentUser.focusArea || 'Mental';
+    
+    // Avatar
+    updateAvatarDisplay();
+    
+    // Estatísticas
+    updateStats();
+    
+    // Badges
+    updateBadges();
+    
+    // Jornada / Mapa
+    updateJourneyMap();
+    
+    // Preferências de email
+    loadEmailPreferences();
+    
+    // Resetar flag de mudanças
+    hasUnsavedChanges = false;
+    updateSaveButton();
+}
+
+// ===== AVATAR =====
+function updateAvatarDisplay() {
+    const avatarContainer = document.getElementById('profileAvatar');
+    const avatarInitial = document.getElementById('avatarInitial');
+    const avatarImage = document.getElementById('avatarImage');
+    const removeBtn = document.getElementById('removeAvatarBtn');
+    
+    // Verificar se tem imagem
+    const imageData = selectedImageBase64 || currentUser?.profileImage;
+    
+    if (imageData) {
+        avatarImage.src = imageData;
+        avatarImage.style.display = 'block';
+        avatarInitial.style.display = 'none';
+        avatarContainer.style.background = 'transparent';
+        removeBtn.style.display = 'block';
+    } else {
+        avatarImage.style.display = 'none';
+        avatarInitial.style.display = 'flex';
+        avatarInitial.textContent = (currentUser?.name || 'U').charAt(0).toUpperCase();
+        avatarContainer.style.background = currentUser?.preferredColor || '#8B5CF6';
+        removeBtn.style.display = 'none';
+    }
+}
+
+function updateHeaderAvatarLocal() {
+    // Usa a função compartilhada do api.js
+    if (window.updateHeaderAvatar && currentUser) {
+        window.updateHeaderAvatar(currentUser);
+    }
+}
+
+// ===== SELEÇÃO DE COR =====
+function selectColor(color, colorName) {
+    // Remover seleção anterior
+    document.querySelectorAll('.color-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    
+    // Selecionar nova cor
+    const colorOption = document.querySelector(`.color-option[data-color="${color}"]`);
+    if (colorOption) {
+        colorOption.classList.add('selected');
+    }
+    
+    // Atualizar input hidden
+    document.getElementById('preferredColor').value = color;
+    
+    // Atualizar botão seletor
+    document.getElementById('selectedColorPreview').style.background = color;
+    document.getElementById('selectedColorName').textContent = colorName || 'Cor selecionada';
+    
+    // Atualizar avatar se não tiver imagem
+    if (!selectedImageBase64 && !currentUser?.profileImage) {
+        document.getElementById('profileAvatar').style.background = color;
+    }
+}
+
+function openColorPickerModal() {
+    document.getElementById('colorPickerModal').classList.add('active');
+    document.getElementById('colorSelectorBtn').classList.add('active');
+}
+
+function closeColorPickerModal() {
+    document.getElementById('colorPickerModal').classList.remove('active');
+    document.getElementById('colorSelectorBtn').classList.remove('active');
+}
+
+// ===== ESTATÍSTICAS =====
+function updateStats() {
+    if (!currentUser) return;
+    
+    const totalPoints = currentUser.totalPoints || 0;
+    const level = calculateLevel(totalPoints);
+    
+    // Pontos
+    document.getElementById('totalPoints').textContent = totalPoints.toLocaleString('pt-BR');
+    
+    // Nível
+    document.getElementById('currentLevel').textContent = level.current;
+    document.getElementById('levelNumber').textContent = level.current;
+    
+    // Data de entrada
+    const joinDate = new Date(currentUser.createdAt || Date.now());
+    document.getElementById('memberSince').textContent = joinDate.toLocaleDateString('pt-BR', {
+        month: 'short',
+        year: 'numeric'
+    });
+    
+    // Progresso do nível
+    const progressPercent = ((totalPoints - level.minPoints) / (level.maxPoints - level.minPoints)) * 100;
+    document.getElementById('progressBar').style.width = `${Math.min(progressPercent, 100)}%`;
+    document.getElementById('currentPointsLabel').textContent = `${totalPoints} pts`;
+    document.getElementById('nextLevelLabel').textContent = `${level.maxPoints} pts para próximo nível`;
+    
+    // Nome e emoji do nível
+    document.getElementById('levelName').textContent = level.name;
+    document.getElementById('levelEmoji').textContent = level.emoji;
+}
+
+function calculateLevel(points) {
+    const levels = [
+        { level: 1, name: 'Plebeia', emoji: '🌱', min: 0, max: 500 },
+        { level: 2, name: 'Princesa', emoji: '👑', min: 500, max: 1500 },
+        { level: 3, name: 'Rainha', emoji: '💎', min: 1500, max: 3000 },
+        { level: 4, name: 'Imperatriz', emoji: '⭐', min: 3000, max: 5000 },
+        { level: 5, name: 'Deusa', emoji: '✨', min: 5000, max: Infinity }
+    ];
+    
+    for (const lvl of levels) {
+        if (points < lvl.max) {
+            return {
+                current: lvl.level,
+                name: lvl.name,
+                emoji: lvl.emoji,
+                minPoints: lvl.min,
+                maxPoints: lvl.max
+            };
+        }
+    }
+    
+    return levels[levels.length - 1];
+}
+
+// ===== BADGES =====
+function updateBadges() {
+    const badges = currentUser.badges || [];
+    const badgeItems = document.querySelectorAll('.badge-item');
+    
+    badgeItems.forEach(item => {
+        const badgeId = item.dataset.badge;
+        const iconEl = item.querySelector('.badge-icon');
+        
+        if (badges.includes(badgeId)) {
+            item.classList.add('unlocked');
+            iconEl.classList.remove('locked');
+        } else {
+            item.classList.remove('unlocked');
+            iconEl.classList.add('locked');
+        }
+    });
+}
+
+// ===== JORNADA / MAPA =====
+function updateJourneyMap() {
+    const totalPoints = currentUser.totalPoints || 0;
+    const currentLevel = Math.min(Math.floor(totalPoints / 500) + 1, 5);
+    
+    const steps = document.querySelectorAll('.journey-step');
+    const lines = document.querySelectorAll('.journey-line');
+    
+    steps.forEach((step, index) => {
+        const stepLevel = index + 1;
+        const marker = step.querySelector('.journey-marker');
+        
+        if (stepLevel < currentLevel) {
+            marker.classList.add('completed');
+            marker.classList.remove('current');
+        } else if (stepLevel === currentLevel) {
+            marker.classList.add('current');
+            marker.classList.remove('completed');
+        } else {
+            marker.classList.remove('completed', 'current');
+        }
+    });
+    
+    lines.forEach((line, index) => {
+        if (index < currentLevel - 1) {
+            line.classList.add('completed');
+        } else {
+            line.classList.remove('completed');
+        }
+    });
+}
+
+// ===== PREFERÊNCIAS DE EMAIL =====
+function loadEmailPreferences() {
+    const prefs = currentUser.emailPreferences || {
+        weekly: true,
+        rewards: true,
+        levelUp: true,
+        reminders: false
+    };
+    
+    const weeklyEl = document.getElementById('emailWeekly');
+    const rewardsEl = document.getElementById('emailRewards');
+    const levelUpEl = document.getElementById('emailLevelUp');
+    const remindersEl = document.getElementById('emailReminders');
+    
+    if (weeklyEl) weeklyEl.checked = prefs.weekly !== false;
+    if (rewardsEl) rewardsEl.checked = prefs.rewards !== false;
+    if (levelUpEl) levelUpEl.checked = prefs.levelUp !== false;
+    if (remindersEl) remindersEl.checked = prefs.reminders === true;
+}
+
+function getEmailPreferences() {
+    return {
+        weekly: document.getElementById('emailWeekly')?.checked ?? true,
+        rewards: document.getElementById('emailRewards')?.checked ?? true,
+        levelUp: document.getElementById('emailLevelUp')?.checked ?? true,
+        reminders: document.getElementById('emailReminders')?.checked ?? false
+    };
+}
+
+// ===== EVENT LISTENERS =====
+function setupEventListeners() {
+    // Formulário
+    document.getElementById('profileForm').addEventListener('submit', handleSaveProfile);
+    
+    // Avatar input
+    document.getElementById('avatarInput').addEventListener('change', handleImageSelect);
+    
+    // Remover avatar
+    document.getElementById('removeAvatarBtn').addEventListener('click', handleRemoveAvatar);
+    
+    // Botão seletor de cor - abre modal
+    document.getElementById('colorSelectorBtn').addEventListener('click', openColorPickerModal);
+    
+    // Seleção de cor no modal
+    document.querySelectorAll('#colorGrid .color-option').forEach(option => {
+        option.addEventListener('click', () => {
+            selectColor(option.dataset.color, option.dataset.name);
+            closeColorPickerModal();
+            markAsChanged();
+        });
+    });
+    
+    // Fechar modal de cores
+    document.getElementById('closeColorModal').addEventListener('click', closeColorPickerModal);
+    document.getElementById('cancelColorPicker').addEventListener('click', closeColorPickerModal);
+    document.getElementById('colorPickerModal').addEventListener('click', (e) => {
+        if (e.target.id === 'colorPickerModal') {
+            closeColorPickerModal();
+        }
+    });
+    
+    // Campos do formulário
+    ['userName', 'focusArea'].forEach(id => {
+        document.getElementById(id).addEventListener('input', markAsChanged);
+        document.getElementById(id).addEventListener('change', markAsChanged);
+    });
+    
+    // Preferências de email
+    ['emailWeekly', 'emailRewards', 'emailLevelUp', 'emailReminders'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', markAsChanged);
+    });
+    
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+    
+    // Modal de crop
+    document.getElementById('closeCropModal').addEventListener('click', closeCropModal);
+    document.getElementById('cancelCrop').addEventListener('click', closeCropModal);
+    document.getElementById('confirmCrop').addEventListener('click', confirmImageCrop);
+    
+    // Fechar modal ao clicar fora
+    document.getElementById('cropModal').addEventListener('click', (e) => {
+        if (e.target.id === 'cropModal') {
+            closeCropModal();
+        }
+    });
+    
+    // Aviso ao sair com mudanças não salvas
+    window.addEventListener('beforeunload', (e) => {
+        if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+}
+
+function markAsChanged() {
+    hasUnsavedChanges = true;
+    updateSaveButton();
+}
+
+function updateSaveButton() {
+    const saveBtn = document.getElementById('saveBtn');
+    if (hasUnsavedChanges) {
+        saveBtn.classList.add('has-changes');
+    } else {
+        saveBtn.classList.remove('has-changes');
+    }
+}
+
+// ===== MANIPULAÇÃO DE IMAGEM =====
+function handleImageSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Validar tipo
+    if (!file.type.startsWith('image/')) {
+        showStatus('Por favor, selecione uma imagem válida.', 'error');
+        return;
+    }
+    
+    // Validar tamanho (máx 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        showStatus('A imagem deve ter no máximo 5MB.', 'error');
+        return;
+    }
+    
+    // Ler arquivo
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        openCropModal(event.target.result);
+    };
+    reader.readAsDataURL(file);
+}
+
+function openCropModal(imageSrc) {
+    document.getElementById('cropPreview').src = imageSrc;
+    document.getElementById('cropModal').classList.add('active');
+}
+
+function closeCropModal() {
+    document.getElementById('cropModal').classList.remove('active');
+    document.getElementById('avatarInput').value = '';
+}
+
+async function confirmImageCrop() {
+    const imgSrc = document.getElementById('cropPreview').src;
+    
+    try {
+        showStatus('Processando imagem...', 'info');
+        
+        // Comprimir e redimensionar imagem
+        const compressedImage = await compressImage(imgSrc, {
+            maxWidth: 300,
+            maxHeight: 300,
+            quality: 0.7,
+            maxSizeKB: 100 // Máximo 100KB para ficar bem leve
+        });
+        
+        selectedImageBase64 = compressedImage;
+        updateAvatarDisplay();
+        markAsChanged();
+        
+        closeCropModal();
+        showStatus('Imagem carregada! Clique em Salvar para confirmar.', 'success');
+        
+    } catch (error) {
+        logger.error('Erro ao processar imagem:', error);
+        showStatus('Erro ao processar imagem. Tente outra.', 'error');
+    }
+}
+
+// Função de compressão de imagem
+async function compressImage(imageSrc, options = {}) {
+    const {
+        maxWidth = 300,
+        maxHeight = 300,
+        quality = 0.7,
+        maxSizeKB = 100
+    } = options;
+    
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            // Calcular dimensões mantendo proporção
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > height) {
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width = Math.round((width * maxHeight) / height);
+                    height = maxHeight;
+                }
+            }
+            
+            // Criar canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Desenhar imagem circular (opcional)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Converter para base64 com qualidade ajustável
+            let currentQuality = quality;
+            let base64 = canvas.toDataURL('image/jpeg', currentQuality);
+            
+            // Reduzir qualidade até atingir tamanho máximo
+            while (getBase64SizeKB(base64) > maxSizeKB && currentQuality > 0.1) {
+                currentQuality -= 0.1;
+                base64 = canvas.toDataURL('image/jpeg', currentQuality);
+            }
+            
+            // Se ainda estiver muito grande, reduzir dimensões
+            if (getBase64SizeKB(base64) > maxSizeKB) {
+                const scale = Math.sqrt(maxSizeKB / getBase64SizeKB(base64));
+                canvas.width = Math.round(width * scale);
+                canvas.height = Math.round(height * scale);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                base64 = canvas.toDataURL('image/jpeg', 0.6);
+            }
+            
+            logger.info(`Imagem comprimida: ${getBase64SizeKB(base64).toFixed(2)}KB`);
+            resolve(base64);
+        };
+        
+        img.onerror = () => reject(new Error('Erro ao carregar imagem'));
+        img.src = imageSrc;
+    });
+}
+
+function getBase64SizeKB(base64String) {
+    // Remover header do base64
+    const base64 = base64String.split(',')[1] || base64String;
+    // Calcular tamanho em bytes
+    const bytes = (base64.length * 3) / 4 - (base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0);
+    return bytes / 1024;
+}
+
+function handleRemoveAvatar() {
+    selectedImageBase64 = null;
+    
+    // Marcar para remover no servidor
+    if (currentUser?.profileImage) {
+        currentUser.profileImage = null;
+    }
+    
+    updateAvatarDisplay();
+    markAsChanged();
+    showStatus('Foto removida. Clique em Salvar para confirmar.', 'info');
+}
+
+// ===== SALVAR PERFIL =====
+async function handleSaveProfile(e) {
+    e.preventDefault();
+    
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+    
+    try {
+        // Coletar dados do formulário
+        const formData = {
+            name: document.getElementById('userName').value.trim(),
+            preferredColor: document.getElementById('preferredColor').value,
+            focusArea: document.getElementById('focusArea').value,
+            emailPreferences: getEmailPreferences()
+        };
+        
+        // Adicionar imagem se houver
+        if (selectedImageBase64) {
+            formData.profileImage = selectedImageBase64;
+        } else if (selectedImageBase64 === null && currentUser?.profileImage) {
+            // Remover imagem
+            formData.profileImage = null;
+        }
+        
+        // Validar nome
+        if (!formData.name || formData.name.length < 2) {
+            showStatus('O nome deve ter pelo menos 2 caracteres.', 'error');
+            return;
+        }
+        
+        // Enviar para o servidor
+        const response = await window.api.put('/user/profile', formData);
+        
+        if (response.success) {
+            // Atualizar dados locais
+            currentUser = response.user;
+            originalData = { ...currentUser };
+            selectedImageBase64 = null;
+            
+            // Atualizar cache
+            localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+            
+            // Atualizar UI
+            updateAvatarDisplay();
+            updateHeaderAvatarLocal();
+            updateStats();
+            
+            hasUnsavedChanges = false;
+            updateSaveButton();
+            
+            showStatus('Perfil atualizado com sucesso!', 'success');
+        } else {
+            throw new Error(response.error || 'Erro ao salvar');
+        }
+        
+    } catch (error) {
+        logger.error('Erro ao salvar perfil:', error);
+        
+        // Tentar salvar offline
+        if (window.api.isNetworkError(error)) {
+            // Salvar localmente
+            const formData = {
+                name: document.getElementById('userName').value.trim(),
+                preferredColor: document.getElementById('preferredColor').value,
+                focusArea: document.getElementById('focusArea').value
+            };
+            
+            if (selectedImageBase64) {
+                formData.profileImage = selectedImageBase64;
+            }
+            
+            currentUser = { ...currentUser, ...formData };
+            localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+            
+            updateAvatarDisplay();
+            updateHeaderAvatarLocal();
+            
+            hasUnsavedChanges = false;
+            updateSaveButton();
+            
+            showStatus('Salvo localmente. Sincronizará quando voltar online.', 'warning');
+        } else {
+            showStatus('Erro ao salvar perfil. Tente novamente.', 'error');
+        }
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar alterações';
+    }
+}
+
+// ===== LOGOUT =====
+function handleLogout() {
+    if (hasUnsavedChanges) {
+        if (!confirm('Você tem alterações não salvas. Deseja realmente sair?')) {
+            return;
+        }
+    }
+    
+    window.api.removeToken();
+    localStorage.removeItem('cachedUserData');
+    window.location.href = 'login.html';
+}
+
+// ===== UTILIDADES =====
+function showLoading(show) {
+    const form = document.getElementById('profileForm');
+    if (show) {
+        form.classList.add('loading');
+    } else {
+        form.classList.remove('loading');
+    }
+}
+
+function showStatus(message, type = 'info') {
+    const statusEl = document.getElementById('statusMessage');
+    statusEl.textContent = message;
+    statusEl.className = `status-message ${type}`;
+    statusEl.style.display = 'block';
+    
+    // Scroll para a mensagem
+    statusEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    // Esconder após alguns segundos (exceto erro)
+    if (type !== 'error') {
+        setTimeout(() => {
+            statusEl.style.display = 'none';
+        }, 5000);
+    }
+}

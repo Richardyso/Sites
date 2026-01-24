@@ -1,0 +1,519 @@
+/* ===== MISSÕES MOBILE FIRST ===== */
+
+/* Page Header Mobile - Estilo melhorado */
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+}
+
+.page-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    font-weight: 400;
+}
+
+/* Daily Progress Card - Novo estilo */
+.daily-progress {
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.progress-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.3rem;
+}
+
+.progress-count {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.progress-bar-wrapper {
+    background: rgba(255, 255, 255, 0.2);
+    height: 12px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.8rem;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: white;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+}
+
+.progress-message {
+    font-size: 0.95rem;
+    opacity: 0.95;
+}
+
+/* Mission Stats (compatibilidade) */
+.mission-stats {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+}
+
+.stats-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--cor-roxo-medio);
+    margin-bottom: 0.5rem;
+}
+
+.stats-label {
+    font-size: 0.875rem;
+    color: var(--cor-texto-medio);
+}
+
+.mission-progress {
+    background: var(--cor-lilas-suave);
+    border-radius: 8px;
+    height: 12px;
+    margin-top: 1rem;
+    overflow: hidden;
+}
+
+.mission-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cor-roxo-medio), var(--cor-roxo-claro));
+    transition: width 1s ease;
+}
+
+/* Mission Alert Mobile */
+.mission-alert {
+    background: linear-gradient(135deg, var(--cor-rosa-pastel-claro), var(--cor-rosa-pastel));
+    color: var(--cor-texto-escuro);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+.mission-alert i {
+    margin-right: 0.5rem;
+}
+
+/* Missions Grid Mobile */
+.missions-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+/* Mission Card Mobile - Estilo melhorado */
+.mission-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(139, 92, 246, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.mission-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mission-card:hover::before {
+    opacity: 1;
+}
+
+.mission-card.completed {
+    background: linear-gradient(135deg, rgba(209, 250, 229, 0.5) 0%, rgba(167, 243, 208, 0.5) 100%);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.mission-card.completed::after {
+    content: '✓';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 32px;
+    height: 32px;
+    background: #10B981;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.mission-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mission-content {
+    flex: 1;
+}
+
+.mission-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #DDD6FE 0%, #C4B5FD 100%);
+    color: #8B5CF6;
+    padding: 0.375rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.mission-category-icon {
+    font-size: 1rem;
+}
+
+.mission-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.mission-description {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.mission-reward {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    padding: 0.375rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #92400E;
+}
+
+.mission-reward i {
+    color: #F59E0B;
+    font-size: 1rem;
+}
+
+/* Mission Action Mobile */
+.mission-action {
+    width: 100%;
+}
+
+.mission-action .btn {
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 0.875rem;
+}
+
+.btn-complete {
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-complete:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.btn-complete:active {
+    transform: scale(0.98);
+}
+
+.btn-complete:disabled {
+    background: #E5E5E5;
+    color: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-complete.completed {
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Empty State Mobile */
+.empty-missions {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--cor-texto-medio);
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: var(--cor-lilas-medio);
+    margin-bottom: 1rem;
+}
+
+/* Success Toast - Estilo melhorado */
+.success-toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    animation: slideUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+               slideDown 0.4s ease 2.6s forwards;
+    z-index: 3000;
+}
+
+.success-toast i {
+    font-size: 1.25rem;
+}
+
+/* Mission Categories com ícones */
+.category-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.category-daily { 
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); 
+    color: #92400E; 
+}
+.category-weekly { 
+    background: linear-gradient(135deg, #DBEAFE 0%, #93C5FD 100%); 
+    color: #1E3A8A; 
+}
+.category-special { 
+    background: linear-gradient(135deg, #FED7E2 0%, #FBCFE8 100%); 
+    color: #BE185D; 
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-50%) translateY(100%);
+        opacity: 0;
+    }
+}
+
+/* Extra Small Screens */
+@media (max-width: 374px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .page-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .daily-progress {
+        padding: 1.25rem;
+    }
+    
+    .progress-title {
+        font-size: 1.1rem;
+    }
+    
+    .progress-count {
+        font-size: 1.5rem;
+    }
+    
+    .mission-card {
+        padding: 1rem;
+    }
+    
+    .mission-title {
+        font-size: 1rem;
+    }
+    
+    .mission-description {
+        font-size: 0.85rem;
+    }
+    
+    .mission-category,
+    .mission-reward {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.75rem;
+    }
+}
+
+/* Tablet */
+@media (min-width: 640px) {
+    .page-header {
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .page-subtitle {
+        font-size: 1rem;
+    }
+    
+    .missions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mission-item {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .mission-action {
+        width: auto;
+        margin-top: 0;
+    }
+    
+    .mission-action .btn {
+        width: auto;
+        padding: 0.875rem 1.5rem;
+    }
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+    .page-header {
+        max-width: 800px;
+        margin: 0 auto 2rem;
+    }
+    
+    .mission-stats {
+        max-width: 800px;
+        margin: 0 auto 2rem;
+    }
+    
+    .missions-grid {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .mission-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .btn-complete:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+    
+    .success-toast {
+        top: 2rem;
+        bottom: auto;
+        right: 2rem;
+        left: auto;
+        transform: none;
+        animation: slideInRight 0.3s ease, slideOutRight 0.3s ease 2.7s forwards;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+}

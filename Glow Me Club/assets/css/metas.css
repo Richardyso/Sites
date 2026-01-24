@@ -1,0 +1,821 @@
+/* ===== METAS MOBILE FIRST ===== */
+
+/* Page Header Mobile - Estilo melhorado */
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+}
+
+.page-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    font-weight: 400;
+}
+
+/* Goals Grid Mobile */
+.goals-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+/* Goal Card Mobile - Estilo melhorado */
+.goal-card {
+    background: linear-gradient(135deg, rgba(221, 214, 254, 0.5) 0%, rgba(196, 181, 253, 0.5) 100%);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.goal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.goal-card:hover::before {
+    opacity: 1;
+}
+
+.goal-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 30px rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+.goal-card:active {
+    transform: scale(0.98);
+}
+
+.goal-card.completed {
+    background: linear-gradient(135deg, rgba(209, 250, 229, 0.5) 0%, rgba(167, 243, 208, 0.5) 100%);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.goal-card.completed .progress-fill {
+    background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+}
+
+.goal-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.goal-checkbox {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border-radius: 6px;
+    border: 2px solid #8B5CF6;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+}
+
+.goal-checkbox:hover {
+    background: #DDD6FE;
+}
+
+.goal-checkbox.checked {
+    background: #8B5CF6;
+}
+
+.goal-checkbox.checked::after {
+    content: '✓';
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.goal-info {
+    flex: 1;
+}
+
+.goal-info h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.goal-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #666;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+}
+
+.goal-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.goal-action {
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.goal-action:hover {
+    background: white;
+    color: #8B5CF6;
+}
+
+.goal-action:active {
+    transform: scale(0.9);
+}
+
+/* Goal Progress Mobile - Estilo melhorado */
+.goal-progress {
+    margin: 1rem 0;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.progress-label {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.progress-percentage {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #8B5CF6;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.progress-value {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Goal Details Mobile - Estilo melhorado */
+.goal-details {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.goal-deadline {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.goal-deadline i {
+    font-size: 0.875rem;
+}
+
+.goal-reward {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #333;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+}
+
+.goal-reward i {
+    color: #FCD34D;
+}
+
+/* Add Goal Button Mobile - Estilo melhorado */
+.add-goal-btn {
+    position: fixed;
+    bottom: 90px;
+    right: 1rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 90;
+}
+
+.add-goal-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5);
+}
+
+.add-goal-btn:active {
+    transform: scale(0.95);
+}
+
+/* Empty State Mobile - Estilo melhorado */
+.empty-goals {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #999;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: #DDD6FE;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.empty-goals h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.empty-goals p {
+    color: #999;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Modal Mobile */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Extra Small Screens */
+@media (max-width: 374px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .page-subtitle {
+        font-size: 0.8rem;
+    }
+    
+    .goal-card {
+        padding: 1rem;
+    }
+    
+    .goal-info h3 {
+        font-size: 1rem;
+    }
+    
+    .add-goal-btn {
+        width: 52px;
+        height: 52px;
+        font-size: 1.5rem;
+        bottom: 80px;
+        right: 0.75rem;
+    }
+    
+    .modal-content {
+        padding: 1.25rem;
+    }
+    
+    .form-input,
+    .form-select,
+    .form-textarea {
+        padding: 0.7rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Tablet */
+@media (min-width: 640px) {
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .page-subtitle {
+        font-size: 1rem;
+    }
+    
+    .goals-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+    
+    .add-goal-btn {
+        right: 1.5rem;
+        bottom: 100px;
+    }
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .goals-grid {
+        gap: 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .goal-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .goal-action:hover {
+        color: var(--cor-roxo-medio);
+    }
+    
+    .add-goal-btn {
+        bottom: 2rem;
+        right: 2rem;
+    }
+    
+    .add-goal-btn:hover {
+        transform: rotate(90deg);
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+    }
+}
+
+/* Goal Status Colors */
+.goal-card.completed {
+    opacity: 0.7;
+}
+
+.goal-card.completed .progress-fill {
+    background: #10B981;
+}
+
+/* Category Icons - Estilo melhorado */
+.category-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.category-mental { 
+    background: linear-gradient(135deg, #E9D5FF 0%, #D8B4FE 100%); 
+    color: #6B21A8; 
+}
+.category-fisico { 
+    background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%); 
+    color: #DC2626; 
+}
+.category-emocional { 
+    background: linear-gradient(135deg, #FED7E2 0%, #FBCFE8 100%); 
+    color: #BE185D; 
+}
+.category-espiritual { 
+    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); 
+    color: #1E3A8A; 
+}
+.category-financeiro { 
+    background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); 
+    color: #047857; 
+}
+.category-aparencia { 
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); 
+    color: #92400E; 
+}
+
+/* Modal Form Styles */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    color: #333;
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #999;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: all 0.3s;
+    border-radius: 8px;
+}
+
+.close-btn:hover {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.modal-body {
+    margin-bottom: 1.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.875rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #f0f0f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s;
+    background: white;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-secondary {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.btn-secondary:hover {
+    background: #e5e5e5;
+}
+
+/* ===== CHECK-INS / MICRO-ETAPAS ===== */
+
+/* Formulário de Check-ins */
+.checkins-config {
+    margin-top: 0.5rem;
+}
+
+.checkins-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 26px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(22px);
+}
+
+.checkins-options {
+    background: rgba(139, 92, 246, 0.05);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px dashed rgba(139, 92, 246, 0.3);
+}
+
+.checkin-setting {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.checkin-setting label {
+    font-size: 0.9rem;
+    color: #666;
+    min-width: 140px;
+}
+
+.checkin-setting .form-input {
+    max-width: 120px;
+    padding: 0.5rem;
+}
+
+.checkin-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #8B5CF6;
+    background: rgba(139, 92, 246, 0.1);
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+}
+
+.form-hint {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 0.75rem;
+}
+
+/* Check-ins no Card da Meta */
+.goal-checkins {
+    background: rgba(139, 92, 246, 0.08);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.checkins-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.checkins-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6D28D9;
+}
+
+.checkins-title i {
+    margin-right: 0.25rem;
+}
+
+.checkins-reward {
+    font-size: 0.75rem;
+    color: #059669;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.checkins-dots {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.checkin-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(139, 92, 246, 0.15);
+    border: 2px solid rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
+}
+
+.checkin-dot.completed {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    border-color: #7C3AED;
+    position: relative;
+}
+
+.checkin-dot.completed::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.btn-checkin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-checkin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-checkin:active {
+    transform: scale(0.98);
+}
+
+.btn-checkin i {
+    font-size: 0.75rem;
+}
