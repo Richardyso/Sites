@@ -232,6 +232,20 @@ window.addEventListener('offline', () => {
     logger.warn('❌ Está offline!');
 });
 
+// Carregar dados do usuário do cache ao inicializar a página
+document.addEventListener('DOMContentLoaded', () => {
+    // Carregar dados do cache imediatamente para exibir nome correto
+    const cachedData = localStorage.getItem('cachedUserData');
+    if (cachedData) {
+        try {
+            const user = JSON.parse(cachedData);
+            window.updateHeaderAvatar(user);
+        } catch (e) {
+            // Ignorar erros de parse
+        }
+    }
+});
+
 // ===== FUNÇÕES UTILITÁRIAS COMPARTILHADAS =====
 
 /**

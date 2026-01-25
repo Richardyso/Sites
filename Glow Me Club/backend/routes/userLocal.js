@@ -199,4 +199,56 @@ router.delete('/profile/image', verifyLocalToken, async (req, res) => {
     }
 });
 
+// ===== GET /api/points/history =====
+// Retorna o histórico de pontos do usuário
+router.get('/history', verifyLocalToken, async (req, res) => {
+    const db = getDb();
+    const { getPointsHistory, log } = db;
+    
+    try {
+        log('info', `GET /api/points/history - Usuário: ${req.user.email}`);
+        
+        const history = await getPointsHistory(req.user.uid);
+        
+        // Formatar histórico para o frontend
+        const formattedHistory = history.map(item => ({
+            id: item.id,
+            action: item.action,
+            points: item.points,
+            date: item.createdAt,
+            type: item.points > 0 ? 'earned' : 'spent',
+            icon: getIconForAction(item.action)
+        }));
+        
+        res.json({
+            success: true,
+            history: formattedHistory
+        });
+        
+    } catch (error) {
+        log('error', 'Erro ao buscar histórico de pontos', error);
+        res.status(500).json({ 
+            error: 'Erro ao buscar histórico de pontos',
+            message: error.message 
+        });
+    }
+});
+
+// Função auxiliar para obter ícone baseado na ação
+function getIconForAction(action) {
+    if (!action) return '⭐';
+    
+    const actionLower = action.toLowerCase();
+    
+    if (actionLower.includes('missão') || actionLower.includes('mission')) return '⭐';
+    if (actionLower.includes('meta') || actionLower.includes('goal')) return '🎯';
+    if (actionLower.includes('check-in') || actionLower.includes('checkin')) return '✅';
+    if (actionLower.includes('bônus') || actionLower.includes('bonus')) return '🎁';
+    if (actionLower.includes('streak') || actionLower.includes('série')) return '🔥';
+    if (actionLower.includes('perfil') || actionLower.includes('profile')) return '👤';
+    if (actionLower.includes('recompensa') || actionLower.includes('reward')) return '🏆';
+    
+    return '💎';
+}
+
 module.exports = router;

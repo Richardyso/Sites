@@ -102,28 +102,32 @@
         }
         
         .color-picker {
-            display: flex;
-            gap: var(--spacing-sm);
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+            gap: 8px;
             margin-top: var(--spacing-xs);
+            max-width: 100%;
         }
         
         .color-option {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: var(--radius-full);
             cursor: pointer;
             transition: var(--transition-base);
             border: 3px solid transparent;
             position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .color-option:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
+            z-index: 1;
         }
         
         .color-option.selected {
             border-color: var(--cor-texto-escuro);
+            transform: scale(1.1);
         }
         
         .color-option.selected::after {
@@ -134,7 +138,8 @@
             transform: translate(-50%, -50%);
             color: white;
             font-weight: bold;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            font-size: 14px;
         }
         
         .password-toggle {
@@ -319,16 +324,43 @@
                     <div class="form-group">
                         <label class="form-label">Cor preferida</label>
                         <div class="color-picker">
-                            <div class="color-option selected" style="background: #DDD6FE" data-color="#DDD6FE"></div>
-                            <div class="color-option" style="background: #C4B5FD" data-color="#C4B5FD"></div>
-                            <div class="color-option" style="background: #A78BFA" data-color="#A78BFA"></div>
-                            <div class="color-option" style="background: #8B5CF6" data-color="#8B5CF6"></div>
-                            <div class="color-option" style="background: #FFC0CB" data-color="#FFC0CB"></div>
-                            <div class="color-option" style="background: #FFB6C1" data-color="#FFB6C1"></div>
-                            <div class="color-option" style="background: #F9A8D4" data-color="#F9A8D4"></div>
-                            <div class="color-option" style="background: #FCD34D" data-color="#FCD34D"></div>
+                            <!-- Vermelhos -->
+                            <div class="color-option" style="background: #EF4444" data-color="#EF4444" title="Vermelho"></div>
+                            <div class="color-option" style="background: #DC2626" data-color="#DC2626" title="Vermelho escuro"></div>
+                            <div class="color-option" style="background: #F87171" data-color="#F87171" title="Vermelho claro"></div>
+                            <!-- Laranjas -->
+                            <div class="color-option" style="background: #F97316" data-color="#F97316" title="Laranja"></div>
+                            <div class="color-option" style="background: #FB923C" data-color="#FB923C" title="Laranja claro"></div>
+                            <!-- Amarelos -->
+                            <div class="color-option" style="background: #EAB308" data-color="#EAB308" title="Amarelo"></div>
+                            <div class="color-option" style="background: #FCD34D" data-color="#FCD34D" title="Amarelo claro"></div>
+                            <div class="color-option" style="background: #FBBF24" data-color="#FBBF24" title="Dourado"></div>
+                            <!-- Verdes -->
+                            <div class="color-option" style="background: #22C55E" data-color="#22C55E" title="Verde"></div>
+                            <div class="color-option" style="background: #4ADE80" data-color="#4ADE80" title="Verde claro"></div>
+                            <div class="color-option" style="background: #10B981" data-color="#10B981" title="Esmeralda"></div>
+                            <div class="color-option" style="background: #14B8A6" data-color="#14B8A6" title="Turquesa"></div>
+                            <!-- Azuis -->
+                            <div class="color-option" style="background: #06B6D4" data-color="#06B6D4" title="Ciano"></div>
+                            <div class="color-option" style="background: #0EA5E9" data-color="#0EA5E9" title="Azul céu"></div>
+                            <div class="color-option" style="background: #3B82F6" data-color="#3B82F6" title="Azul"></div>
+                            <div class="color-option" style="background: #2563EB" data-color="#2563EB" title="Azul royal"></div>
+                            <!-- Roxos -->
+                            <div class="color-option" style="background: #6366F1" data-color="#6366F1" title="Índigo"></div>
+                            <div class="color-option selected" style="background: #8B5CF6" data-color="#8B5CF6" title="Roxo médio"></div>
+                            <div class="color-option" style="background: #A78BFA" data-color="#A78BFA" title="Roxo claro"></div>
+                            <div class="color-option" style="background: #7C3AED" data-color="#7C3AED" title="Violeta"></div>
+                            <!-- Rosas -->
+                            <div class="color-option" style="background: #D946EF" data-color="#D946EF" title="Fúcsia"></div>
+                            <div class="color-option" style="background: #EC4899" data-color="#EC4899" title="Pink"></div>
+                            <div class="color-option" style="background: #F472B6" data-color="#F472B6" title="Rosa"></div>
+                            <div class="color-option" style="background: #F9A8D4" data-color="#F9A8D4" title="Rosa claro"></div>
+                            <!-- Neutros -->
+                            <div class="color-option" style="background: #78716C" data-color="#78716C" title="Cinza quente"></div>
+                            <div class="color-option" style="background: #57534E" data-color="#57534E" title="Marrom"></div>
+                            <div class="color-option" style="background: #1F2937" data-color="#1F2937" title="Carvão"></div>
                         </div>
-                        <input type="hidden" id="preferredColor" name="preferredColor" value="#DDD6FE">
+                        <input type="hidden" id="preferredColor" name="preferredColor" value="#8B5CF6">
                     </div>
                     
                     <!-- Área de Foco -->

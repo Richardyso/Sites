@@ -120,6 +120,70 @@ router.put('/:goalId/complete', verifyLocalToken, async (req, res) => {
     }
 });
 
+// ===== POST /api/goals/:goalId/checkin =====
+// Registra um check-in na meta e adiciona pontos
+router.post('/:goalId/checkin', verifyLocalToken, async (req, res) => {
+    const db = getDb();
+    const { getSubcollection, updateSubcollectionItem, addPoints, log } = db;
+    
+    try {
+        const { goalId } = req.params;
+        const { pointsEarned } = req.body;
+        
+        log('info', `POST /api/goals/${goalId}/checkin - Usuário: ${req.user.email}`);
+        
+        const goals = await getSubcollection(req.user.uid, 'goals');
+        const goal = goals.find(g => g.id === goalId);
+        
+        if (!goal) {
+            return res.status(404).json({ error: 'Meta não encontrada' });
+        }
+        
+        // Verificar se tem check-ins habilitados
+        if (!goal.checkins) {
+            return res.status(400).json({ error: 'Esta meta não tem check-ins habilitados' });
+        }
+        
+        // Verificar se ainda tem check-ins disponíveis
+        if (goal.checkins.completed >= goal.checkins.total) {
+            return res.status(400).json({ error: 'Todos os check-ins já foram concluídos' });
+        }
+        
+        // Incrementar check-in
+        const newCheckinsCompleted = (goal.checkins.completed || 0) + 1;
+        const progressPerCheckin = goal.target / goal.checkins.total;
+        const newCurrent = Math.min(goal.target, Math.round(newCheckinsCompleted * progressPerCheckin));
+        
+        // Atualizar meta
+        await updateSubcollectionItem(req.user.uid, 'goals', goalId, {
+            checkins: {
+                ...goal.checkins,
+                completed: newCheckinsCompleted
+            },
+            current: newCurrent
+        });
+        
+        // Adicionar pontos
+        const points = pointsEarned || goal.checkins.pointsEach || 5;
+        await addPoints(req.user.uid, points, `Check-in: ${goal.title}`);
+        
+        res.json({
+            success: true,
+            message: 'Check-in registrado com sucesso!',
+            pointsEarned: points,
+            checkinsCompleted: newCheckinsCompleted,
+            checkinsTotal: goal.checkins.total
+        });
+        
+    } catch (error) {
+        log('error', 'Erro ao registrar check-in', error);
+        res.status(500).json({ 
+            error: 'Erro ao registrar check-in',
+            message: error.message 
+        });
+    }
+});
+
 // ===== DELETE /api/goals/:goalId =====
 // Deleta uma meta
 router.delete('/:goalId', verifyLocalToken, async (req, res) => {

@@ -192,29 +192,58 @@ function displayMissions() {
 }
 
 // Completar missão
-function completeMission(missionId, points) {
+async function completeMission(missionId, points) {
     const missionIndex = dailyMissions.findIndex(m => m.id === missionId);
     
     if (missionIndex !== -1 && !dailyMissions[missionIndex].completed) {
         dailyMissions[missionIndex].completed = true;
         localStorage.setItem('dailyMissions', JSON.stringify(dailyMissions));
         
-        // Atualizar pontos do usuário
+        // Atualizar pontos do usuário localmente
         if (currentUser) {
             currentUser.totalPoints = (currentUser.totalPoints || 0) + points;
             localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
         }
         
-        // Tentar sincronizar com servidor
-        window.api.post(`/missions/${missionId}/complete`).catch(() => {
-            logger.warn('Não foi possível sincronizar com o servidor');
-        });
-        
-        // Recarregar missões
+        // Recarregar missões imediatamente para feedback visual
         displayMissions();
         
         // Mostrar toast de sucesso
         showSuccessToast(`+${points} pontos ganhos!`);
+        
+        // Sincronizar com servidor (usando PUT, que é a rota correta)
+        try {
+            const response = await window.api.put(`/missions/${missionId}/complete`);
+            
+            if (response.success) {
+                logger.info('✅ Pontos sincronizados com o servidor');
+                
+                // Atualizar o cache com os dados mais recentes do servidor
+                if (response.pointsEarned) {
+                    // Buscar dados atualizados do usuário
+                    try {
+                        const userData = await window.api.get('/auth/me');
+                        if (userData.user) {
+                            currentUser = userData.user;
+                            localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+                            updateHeader();
+                        }
+                    } catch (e) {
+                        logger.warn('Não foi possível atualizar dados do usuário');
+                    }
+                }
+                
+                // Se completou todas as missões, mostrar bônus
+                if (response.allCompleted && response.bonusPoints > 0) {
+                    setTimeout(() => {
+                        showSuccessToast(`🎉 Bônus! +${response.bonusPoints} pontos por completar todas as missões!`);
+                    }, 1500);
+                }
+            }
+        } catch (error) {
+            logger.warn('Não foi possível sincronizar com o servidor:', error);
+            // Os pontos locais já foram atualizados, serão sincronizados depois
+        }
     }
 }
 

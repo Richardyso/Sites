@@ -106,6 +106,7 @@ app.use('/api/missions', missionsLocalRoutes); // Usando rotas locais
 app.use('/api/rewards', rewardsLocalRoutes); // Usando rotas locais
 app.use('/api/admin', adminLocalRoutes); // Administração
 app.use('/api/users', adminLocalRoutes); // Rotas públicas (ranking)
+app.use('/api/points', userLocalRoutes); // Rotas de pontos (histórico)
 
 // ===== ROTA DE HEALTH CHECK =====
 app.get('/api/health', (req, res) => {

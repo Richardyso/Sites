@@ -78,6 +78,7 @@ async function loadGoalsFromBackend() {
         localStorage.setItem('userGoals', JSON.stringify(userGoals));
         
         displayGoals();
+        logger.info('✅ Metas carregadas do servidor:', userGoals.length);
         
     } catch (error) {
         logger.error('Erro ao carregar metas do servidor:', error);
@@ -247,26 +248,58 @@ window.toggleGoal = async function(goalId) {
     const goal = userGoals.find(g => g.id === goalId);
     if (!goal) return;
     
-    goal.completed = !goal.completed;
-    
+    // Só permitir marcar como completa (não desmarcar)
     if (goal.completed) {
-        goal.current = goal.target; // Marcar como 100%
-        // Mostrar celebração
-        showCelebration(goal.points);
+        showError('Esta meta já foi completada!');
+        return;
     }
     
-    // Salvar no localStorage
+    goal.completed = true;
+    goal.current = goal.target; // Marcar como 100%
+    
+    // Salvar no localStorage imediatamente
     localStorage.setItem('userGoals', JSON.stringify(userGoals));
     
-    // Tentar sincronizar com o servidor
-    try {
-        await window.api.put(`/goals/${goalId}/complete`);
-    } catch (error) {
-        logger.warn('Não foi possível sincronizar com o servidor');
-    }
-    
-    // Atualizar UI
+    // Atualizar UI imediatamente
     displayGoals();
+    
+    // Mostrar celebração
+    showCelebration(goal.points);
+    
+    // Sincronizar com o servidor
+    try {
+        const response = await window.api.put(`/goals/${goalId}/complete`);
+        
+        if (response.success) {
+            logger.info('✅ Meta sincronizada com o servidor');
+            
+            // Atualizar pontos do usuário no cache
+            if (response.pointsEarned) {
+                try {
+                    const userData = await window.api.get('/auth/me');
+                    if (userData.user) {
+                        currentUser = userData.user;
+                        localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+                        updateHeader();
+                    }
+                } catch (e) {
+                    // Atualizar localmente como fallback
+                    if (currentUser) {
+                        currentUser.totalPoints = (currentUser.totalPoints || 0) + goal.points;
+                        localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        logger.warn('Não foi possível sincronizar com o servidor:', error);
+        
+        // Atualizar pontos localmente como fallback
+        if (currentUser) {
+            currentUser.totalPoints = (currentUser.totalPoints || 0) + goal.points;
+            localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+        }
+    }
 }
 
 // Editar meta
@@ -329,30 +362,43 @@ window.doCheckin = async function(goalId) {
     // Salvar no localStorage
     localStorage.setItem('userGoals', JSON.stringify(userGoals));
     
-    // Atualizar pontos do usuário
-    try {
-        const cachedData = localStorage.getItem('cachedUserData');
-        if (cachedData) {
-            const userData = JSON.parse(cachedData);
-            userData.totalPoints = (userData.totalPoints || 0) + pointsEarned;
-            localStorage.setItem('cachedUserData', JSON.stringify(userData));
-        }
-    } catch (e) {
-        logger.warn('Não foi possível atualizar pontos localmente');
+    // Atualizar pontos do usuário localmente
+    if (currentUser) {
+        currentUser.totalPoints = (currentUser.totalPoints || 0) + pointsEarned;
+        localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
     }
     
-    // Tentar sincronizar com o servidor
-    try {
-        await window.api.post(`/goals/${goalId}/checkin`);
-    } catch (error) {
-        logger.warn('Não foi possível sincronizar check-in com o servidor');
-    }
-    
-    // Atualizar UI
+    // Atualizar UI imediatamente
     displayGoals();
     
     // Mostrar feedback
     showCheckinSuccess(pointsEarned, goal.checkins.completed, goal.checkins.total);
+    
+    // Sincronizar com o servidor
+    try {
+        const response = await window.api.post(`/goals/${goalId}/checkin`, {
+            pointsEarned: pointsEarned
+        });
+        
+        if (response.success) {
+            logger.info('✅ Check-in sincronizado com o servidor');
+            
+            // Atualizar dados do usuário do servidor
+            try {
+                const userData = await window.api.get('/auth/me');
+                if (userData.user) {
+                    currentUser = userData.user;
+                    localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+                    updateHeader();
+                }
+            } catch (e) {
+                // Já atualizamos localmente, então está ok
+            }
+        }
+    } catch (error) {
+        logger.warn('Não foi possível sincronizar check-in com o servidor:', error);
+        // Os pontos locais já foram atualizados
+    }
     
     // Se completou todos os check-ins, verificar se meta está completa
     if (goal.checkins.completed >= goal.checkins.total && goal.current >= goal.target && !goal.completed) {
