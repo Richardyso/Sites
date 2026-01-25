@@ -3,4 +3,8 @@
 
 const app = require('../backend/server');
 
-module.exports = app;
+// Exportar como handler para Vercel Serverless
+module.exports = (req, res) => {
+    // O Express app pode ser usado como handler
+    return app(req, res);
+};

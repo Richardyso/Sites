@@ -5,18 +5,19 @@ const helmet = require('helmet');
 const path = require('path');
 const fs = require('fs');
 
-// Carregar variáveis de ambiente (.env ou env.example como fallback)
-const envPath = path.join(__dirname, '..', '.env');
-const envExamplePath = path.join(__dirname, '..', 'env.example');
-
-if (fs.existsSync(envPath)) {
-    require('dotenv').config({ path: envPath });
-    console.log('✅ Variáveis carregadas de .env');
-} else if (fs.existsSync(envExamplePath)) {
-    require('dotenv').config({ path: envExamplePath });
-    console.log('✅ Variáveis carregadas de env.example');
-} else {
-    console.warn('⚠️ Nenhum arquivo .env encontrado!');
+// Carregar variáveis de ambiente
+// Em produção (Vercel), as variáveis vêm do dashboard
+// Em desenvolvimento, carrega do arquivo .env
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    try {
+        const envPath = path.join(__dirname, '..', '.env');
+        if (fs.existsSync(envPath)) {
+            require('dotenv').config({ path: envPath });
+            console.log('✅ Variáveis carregadas de .env');
+        }
+    } catch (e) {
+        console.log('ℹ️ Usando variáveis de ambiente do sistema');
+    }
 }
 
 // Escolher banco de dados baseado na configuração
