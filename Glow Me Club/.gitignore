@@ -19,9 +19,10 @@ lerna-debug.log*
 # ===== AMBIENTE E SEGURANÇA =====
 # Variáveis de ambiente (NUNCA commitar!)
 .env
-.env.*
-env.example
-*.env
+.env.local
+.env.production
+.env.development
+# NÃO ignorar env.example (é apenas um template)
 
 # Chaves e credenciais
 firebase-service-account.json

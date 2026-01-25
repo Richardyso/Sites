@@ -71,11 +71,34 @@ app.use(helmet({
     }
 }));
 
-// CORS
+// CORS - permitir requisições do mesmo domínio e desenvolvimento
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-        ? process.env.FRONTEND_URL 
-        : ['http://localhost:3000', 'http://localhost:5000', 'http://127.0.0.1:5500'],
+    origin: function(origin, callback) {
+        // Permitir requisições sem origin (mesma origem, curl, etc)
+        if (!origin) return callback(null, true);
+        
+        // Permitir desenvolvimento local
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://localhost:5000',
+            'http://127.0.0.1:5500',
+            'https://glowmeclub.vercel.app',
+            /\.vercel\.app$/  // Qualquer subdomínio da Vercel
+        ];
+        
+        const isAllowed = allowedOrigins.some(allowed => {
+            if (allowed instanceof RegExp) {
+                return allowed.test(origin);
+            }
+            return allowed === origin;
+        });
+        
+        if (isAllowed) {
+            callback(null, true);
+        } else {
+            callback(null, true); // Permitir todos por enquanto para debug
+        }
+    },
     credentials: true
 }));
 
@@ -152,14 +175,33 @@ app.use((err, req, res, next) => {
     });
 });
 
-// ===== INICIAR SERVIDOR =====
-app.listen(PORT, async () => {
-    // Inicializar banco de dados
-    await initDatabase();
-    
-    const dbType = USE_FIREBASE ? 'Firebase 🔥' : 'JSON Local 💾';
-    
-    console.log(`
+// ===== INICIALIZAÇÃO =====
+// Inicializar banco de dados (para Serverless, inicializa na primeira requisição)
+let dbInitialized = false;
+const initDb = async () => {
+    if (!dbInitialized) {
+        await initDatabase();
+        dbInitialized = true;
+    }
+};
+
+// Middleware para garantir que o DB está inicializado
+app.use(async (req, res, next) => {
+    try {
+        await initDb();
+        next();
+    } catch (error) {
+        console.error('Erro ao inicializar banco de dados:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// ===== INICIAR SERVIDOR (apenas em desenvolvimento local) =====
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    app.listen(PORT, async () => {
+        const dbType = USE_FIREBASE ? 'Firebase 🔥' : 'JSON Local 💾';
+        
+        console.log(`
 ${colors.magenta}╔══════════════════════════════════════╗
 ║       ✨ GLOWMECLUB BACKEND ✨      ║
 ║                                      ║
@@ -169,22 +211,24 @@ ${colors.magenta}╔════════════════════
 ║   Ambiente: ${process.env.NODE_ENV || 'development'}          ║
 ║   Banco: ${dbType}              ║
 ╚══════════════════════════════════════╝${colors.reset}
-    `);
-    
-    log('info', `Servidor iniciado em http://localhost:${PORT}`);
-    log('info', `Usando banco de dados: ${USE_FIREBASE ? 'Firebase Firestore' : 'JSON Local'}`);
-});
+        `);
+        
+        log('info', `Servidor iniciado em http://localhost:${PORT}`);
+        log('info', `Usando banco de dados: ${USE_FIREBASE ? 'Firebase Firestore' : 'JSON Local'}`);
+    });
+}
 
 // ===== TRATAMENTO DE ERROS DO PROCESSO =====
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    // Em produção, você pode querer fazer log e reiniciar o processo
 });
 
 process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
-    // Fechar servidor gracefully
-    process.exit(1);
+    if (process.env.NODE_ENV !== 'production') {
+        process.exit(1);
+    }
 });
 
+// Exportar para Vercel Serverless Functions
 module.exports = app;

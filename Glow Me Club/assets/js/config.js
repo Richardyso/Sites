@@ -11,8 +11,8 @@ const config = {
         if (this.isDevelopment) {
             return 'http://localhost:3000/api';
         }
-        // TODO: Substituir pela URL de produção quando disponível
-        return 'https://api.glowmeclub.com';
+        // Em produção, a API está na mesma URL que o frontend
+        return window.location.origin + '/api';
     },
     
     // Modo de autenticação
