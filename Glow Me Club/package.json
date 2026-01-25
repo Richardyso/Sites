@@ -6,8 +6,6 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "build": "echo 'No build step required'",
-    "vercel-build": "echo 'No build step required'",
     "firebase:emulators": "firebase emulators:start",
     "firebase:deploy": "firebase deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
