@@ -138,20 +138,6 @@
                         >
                     </div>
 
-                    <!-- Categoria -->
-                    <div class="form-group">
-                        <label for="goalCategory" class="form-label">Categoria</label>
-                        <select id="goalCategory" class="form-select" required>
-                            <option value="">Selecione uma categoria</option>
-                            <option value="mental">Mental</option>
-                            <option value="fisico">Físico</option>
-                            <option value="emocional">Emocional</option>
-                            <option value="espiritual">Espiritual</option>
-                            <option value="financeiro">Financeiro</option>
-                            <option value="aparencia">Aparência</option>
-                        </select>
-                    </div>
-
                     <!-- Descrição -->
                     <div class="form-group">
                         <label for="goalDescription" class="form-label">Descrição (opcional)</label>
@@ -165,12 +151,12 @@
 
                     <!-- Meta -->
                     <div class="form-group">
-                        <label for="goalTarget" class="form-label">Meta numérica</label>
+                        <label for="goalTarget" class="form-label">Quanto tempo em horas vou me dedicar por dia</label>
                         <input 
                             type="number" 
                             id="goalTarget" 
                             class="form-input"
-                            placeholder="Ex: 30"
+                            placeholder="Ex: 2"
                             min="1"
                             required
                         >
@@ -179,64 +165,13 @@
                     <!-- Prazo -->
                     <div class="form-group">
                         <label for="goalDeadline" class="form-label">Prazo</label>
+                        <p class="form-hint">Quando você pretende terminar</p>
                         <input 
                             type="date" 
                             id="goalDeadline" 
                             class="form-input"
                             required
                         >
-                    </div>
-
-                    <!-- Pontos de Recompensa -->
-                    <div class="form-group">
-                        <label for="goalPoints" class="form-label">Pontos ao completar</label>
-                        <input 
-                            type="number" 
-                            id="goalPoints" 
-                            class="form-input"
-                            placeholder="Ex: 100"
-                            min="10"
-                            step="10"
-                            value="50"
-                            required
-                        >
-                    </div>
-                    
-                    <!-- Micro-etapas (Check-ins) -->
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-check-double"></i> Micro-etapas (opcional)
-                        </label>
-                        <p class="form-hint">Divida sua meta em pequenos passos e ganhe pontos parciais a cada check-in!</p>
-                        <div class="checkins-config">
-                            <div class="checkins-toggle">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="enableCheckins">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span>Habilitar check-ins</span>
-                            </div>
-                            <div class="checkins-options" id="checkinsOptions" style="display: none;">
-                                <div class="checkin-setting">
-                                    <label>Número de check-ins:</label>
-                                    <select id="numCheckins" class="form-input">
-                                        <option value="3">3 etapas</option>
-                                        <option value="4">4 etapas</option>
-                                        <option value="5" selected>5 etapas</option>
-                                        <option value="7">7 etapas</option>
-                                        <option value="10">10 etapas</option>
-                                    </select>
-                                </div>
-                                <div class="checkin-setting">
-                                    <label>Pontos por check-in:</label>
-                                    <input type="number" id="pointsPerCheckin" class="form-input" value="5" min="1" max="20">
-                                </div>
-                                <p class="checkin-preview">
-                                    <i class="fas fa-info-circle"></i>
-                                    <span id="checkinPreview">5 check-ins × 5 pts = +25 pts extras!</span>
-                                </p>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
