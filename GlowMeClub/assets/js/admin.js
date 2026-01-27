@@ -8,6 +8,7 @@ if (!window.appConfig || !window.api) {
 // Dados
 let currentUser = null;
 let allUsers = [];
+let adminGoals = [];
 
 // Verificar se é admin
 async function checkAdminAccess() {
@@ -29,6 +30,9 @@ async function checkAdminAccess() {
             return false;
         }
         
+        // Atualizar header com foto de perfil
+        updateHeaderAvatar();
+        
         return true;
     } catch (error) {
         logger.error('Erro ao verificar acesso:', error);
@@ -41,12 +45,113 @@ async function checkAdminAccess() {
                 window.location.href = 'dashboard.html';
                 return false;
             }
+            updateHeaderAvatar();
             return true;
         }
         
         window.location.href = 'login.html';
         return false;
     }
+}
+
+// Atualizar avatar no header
+function updateHeaderAvatar() {
+    if (!currentUser) return;
+    
+    const avatarInitial = document.getElementById('avatarInitial');
+    const avatarImage = document.getElementById('avatarImage');
+    const headerAvatar = document.getElementById('headerAvatar');
+    const headerUserName = document.getElementById('headerUserName');
+    
+    // Atualizar nome
+    if (headerUserName) {
+        headerUserName.textContent = currentUser.name || 'Admin';
+    }
+    
+    // Verificar se tem foto de perfil
+    if (currentUser.profileImage) {
+        if (avatarImage) {
+            avatarImage.src = currentUser.profileImage;
+            avatarImage.style.display = 'block';
+        }
+        if (avatarInitial) {
+            avatarInitial.style.display = 'none';
+        }
+    } else {
+        // Mostrar inicial
+        const initial = (currentUser.name || 'A').charAt(0).toUpperCase();
+        if (avatarInitial) {
+            avatarInitial.textContent = initial;
+            avatarInitial.style.display = 'block';
+        }
+        if (avatarImage) {
+            avatarImage.style.display = 'none';
+        }
+        // Aplicar cor de fundo
+        if (headerAvatar && currentUser.preferredColor) {
+            headerAvatar.style.background = currentUser.preferredColor;
+        }
+    }
+}
+
+// Carregar metas do admin
+async function loadAdminGoals() {
+    try {
+        const data = await window.api.get('/goals');
+        adminGoals = data.goals || [];
+        displayAdminGoals();
+    } catch (error) {
+        logger.error('Erro ao carregar metas:', error);
+        
+        // Tentar carregar do localStorage
+        const cachedGoals = localStorage.getItem('userGoals');
+        if (cachedGoals) {
+            adminGoals = JSON.parse(cachedGoals);
+            displayAdminGoals();
+        }
+    }
+}
+
+// Exibir metas do admin
+function displayAdminGoals() {
+    const goalsGrid = document.getElementById('adminGoalsGrid');
+    const emptyGoals = document.getElementById('emptyGoals');
+    
+    if (!goalsGrid) return;
+    
+    if (adminGoals.length === 0) {
+        goalsGrid.style.display = 'none';
+        if (emptyGoals) emptyGoals.style.display = 'block';
+        return;
+    }
+    
+    goalsGrid.style.display = 'grid';
+    if (emptyGoals) emptyGoals.style.display = 'none';
+    
+    goalsGrid.innerHTML = adminGoals.map(goal => {
+        const isCompleted = goal.completed;
+        
+        return `
+            <div class="goal-card" style="background: ${isCompleted ? 'linear-gradient(135deg, rgba(209, 250, 229, 0.5) 0%, rgba(167, 243, 208, 0.5) 100%)' : 'linear-gradient(135deg, rgba(221, 214, 254, 0.5) 0%, rgba(196, 181, 253, 0.5) 100%)'}; border-radius: 16px; padding: 1.25rem; border: 1px solid ${isCompleted ? 'rgba(16, 185, 129, 0.2)' : 'rgba(139, 92, 246, 0.1)'};">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                    <h4 style="margin: 0; font-size: 1rem; color: #333;">${goal.title}</h4>
+                    ${isCompleted ? '<span style="background: #10B981; color: white; padding: 0.25rem 0.5rem; border-radius: 20px; font-size: 0.7rem;"><i class="fas fa-check"></i> Concluída</span>' : ''}
+                </div>
+                ${goal.description ? `<p style="color: #666; font-size: 0.85rem; margin-bottom: 0.75rem;">${goal.description}</p>` : ''}
+                <div style="display: flex; gap: 1rem; font-size: 0.8rem; color: #888;">
+                    <span><i class="fas fa-clock"></i> ${goal.target}h/dia</span>
+                    <span><i class="fas fa-calendar"></i> ${formatGoalDate(goal.deadline)}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Formatar data
+function formatGoalDate(dateString) {
+    const date = new Date(dateString);
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('pt-BR', options);
 }
 
 // Carregar todos os usuários
@@ -331,8 +436,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hasAccess = await checkAdminAccess();
     if (!hasAccess) return;
     
-    // Carregar usuários
+    // Carregar usuários e metas
     loadAllUsers();
+    loadAdminGoals();
     
     // Busca
     const searchInput = document.getElementById('searchInput');

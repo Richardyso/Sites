@@ -368,6 +368,30 @@
     </style>
 </head>
 <body style="background: #F9F5FF;">
+    <!-- Header com foto de perfil -->
+    <header class="app-header" style="background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);">
+        <nav class="app-nav" style="max-width: 1400px; margin: 0 auto; padding: 1rem 2rem;">
+            <a href="/" class="logo-link">
+                <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img" style="height: 40px;">
+            </a>
+            
+            <!-- User Area -->
+            <div class="user-area" style="display: flex; align-items: center; gap: 1rem;">
+                <a href="perfil.html" class="user-profile-link" style="display: flex; align-items: center; gap: 0.75rem; color: white; text-decoration: none;">
+                    <div class="user-avatar" id="headerAvatar" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; background: rgba(255,255,255,0.2); overflow: hidden;">
+                        <span id="avatarInitial">A</span>
+                        <img id="avatarImage" src="" alt="Avatar" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <span class="user-name" id="headerUserName" style="font-weight: 500;">Admin</span>
+                </a>
+                <button class="logout-btn" id="logoutBtn" title="Sair" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
     <div class="admin-container">
         <!-- Header -->
         <div class="admin-header">
@@ -375,10 +399,6 @@
                 <h1>Painel Administrativo</h1>
                 <p>Gerencie usuárias e configurações do GlowMeClub</p>
             </div>
-            <a href="dashboard.html" class="back-link">
-                <i class="fas fa-arrow-left"></i>
-                Voltar ao Dashboard
-            </a>
         </div>
         
         <!-- Stats -->
@@ -425,6 +445,25 @@
                     <!-- Usuários serão carregados dinamicamente -->
                 </tbody>
             </table>
+        </div>
+        
+        <!-- Minhas Metas Section -->
+        <div class="users-section" style="margin-top: 2rem;">
+            <div class="users-header">
+                <h2><i class="fas fa-bullseye"></i> Minhas Metas</h2>
+                <a href="metas.html" class="btn btn-primary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                    <i class="fas fa-plus"></i> Nova Meta
+                </a>
+            </div>
+            
+            <div id="adminGoalsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">
+                <!-- Metas serão carregadas dinamicamente -->
+            </div>
+            
+            <div id="emptyGoals" style="display: none; text-align: center; padding: 2rem; color: #999;">
+                <i class="fas fa-bullseye" style="font-size: 3rem; color: #DDD6FE; margin-bottom: 1rem;"></i>
+                <p>Você ainda não tem metas. Crie sua primeira meta!</p>
+            </div>
         </div>
     </div>
     

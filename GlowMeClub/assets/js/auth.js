@@ -108,8 +108,12 @@ async function handleLogin(e) {
         
         _log('info', '✅ Login bem-sucedido!');
         
-        // Redirecionar para dashboard
-        window.location.href = 'dashboard.html';
+        // Redirecionar: admin vai para admin.html, outros para dashboard.html
+        if (data.user && data.user.role === 'admin') {
+            window.location.href = 'admin.html';
+        } else {
+            window.location.href = 'dashboard.html';
+        }
         
     } catch (error) {
         _log('error', '❌ Erro no login:', error.message);
@@ -237,7 +241,12 @@ async function checkAuthState() {
             
             if (isPublicPage) {
                 _log('info', '➡️ Usuário autenticado em página pública, redirecionando...');
-                window.location.href = 'dashboard.html';
+                // Admin vai para admin.html, outros para dashboard.html
+                if (data.user && data.user.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
             }
         } catch (error) {
             _log('error', '❌ Erro ao verificar autenticação:', error);
