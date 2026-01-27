@@ -94,33 +94,8 @@ function loadGoalsFromLocalStorage() {
     if (savedGoals) {
         userGoals = JSON.parse(savedGoals);
     } else {
-        // Metas de exemplo
-        userGoals = [
-            {
-                id: '1',
-                title: 'Beber 2L de água por dia',
-                description: 'Manter-me hidratada para uma pele radiante',
-                category: 'fisico',
-                target: 30,
-                current: 12,
-                deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                points: 100,
-                completed: false
-            },
-            {
-                id: '2',
-                title: 'Meditar 15 minutos diariamente',
-                description: 'Acalmar a mente e reduzir o stress',
-                category: 'mental',
-                target: 30,
-                current: 8,
-                deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                points: 150,
-                completed: false
-            }
-        ];
-        // Salvar metas de exemplo
-        localStorage.setItem('userGoals', JSON.stringify(userGoals));
+        // Começar sem metas de exemplo
+        userGoals = [];
     }
     displayGoals();
 }
@@ -173,33 +148,18 @@ async function handleCreateGoal(e) {
     const saveBtn = form.querySelector('[type="submit"]');
     const originalText = saveBtn.innerHTML;
     
-    // Check-ins configuration
-    const enableCheckins = document.getElementById('enableCheckins')?.checked || false;
-    const numCheckins = parseInt(document.getElementById('numCheckins')?.value) || 5;
-    const pointsPerCheckin = parseInt(document.getElementById('pointsPerCheckin')?.value) || 5;
-    
     const newGoal = {
         id: Date.now().toString(),
         title: form.goalTitle.value.trim(),
         description: form.goalDescription.value.trim(),
-        category: form.goalCategory.value,
-        target: parseInt(form.goalTarget.value) || 30,
+        category: 'geral', // Categoria padrão
+        target: parseInt(form.goalTarget.value) || 1, // Horas por dia
         current: 0,
         deadline: form.goalDeadline.value,
-        points: parseInt(form.goalPoints.value) || 50,
+        points: 50, // Sempre 50 pontos ao completar
         completed: false,
         createdAt: new Date().toISOString()
     };
-    
-    // Adicionar check-ins se habilitado
-    if (enableCheckins) {
-        newGoal.checkins = {
-            enabled: true,
-            total: numCheckins,
-            completed: 0,
-            pointsEach: pointsPerCheckin
-        };
-    }
     
     // Mostrar loading
     saveBtn.classList.add('btn-loading');
@@ -254,6 +214,9 @@ window.toggleGoal = async function(goalId) {
         return;
     }
     
+    // Sempre 50 pontos ao completar
+    const pointsEarned = 50;
+    goal.points = pointsEarned;
     goal.completed = true;
     goal.current = goal.target; // Marcar como 100%
     
@@ -264,7 +227,7 @@ window.toggleGoal = async function(goalId) {
     displayGoals();
     
     // Mostrar celebração
-    showCelebration(goal.points);
+    showCelebration(pointsEarned);
     
     // Sincronizar com o servidor
     try {
@@ -285,7 +248,7 @@ window.toggleGoal = async function(goalId) {
                 } catch (e) {
                     // Atualizar localmente como fallback
                     if (currentUser) {
-                        currentUser.totalPoints = (currentUser.totalPoints || 0) + goal.points;
+                        currentUser.totalPoints = (currentUser.totalPoints || 0) + 50;
                         localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
                     }
                 }
@@ -296,7 +259,7 @@ window.toggleGoal = async function(goalId) {
         
         // Atualizar pontos localmente como fallback
         if (currentUser) {
-            currentUser.totalPoints = (currentUser.totalPoints || 0) + goal.points;
+            currentUser.totalPoints = (currentUser.totalPoints || 0) + 50;
             localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
         }
     }

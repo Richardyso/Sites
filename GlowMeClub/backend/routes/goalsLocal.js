@@ -44,16 +44,18 @@ router.post('/', verifyLocalToken, async (req, res) => {
     const { addToSubcollection, log } = db;
     
     try {
-        const { title, description, category, frequency, points } = req.body;
+        const { title, description, category, target, deadline, points } = req.body;
         
         log('info', `POST /api/goals - Criando meta: ${title}`);
         
         const newGoal = {
             title,
-            description,
-            category,
-            frequency,
-            points: parseInt(points) || 50,
+            description: description || '',
+            category: category || 'geral',
+            target: parseInt(target) || 1, // Horas por dia
+            current: 0,
+            deadline: deadline || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            points: 50, // Sempre 50 pontos
             completed: false,
             createdAt: new Date().toISOString()
         };
@@ -102,13 +104,14 @@ router.put('/:goalId/complete', verifyLocalToken, async (req, res) => {
             completedAt: new Date().toISOString()
         });
         
-        // Adicionar pontos
-        await addPoints(req.user.uid, goal.points, `Completou meta: ${goal.title}`);
+        // Sempre adicionar 50 pontos ao completar uma meta
+        const pointsEarned = 50;
+        await addPoints(req.user.uid, pointsEarned, `Completou meta: ${goal.title}`);
         
         res.json({
             success: true,
             message: 'Meta completada com sucesso!',
-            pointsEarned: goal.points
+            pointsEarned: pointsEarned
         });
         
     } catch (error) {

@@ -195,16 +195,6 @@
     <script>
         // Template para criar cards de metas - acessível globalmente
         window.createGoalCard = function(goal) {
-            const progress = (goal.current / goal.target) * 100;
-            const categoryIcons = {
-                mental: '🧠',
-                fisico: '💪',
-                emocional: '❤️',
-                espiritual: '✨',
-                financeiro: '💰',
-                aparencia: '💄'
-            };
-
             const card = document.createElement('div');
             card.className = 'goal-card';
             card.dataset.goalId = goal.id;
@@ -212,83 +202,41 @@
                 card.classList.add('completed');
             }
 
-            // Gerar HTML de check-ins se habilitado
-            let checkinsHtml = '';
-            if (goal.checkins && goal.checkins.enabled) {
-                const totalCheckins = goal.checkins.total || 5;
-                const completedCheckins = goal.checkins.completed || 0;
-                const pointsPerCheckin = goal.checkins.pointsEach || 5;
-                
-                let dotsHtml = '';
-                for (let i = 0; i < totalCheckins; i++) {
-                    const isCompleted = i < completedCheckins;
-                    dotsHtml += `<span class="checkin-dot ${isCompleted ? 'completed' : ''}" data-index="${i}"></span>`;
-                }
-                
-                checkinsHtml = `
-                    <div class="goal-checkins">
-                        <div class="checkins-header">
-                            <span class="checkins-title">
-                                <i class="fas fa-check-double"></i> 
-                                Check-ins: ${completedCheckins}/${totalCheckins}
-                            </span>
-                            <span class="checkins-reward">+${pointsPerCheckin} pts cada</span>
-                        </div>
-                        <div class="checkins-dots">${dotsHtml}</div>
-                        ${!goal.completed && completedCheckins < totalCheckins ? `
-                            <button class="btn-checkin" data-action="checkin" data-id="${goal.id}">
-                                <i class="fas fa-plus"></i> Fazer check-in (+${pointsPerCheckin} pts)
-                            </button>
-                        ` : ''}
-                    </div>
-                `;
-            }
-
             card.innerHTML = `
                 <div class="goal-header">
-                    <div class="goal-checkbox ${goal.completed ? 'checked' : ''}" data-action="toggle" data-id="${goal.id}"></div>
                     <div class="goal-info">
                         <h3>${goal.title}</h3>
-                        <span class="goal-category">
-                            <span class="category-icon category-${goal.category}">${categoryIcons[goal.category] || '🎯'}</span>
-                            ${goal.category.charAt(0).toUpperCase() + goal.category.slice(1)}
-                        </span>
+                        ${goal.description ? `<p class="goal-description">${goal.description}</p>` : ''}
                     </div>
                     <div class="goal-actions">
-                        <button class="goal-action" data-action="edit" data-id="${goal.id}" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
                         <button class="goal-action" data-action="delete" data-id="${goal.id}" title="Excluir">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>
                 
-                <div class="goal-progress">
-                    <div class="progress-info">
-                        <span class="progress-label">Progresso</span>
-                        <span class="progress-percentage">${Math.round(progress)}%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${progress}%"></div>
-                    </div>
-                    <div class="progress-text">
-                        <span class="progress-value">${goal.current} / ${goal.target}</span>
-                    </div>
-                </div>
-                
-                ${checkinsHtml}
-                
                 <div class="goal-details">
-                    <div class="goal-deadline">
-                        <i class="fas fa-calendar"></i>
-                        ${formatDate(goal.deadline)}
+                    <div class="goal-detail">
+                        <i class="fas fa-clock"></i>
+                        <span>${goal.target}h por dia</span>
                     </div>
-                    <div class="goal-reward">
-                        <i class="fas fa-coins"></i>
-                        ${goal.points} pontos
+                    <div class="goal-detail">
+                        <i class="fas fa-calendar"></i>
+                        <span>Prazo: ${formatDate(goal.deadline)}</span>
                     </div>
                 </div>
+                
+                ${goal.completed ? `
+                    <div class="goal-completed-badge">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Meta Concluída! +50 pontos</span>
+                    </div>
+                ` : `
+                    <button class="btn btn-complete-goal" data-action="toggle" data-id="${goal.id}">
+                        <i class="fas fa-check"></i>
+                        Concluir Meta (+50 pontos)
+                    </button>
+                `}
             `;
 
             return card;
@@ -311,35 +259,10 @@
             
             if (action === 'toggle' && window.toggleGoal) {
                 window.toggleGoal(goalId);
-            } else if (action === 'edit' && window.editGoal) {
-                window.editGoal(goalId);
             } else if (action === 'delete' && window.deleteGoal) {
                 window.deleteGoal(goalId);
-            } else if (action === 'checkin' && window.doCheckin) {
-                window.doCheckin(goalId);
             }
         });
-        
-        // Toggle check-ins options
-        document.getElementById('enableCheckins')?.addEventListener('change', function() {
-            const options = document.getElementById('checkinsOptions');
-            if (options) {
-                options.style.display = this.checked ? 'block' : 'none';
-            }
-        });
-        
-        // Update check-in preview
-        function updateCheckinPreview() {
-            const num = parseInt(document.getElementById('numCheckins')?.value || 5);
-            const pts = parseInt(document.getElementById('pointsPerCheckin')?.value || 5);
-            const preview = document.getElementById('checkinPreview');
-            if (preview) {
-                preview.textContent = `${num} check-ins × ${pts} pts = +${num * pts} pts extras!`;
-            }
-        }
-        
-        document.getElementById('numCheckins')?.addEventListener('change', updateCheckinPreview);
-        document.getElementById('pointsPerCheckin')?.addEventListener('input', updateCheckinPreview);
     </script>
 </body>
 </html>

@@ -819,3 +819,83 @@ input:checked + .toggle-slider:before {
 .btn-checkin i {
     font-size: 0.75rem;
 }
+
+/* ===== BOTÃO CONCLUIR META ===== */
+.btn-complete-goal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem;
+    margin-top: 1rem;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-complete-goal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-complete-goal:active {
+    transform: scale(0.98);
+}
+
+.btn-complete-goal i {
+    font-size: 1rem;
+}
+
+/* Badge de Meta Concluída */
+.goal-completed-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem;
+    margin-top: 1rem;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+    color: #059669;
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.goal-completed-badge i {
+    font-size: 1.25rem;
+    color: #10B981;
+}
+
+/* Detalhes da Meta - Novo estilo */
+.goal-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+}
+
+.goal-detail i {
+    color: #8B5CF6;
+    font-size: 0.9rem;
+}
+
+/* Descrição da Meta */
+.goal-description {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+    line-height: 1.5;
+}
