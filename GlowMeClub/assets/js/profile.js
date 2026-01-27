@@ -183,34 +183,53 @@ function closeColorPickerModal() {
 
 // ===== ESTATÍSTICAS =====
 function updateStats() {
+    // Seção de estatísticas foi removida - função mantida por compatibilidade
     if (!currentUser) return;
+    
+    // Verifica se os elementos existem antes de tentar atualizar
+    const totalPointsEl = document.getElementById('totalPoints');
+    const currentLevelEl = document.getElementById('currentLevel');
+    const levelNumberEl = document.getElementById('levelNumber');
+    const memberSinceEl = document.getElementById('memberSince');
+    const progressBarEl = document.getElementById('progressBar');
+    const currentPointsLabelEl = document.getElementById('currentPointsLabel');
+    const nextLevelLabelEl = document.getElementById('nextLevelLabel');
+    const levelNameEl = document.getElementById('levelName');
+    const levelEmojiEl = document.getElementById('levelEmoji');
+    
+    // Se nenhum elemento existe, a seção foi removida
+    if (!totalPointsEl && !currentLevelEl) return;
     
     const totalPoints = currentUser.totalPoints || 0;
     const level = calculateLevel(totalPoints);
     
     // Pontos
-    document.getElementById('totalPoints').textContent = totalPoints.toLocaleString('pt-BR');
+    if (totalPointsEl) totalPointsEl.textContent = totalPoints.toLocaleString('pt-BR');
     
     // Nível
-    document.getElementById('currentLevel').textContent = level.current;
-    document.getElementById('levelNumber').textContent = level.current;
+    if (currentLevelEl) currentLevelEl.textContent = level.current;
+    if (levelNumberEl) levelNumberEl.textContent = level.current;
     
     // Data de entrada
-    const joinDate = new Date(currentUser.createdAt || Date.now());
-    document.getElementById('memberSince').textContent = joinDate.toLocaleDateString('pt-BR', {
-        month: 'short',
-        year: 'numeric'
-    });
+    if (memberSinceEl) {
+        const joinDate = new Date(currentUser.createdAt || Date.now());
+        memberSinceEl.textContent = joinDate.toLocaleDateString('pt-BR', {
+            month: 'short',
+            year: 'numeric'
+        });
+    }
     
     // Progresso do nível
-    const progressPercent = ((totalPoints - level.minPoints) / (level.maxPoints - level.minPoints)) * 100;
-    document.getElementById('progressBar').style.width = `${Math.min(progressPercent, 100)}%`;
-    document.getElementById('currentPointsLabel').textContent = `${totalPoints} pts`;
-    document.getElementById('nextLevelLabel').textContent = `${level.maxPoints} pts para próximo nível`;
+    if (progressBarEl) {
+        const progressPercent = ((totalPoints - level.minPoints) / (level.maxPoints - level.minPoints)) * 100;
+        progressBarEl.style.width = `${Math.min(progressPercent, 100)}%`;
+    }
+    if (currentPointsLabelEl) currentPointsLabelEl.textContent = `${totalPoints} pts`;
+    if (nextLevelLabelEl) nextLevelLabelEl.textContent = `${level.maxPoints} pts para próximo nível`;
     
     // Nome e emoji do nível
-    document.getElementById('levelName').textContent = level.name;
-    document.getElementById('levelEmoji').textContent = level.emoji;
+    if (levelNameEl) levelNameEl.textContent = level.name;
+    if (levelEmojiEl) levelEmojiEl.textContent = level.emoji;
 }
 
 function calculateLevel(points) {
@@ -239,8 +258,11 @@ function calculateLevel(points) {
 
 // ===== BADGES =====
 function updateBadges() {
-    const badges = currentUser.badges || [];
+    // Seção de badges foi removida - função mantida por compatibilidade
     const badgeItems = document.querySelectorAll('.badge-item');
+    if (!badgeItems || badgeItems.length === 0) return;
+    
+    const badges = currentUser?.badges || [];
     
     badgeItems.forEach(item => {
         const badgeId = item.dataset.badge;
@@ -248,25 +270,30 @@ function updateBadges() {
         
         if (badges.includes(badgeId)) {
             item.classList.add('unlocked');
-            iconEl.classList.remove('locked');
+            if (iconEl) iconEl.classList.remove('locked');
         } else {
             item.classList.remove('unlocked');
-            iconEl.classList.add('locked');
+            if (iconEl) iconEl.classList.add('locked');
         }
     });
 }
 
 // ===== JORNADA / MAPA =====
 function updateJourneyMap() {
-    const totalPoints = currentUser.totalPoints || 0;
-    const currentLevel = Math.min(Math.floor(totalPoints / 500) + 1, 5);
-    
+    // Seção de jornada foi removida - função mantida por compatibilidade
     const steps = document.querySelectorAll('.journey-step');
     const lines = document.querySelectorAll('.journey-line');
+    
+    if (!steps || steps.length === 0) return;
+    
+    const totalPoints = currentUser?.totalPoints || 0;
+    const currentLevel = Math.min(Math.floor(totalPoints / 500) + 1, 5);
     
     steps.forEach((step, index) => {
         const stepLevel = index + 1;
         const marker = step.querySelector('.journey-marker');
+        
+        if (!marker) return;
         
         if (stepLevel < currentLevel) {
             marker.classList.add('completed');
