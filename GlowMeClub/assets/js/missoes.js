@@ -196,14 +196,11 @@ async function completeMission(missionId, points) {
     const missionIndex = dailyMissions.findIndex(m => m.id === missionId);
     
     if (missionIndex !== -1 && !dailyMissions[missionIndex].completed) {
+        const mission = dailyMissions[missionIndex];
+        
+        // Marcar como completada localmente
         dailyMissions[missionIndex].completed = true;
         localStorage.setItem('dailyMissions', JSON.stringify(dailyMissions));
-        
-        // Atualizar pontos do usuário localmente
-        if (currentUser) {
-            currentUser.totalPoints = (currentUser.totalPoints || 0) + points;
-            localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
-        }
         
         // Recarregar missões imediatamente para feedback visual
         displayMissions();
@@ -211,25 +208,31 @@ async function completeMission(missionId, points) {
         // Mostrar toast de sucesso
         showSuccessToast(`+${points} pontos ganhos!`);
         
-        // Sincronizar com servidor (usando PUT, que é a rota correta)
+        // Sincronizar com servidor (enviando dados da missão)
         try {
-            const response = await window.api.put(`/missions/${missionId}/complete`);
+            const response = await window.api.put(`/missions/${missionId}/complete`, {
+                title: mission.title,
+                points: points
+            });
             
             if (response.success) {
                 logger.info('✅ Pontos sincronizados com o servidor');
                 
-                // Atualizar o cache com os dados mais recentes do servidor
-                if (response.pointsEarned) {
-                    // Buscar dados atualizados do usuário
-                    try {
-                        const userData = await window.api.get('/auth/me');
-                        if (userData.user) {
-                            currentUser = userData.user;
-                            localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
-                            updateHeader();
-                        }
-                    } catch (e) {
-                        logger.warn('Não foi possível atualizar dados do usuário');
+                // Buscar dados atualizados do usuário para ter os pontos corretos
+                try {
+                    const userData = await window.api.get('/auth/me');
+                    if (userData.user) {
+                        currentUser = userData.user;
+                        localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+                        updateHeader();
+                        logger.info(`💎 Total de pontos: ${currentUser.totalPoints}`);
+                    }
+                } catch (e) {
+                    logger.warn('Não foi possível atualizar dados do usuário');
+                    // Atualizar localmente como fallback
+                    if (currentUser) {
+                        currentUser.totalPoints = (currentUser.totalPoints || 0) + points;
+                        localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
                     }
                 }
                 
@@ -241,8 +244,13 @@ async function completeMission(missionId, points) {
                 }
             }
         } catch (error) {
-            logger.warn('Não foi possível sincronizar com o servidor:', error);
-            // Os pontos locais já foram atualizados, serão sincronizados depois
+            logger.error('❌ Erro ao sincronizar com o servidor:', error);
+            // Atualizar pontos localmente como fallback
+            if (currentUser) {
+                currentUser.totalPoints = (currentUser.totalPoints || 0) + points;
+                localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+            }
+            showSuccessToast(`⚠️ Pontos salvos localmente`);
         }
     }
 }

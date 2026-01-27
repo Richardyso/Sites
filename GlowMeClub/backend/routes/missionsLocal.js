@@ -54,55 +54,60 @@ router.get('/daily', verifyLocalToken, async (req, res) => {
 });
 
 // ===== PUT /api/missions/:missionId/complete =====
-// Marca uma missão como completa
+// Marca uma missão como completa e adiciona pontos
+// Funciona tanto com missões do Firebase quanto com missões locais do frontend
 router.put('/:missionId/complete', verifyLocalToken, async (req, res) => {
     const db = getDb();
-    const { getSubcollection, updateSubcollectionItem, addPoints, log } = db;
+    const { getSubcollection, updateSubcollectionItem, addPoints, addToSubcollection, log } = db;
     
     try {
         const { missionId } = req.params;
+        const { title, points: clientPoints } = req.body; // Receber dados do frontend
         
         log('info', `PUT /api/missions/${missionId}/complete - Usuário: ${req.user.email}`);
         
+        // Tentar encontrar missão no Firebase
         const missions = await getSubcollection(req.user.uid, 'missions');
-        const mission = missions.find(m => m.id === missionId);
+        let mission = missions.find(m => m.id === missionId);
         
-        if (!mission) {
-            return res.status(404).json({ error: 'Missão não encontrada' });
-        }
+        // Definir pontos (do Firebase ou do frontend)
+        const pointsToAdd = mission?.points || clientPoints || 10;
+        const missionTitle = mission?.title || title || `Missão ${missionId}`;
         
-        if (mission.completed) {
+        // Se a missão existe no Firebase, verificar se já foi completada
+        if (mission && mission.completed) {
             return res.status(400).json({ error: 'Missão já foi completada' });
         }
         
-        // Marcar como completa
-        await updateSubcollectionItem(req.user.uid, 'missions', missionId, { 
-            completed: true,
-            completedAt: new Date().toISOString()
-        });
-        
-        // Adicionar pontos
-        await addPoints(req.user.uid, mission.points, `Completou missão: ${mission.title}`);
-        
-        // Verificar se todas as missões do dia foram completadas
-        const todayMissions = missions.filter(m => {
-            const missionDate = new Date(m.createdAt).toDateString();
-            return missionDate === new Date().toDateString();
-        });
-        
-        const allCompleted = todayMissions.every(m => m.completed || m.id === missionId);
-        
-        if (allCompleted) {
-            // Bônus por completar todas
-            await addPoints(req.user.uid, 50, 'Bônus: Completou todas as missões do dia!');
+        // Se a missão existe no Firebase, marcar como completa
+        if (mission) {
+            await updateSubcollectionItem(req.user.uid, 'missions', missionId, { 
+                completed: true,
+                completedAt: new Date().toISOString()
+            });
+        } else {
+            // Se não existe, criar registro da missão completada
+            await addToSubcollection(req.user.uid, 'missions', {
+                id: missionId,
+                title: missionTitle,
+                points: pointsToAdd,
+                completed: true,
+                completedAt: new Date().toISOString(),
+                source: 'local' // Indica que veio do frontend
+            });
         }
+        
+        // Adicionar pontos ao usuário
+        await addPoints(req.user.uid, pointsToAdd, `Completou missão: ${missionTitle}`);
+        
+        log('success', `Pontos adicionados: ${pointsToAdd} para ${req.user.email}`);
         
         res.json({
             success: true,
             message: 'Missão completada com sucesso!',
-            pointsEarned: mission.points,
-            allCompleted,
-            bonusPoints: allCompleted ? 50 : 0
+            pointsEarned: pointsToAdd,
+            allCompleted: false,
+            bonusPoints: 0
         });
         
     } catch (error) {
