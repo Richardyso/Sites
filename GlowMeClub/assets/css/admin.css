@@ -745,3 +745,17 @@
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
 }
+
+/* Correções para garantir que elementos sejam clicáveis */
+#addRewardBtn {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    user-select: none;
+    position: relative;
+    z-index: 10;
+}
+
+/* Correção para modais em modo anônimo */
+.modal {
+    z-index: 1000 !important;
+}

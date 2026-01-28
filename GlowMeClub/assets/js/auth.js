@@ -354,6 +354,26 @@ function closeResetModal() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    // Verificar se está em modo anônimo
+    try {
+        localStorage.setItem('test', 'test');
+        localStorage.removeItem('test');
+    } catch (e) {
+        // Mostrar aviso sobre modo anônimo
+        const warningDiv = document.createElement('div');
+        warningDiv.className = 'anonymous-warning';
+        warningDiv.innerHTML = `
+            <div style="background: #FEF3C7; border: 2px solid #F59E0B; padding: 1rem; margin: 1rem; border-radius: 8px; text-align: center;">
+                <h3 style="color: #92400E; margin: 0 0 0.5rem 0;">⚠️ Modo Anônimo Detectado</h3>
+                <p style="color: #78350F; margin: 0;">
+                    O GlowMeClub não funciona em modo anônimo/privado.<br>
+                    Por favor, abra o site em uma janela normal do navegador para fazer login.
+                </p>
+            </div>
+        `;
+        document.body.insertBefore(warningDiv, document.body.firstChild);
+    }
+    
     // Formulário de cadastro
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {

@@ -19,6 +19,18 @@ async function checkAdminAccess() {
     const token = window.api.getToken();
     
     if (!token) {
+        logger.warn('⚠️ Token não encontrado, redirecionando para login');
+        
+        // Verificar se está em modo anônimo
+        try {
+            localStorage.setItem('test', 'test');
+            localStorage.removeItem('test');
+        } catch (e) {
+            alert('⚠️ ATENÇÃO: O site não funciona em modo anônimo!\n\n' +
+                  'Por favor, abra em uma janela normal do navegador para poder fazer login e acessar o painel administrativo.\n\n' +
+                  'O modo anônimo bloqueia o armazenamento de dados necessários para autenticação.');
+        }
+        
         window.location.href = 'login.html';
         return false;
     }
@@ -40,6 +52,29 @@ async function checkAdminAccess() {
         return true;
     } catch (error) {
         logger.error('Erro ao verificar acesso:', error);
+        
+        // Se for erro 401, token inválido
+        if (error.status === 401) {
+            logger.warn('⚠️ Token inválido ou expirado');
+            window.api.removeToken();
+            window.location.href = 'login.html';
+            return false;
+        }
+        
+        // Se for erro de rede, tentar usar dados em cache
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            logger.warn('⚠️ Erro de rede, tentando cache local');
+            
+            // Tentar obter dados do cache
+            const cachedData = getCachedUserData();
+            if (cachedData && cachedData.role === 'admin') {
+                currentUser = cachedData;
+                updateHeaderAvatar();
+                showToast('Modo offline - alguns recursos podem estar limitados', 'warning');
+                return true;
+            }
+        }
+        
         window.location.href = 'login.html';
         return false;
     }
@@ -90,7 +125,7 @@ async function loadAllUsers() {
     logger.info('👥 Carregando lista de usuários...');
     
     try {
-        const data = await window.api.get('/admin/users');
+        const data = await window.api.get('/users/admin/users');
         logger.info('📦 Resposta da API:', data);
         
         if (!data || !data.users) {
@@ -106,10 +141,26 @@ async function loadAllUsers() {
             logger.info(`✅ ${allUsers.length} usuários carregados`);
         }
         
+        // Salvar no cache para modo offline
+        saveCachedUsers(allUsers);
+        
         displayUsers(allUsers);
     } catch (error) {
         logger.error('❌ Erro ao carregar usuários:', error);
         logger.error('Detalhes:', error.message);
+        
+        // Se for erro de rede, tentar usar dados em cache
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            logger.warn('⚠️ Erro de rede, tentando cache local');
+            const cachedUsers = getCachedUsers();
+            if (cachedUsers && cachedUsers.length > 0) {
+                allUsers = cachedUsers;
+                displayUsers(allUsers);
+                showToast('Exibindo dados do cache - modo offline', 'warning');
+                return;
+            }
+        }
+        
         showToast('Erro ao carregar usuários', 'error');
         
         // Mostrar estado vazio
@@ -282,11 +333,26 @@ async function loadRewards() {
     } catch (error) {
         logger.error('Erro ao carregar recompensas:', error);
         
-        // Tentar carregar do localStorage
-        const cached = localStorage.getItem('cachedRewards');
-        if (cached) {
-            allRewards = JSON.parse(cached);
-            displayRewards();
+        // Tentar carregar do cache
+        try {
+            let cached = localStorage.getItem('cachedRewards');
+            if (!cached) {
+                cached = sessionStorage.getItem('cachedRewards');
+            }
+            
+            if (cached) {
+                allRewards = JSON.parse(cached);
+                displayRewards();
+                showToast('Exibindo recompensas do cache - modo offline', 'warning');
+            } else {
+                // Mostrar estado vazio
+                const rewardsList = document.getElementById('rewardsList');
+                const emptyRewards = document.getElementById('emptyRewards');
+                if (rewardsList) rewardsList.style.display = 'none';
+                if (emptyRewards) emptyRewards.style.display = 'block';
+            }
+        } catch (e) {
+            logger.warn('⚠️ Erro ao recuperar cache de recompensas:', e);
         }
     }
 }
@@ -306,9 +372,12 @@ function displayRewards() {
     rewardsList.style.display = 'grid';
     if (emptyRewards) emptyRewards.style.display = 'none';
     
+    // Criar placeholder SVG para imagens ausentes
+    const placeholderSVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Cpath d='M100 65c-9.4 0-17 7.6-17 17s7.6 17 17 17 17-7.6 17-17-7.6-17-17-17zm0 8.5c4.7 0 8.5 3.8 8.5 8.5s-3.8 8.5-8.5 8.5-8.5-3.8-8.5-8.5 3.8-8.5 8.5-8.5zM70 120h60c2.8 0 5 2.2 5 5v10c0 2.8-2.2 5-5 5H70c-2.8 0-5-2.2-5-5v-10c0-2.8 2.2-5 5-5z' fill='%239ca3af'/%3E%3C/svg%3E`;
+    
     rewardsList.innerHTML = allRewards.map(reward => `
         <div class="reward-card">
-            <img class="reward-image" src="${reward.image || '../assets/images/placeholder.png'}" alt="${reward.title}">
+            <img class="reward-image" src="${reward.image || placeholderSVG}" alt="${reward.title}" onerror="this.src='${placeholderSVG}'">
             <div class="reward-info">
                 <h4 class="reward-title">${reward.title}</h4>
                 <p class="reward-description">${reward.description}</p>
@@ -336,13 +405,29 @@ function displayRewards() {
         </div>
     `).join('');
     
-    // Salvar no cache
-    localStorage.setItem('cachedRewards', JSON.stringify(allRewards));
+    // Salvar no cache com fallback para sessionStorage
+    try {
+        localStorage.setItem('cachedRewards', JSON.stringify(allRewards));
+    } catch (error) {
+        try {
+            sessionStorage.setItem('cachedRewards', JSON.stringify(allRewards));
+        } catch (e) {
+            logger.warn('⚠️ Não foi possível salvar recompensas em cache');
+        }
+    }
 }
 
 // Abrir modal de recompensa
 function openAddRewardModal() {
     logger.info('🎁 Abrindo modal de nova recompensa');
+    
+    // Verificar se o modal existe
+    const rewardModal = document.getElementById('rewardModal');
+    if (!rewardModal) {
+        logger.error('❌ Modal rewardModal não encontrado no DOM!');
+        showToast('Erro: Modal de recompensa não encontrado', 'error');
+        return;
+    }
     
     try {
         // Limpar form
@@ -507,6 +592,85 @@ async function deleteReward(rewardId) {
     }
 }
 
+// ===== FUNÇÕES DE CACHE =====
+
+function saveCachedUserData(userData) {
+    try {
+        localStorage.setItem('cachedAdminData', JSON.stringify({
+            user: userData,
+            timestamp: Date.now()
+        }));
+    } catch (error) {
+        // Se falhar, usar sessionStorage
+        try {
+            sessionStorage.setItem('cachedAdminData', JSON.stringify({
+                user: userData,
+                timestamp: Date.now()
+            }));
+        } catch (e) {
+            logger.warn('⚠️ Não foi possível salvar dados em cache');
+        }
+    }
+}
+
+function getCachedUserData() {
+    try {
+        let cached = localStorage.getItem('cachedAdminData');
+        if (!cached) {
+            cached = sessionStorage.getItem('cachedAdminData');
+        }
+        
+        if (cached) {
+            const data = JSON.parse(cached);
+            // Verificar se o cache não está muito antigo (24 horas)
+            if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+                return data.user;
+            }
+        }
+    } catch (error) {
+        logger.warn('⚠️ Erro ao recuperar cache:', error);
+    }
+    return null;
+}
+
+function saveCachedUsers(users) {
+    try {
+        localStorage.setItem('cachedUsers', JSON.stringify({
+            users: users,
+            timestamp: Date.now()
+        }));
+    } catch (error) {
+        try {
+            sessionStorage.setItem('cachedUsers', JSON.stringify({
+                users: users,
+                timestamp: Date.now()
+            }));
+        } catch (e) {
+            logger.warn('⚠️ Não foi possível salvar usuários em cache');
+        }
+    }
+}
+
+function getCachedUsers() {
+    try {
+        let cached = localStorage.getItem('cachedUsers');
+        if (!cached) {
+            cached = sessionStorage.getItem('cachedUsers');
+        }
+        
+        if (cached) {
+            const data = JSON.parse(cached);
+            // Verificar se o cache não está muito antigo (1 hora)
+            if (Date.now() - data.timestamp < 60 * 60 * 1000) {
+                return data.users;
+            }
+        }
+    } catch (error) {
+        logger.warn('⚠️ Erro ao recuperar usuários do cache:', error);
+    }
+    return [];
+}
+
 // ===== UTILITÁRIOS =====
 
 // Converter imagem para base64 com compressão
@@ -591,6 +755,13 @@ function showToast(message, type = 'success') {
 document.addEventListener('DOMContentLoaded', async () => {
     logger.info('🔐 Carregando painel administrativo...');
     
+    // Verificar se está em modo de desenvolvimento sem backend
+    if (!window.api) {
+        logger.error('❌ API não inicializada! Verificar se config.js e api.js foram carregados.');
+        showToast('Erro ao carregar API. Verifique o console.', 'error');
+        return;
+    }
+    
     // Verificar acesso
     const hasAccess = await checkAdminAccess();
     if (!hasAccess) return;
@@ -628,18 +799,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         grantPointsBtn.addEventListener('click', grantPoints);
     }
     
-    // Modal de recompensa
-    const addRewardBtn = document.getElementById('addRewardBtn');
-    if (addRewardBtn) {
-        logger.info('🎁 Botão Nova Recompensa encontrado');
-        addRewardBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            logger.info('🎁 Clicou em Nova Recompensa');
-            openAddRewardModal();
-        });
-    } else {
-        logger.error('❌ Botão addRewardBtn não encontrado!');
-    }
+    // Modal de recompensa - aguardar um pouco para garantir que o DOM esteja pronto
+    setTimeout(() => {
+        const addRewardBtn = document.getElementById('addRewardBtn');
+        if (addRewardBtn) {
+            logger.info('🎁 Botão Nova Recompensa encontrado');
+            // Remover qualquer listener anterior
+            addRewardBtn.replaceWith(addRewardBtn.cloneNode(true));
+            const newBtn = document.getElementById('addRewardBtn');
+            
+            newBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                logger.info('🎁 Clicou em Nova Recompensa');
+                openAddRewardModal();
+            });
+            
+            // Adicionar estilo de cursor para indicar que é clicável
+            newBtn.style.cursor = 'pointer';
+        } else {
+            logger.error('❌ Botão addRewardBtn não encontrado!');
+        }
+    }, 100);
     
     const closeRewardModal = document.getElementById('closeRewardModal');
     if (closeRewardModal) {

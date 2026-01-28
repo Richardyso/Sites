@@ -20,38 +20,26 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
     }
 }
 
-// Escolher banco de dados baseado na configuração
-const USE_FIREBASE = process.env.USE_FIREBASE === 'true';
+// SEMPRE usar Firebase em produção
+const USE_FIREBASE = true;
 
-let db, log, initDatabase, colors;
-
-if (USE_FIREBASE) {
-    console.log('🔥 Usando Firebase Firestore como banco de dados');
-    const firebaseDb = require('./config/database-firebase');
-    db = firebaseDb;
-    log = firebaseDb.log;
-    initDatabase = firebaseDb.initDatabase;
-    colors = firebaseDb.colors;
-} else {
-    console.log('💾 Usando JSON local como banco de dados');
-    const localDb = require('./config/database-local');
-    db = localDb;
-    log = localDb.log;
-    initDatabase = localDb.initDatabase;
-    colors = localDb.colors;
-}
+console.log('🔥 Usando Firebase Firestore como banco de dados');
+const firebaseDb = require('./config/database-firebase');
+const db = firebaseDb;
+const log = firebaseDb.log;
+const initDatabase = firebaseDb.initDatabase;
+const colors = firebaseDb.colors;
 
 // Exportar db globalmente para as rotas usarem
 global.db = db;
 global.USE_FIREBASE = USE_FIREBASE;
 
-// Importar rotas
-const authLocalRoutes = require('./routes/authLocal');
-const userLocalRoutes = require('./routes/userLocal');
-const goalsLocalRoutes = require('./routes/goalsLocal');
-const missionsLocalRoutes = require('./routes/missionsLocal');
-const rewardsLocalRoutes = require('./routes/rewardsLocal');
-const adminLocalRoutes = require('./routes/adminLocal');
+// Importar rotas do Firebase
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const goalsRoutes = require('./routes/goals');
+const missionsRoutes = require('./routes/missions');
+const rewardsRoutes = require('./routes/rewards');
 
 // Criar aplicação Express
 const app = express();
@@ -122,15 +110,12 @@ app.use((req, res, next) => {
     next();
 });
 
-// ===== ROTAS DA API =====
-app.use('/api/auth', authLocalRoutes); // Usando rotas locais
-app.use('/api/user', userLocalRoutes); // Usando rotas locais
-app.use('/api/goals', goalsLocalRoutes); // Usando rotas locais
-app.use('/api/missions', missionsLocalRoutes); // Usando rotas locais
-app.use('/api/rewards', rewardsLocalRoutes); // Usando rotas locais
-app.use('/api/admin', adminLocalRoutes); // Administração
-app.use('/api/users', adminLocalRoutes); // Rotas públicas (ranking)
-app.use('/api/points', userLocalRoutes); // Rotas de pontos (histórico)
+// ===== ROTAS DA API - FIREBASE =====
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes); // Inclui rotas de admin e ranking
+app.use('/api/goals', goalsRoutes);
+app.use('/api/missions', missionsRoutes);
+app.use('/api/rewards', rewardsRoutes);
 
 // ===== ROTA DE HEALTH CHECK =====
 app.get('/api/health', (req, res) => {
@@ -200,8 +185,6 @@ app.use(async (req, res, next) => {
 // ===== INICIAR SERVIDOR (apenas em desenvolvimento local) =====
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
     app.listen(PORT, async () => {
-        const dbType = USE_FIREBASE ? 'Firebase 🔥' : 'JSON Local 💾';
-        
         console.log(`
 ${colors.magenta}╔══════════════════════════════════════╗
 ║       ✨ GLOWMECLUB BACKEND ✨      ║
@@ -210,12 +193,12 @@ ${colors.magenta}╔════════════════════
 ║   ${new Date().toLocaleString('pt-BR')}      ║
 ║                                      ║
 ║   Ambiente: ${process.env.NODE_ENV || 'development'}          ║
-║   Banco: ${dbType}              ║
+║   Banco: Firebase Firestore 🔥       ║
 ╚══════════════════════════════════════╝${colors.reset}
         `);
         
         log('info', `Servidor iniciado em http://localhost:${PORT}`);
-        log('info', `Usando banco de dados: ${USE_FIREBASE ? 'Firebase Firestore' : 'JSON Local'}`);
+        log('info', 'Usando banco de dados: Firebase Firestore');
     });
 }
 

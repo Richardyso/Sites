@@ -17,19 +17,33 @@ class API {
         };
     }
     
-    // Token management
+    // Token management com suporte para modo anônimo
     getToken() {
-        return localStorage.getItem('authToken');
+        try {
+            return localStorage.getItem('authToken');
+        } catch (error) {
+            logger.warn('⚠️ localStorage bloqueado (modo anônimo?)');
+            return sessionStorage.getItem('authToken');
+        }
     }
     
     saveToken(token) {
         logger.debug('💾 Salvando token');
-        localStorage.setItem('authToken', token);
+        try {
+            localStorage.setItem('authToken', token);
+        } catch (error) {
+            logger.warn('⚠️ Usando sessionStorage (modo anônimo)');
+            sessionStorage.setItem('authToken', token);
+        }
     }
     
     removeToken() {
         logger.debug('🗑️ Removendo token');
-        localStorage.removeItem('authToken');
+        try {
+            localStorage.removeItem('authToken');
+        } catch (error) {
+            sessionStorage.removeItem('authToken');
+        }
     }
     
     // Requisição principal com suporte offline

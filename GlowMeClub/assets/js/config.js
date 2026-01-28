@@ -17,9 +17,8 @@ const config = {
     
     // Modo de autenticação
     get authMode() {
-        // Por enquanto sempre local, mas preparado para Firebase
-        return 'local';
-        // return this.isDevelopment ? 'local' : 'firebase';
+        // Sempre usar Firebase
+        return 'firebase';
     },
     
     // Configurações de cache
