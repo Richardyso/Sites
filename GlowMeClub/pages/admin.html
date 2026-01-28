@@ -15,482 +15,53 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <style>
-        .admin-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .admin-header {
-            background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
-            border-radius: 20px;
-            padding: 2rem;
-            color: white;
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .admin-header h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.75rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .admin-header p {
-            opacity: 0.9;
-        }
-        
-        .admin-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-        
-        .stat-card h3 {
-            color: #666;
-            font-size: 0.875rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-card .value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #8B5CF6;
-        }
-        
-        .users-section {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-        
-        .users-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .users-header h2 {
-            font-family: 'Poppins', sans-serif;
-            color: #333;
-        }
-        
-        .search-box {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .search-box input {
-            padding: 0.75rem 1rem;
-            border: 2px solid #f0f0f0;
-            border-radius: 10px;
-            width: 250px;
-            font-size: 0.9rem;
-        }
-        
-        .search-box input:focus {
-            outline: none;
-            border-color: #8B5CF6;
-        }
-        
-        .users-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .users-table th {
-            text-align: left;
-            padding: 1rem;
-            background: #F9F5FF;
-            color: #666;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-        
-        .users-table th:first-child {
-            border-radius: 10px 0 0 10px;
-        }
-        
-        .users-table th:last-child {
-            border-radius: 0 10px 10px 0;
-        }
-        
-        .users-table td {
-            padding: 1rem;
-            border-bottom: 1px solid #f0f0f0;
-            vertical-align: middle;
-        }
-        
-        .users-table tr:hover {
-            background: #FDFBFF;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-        }
-        
-        .user-name {
-            font-weight: 500;
-        }
-        
-        .user-email {
-            font-size: 0.8rem;
-            color: #999;
-        }
-        
-        .badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .badge-admin {
-            background: #FEE2E2;
-            color: #DC2626;
-        }
-        
-        .badge-user {
-            background: #DBEAFE;
-            color: #2563EB;
-        }
-        
-        .action-btn {
-            padding: 0.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-right: 0.25rem;
-        }
-        
-        .action-btn.edit {
-            background: #EDE9FE;
-            color: #8B5CF6;
-        }
-        
-        .action-btn.reset {
-            background: #FEF3C7;
-            color: #D97706;
-        }
-        
-        .action-btn.delete {
-            background: #FEE2E2;
-            color: #DC2626;
-        }
-        
-        .action-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .modal-header h3 {
-            font-family: 'Poppins', sans-serif;
-            color: #333;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #999;
-            cursor: pointer;
-        }
-        
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #f0f0f0;
-            border-radius: 10px;
-            font-size: 1rem;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #8B5CF6;
-        }
-        
-        .modal-footer {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-        
-        .modal-footer .btn {
-            flex: 1;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 10px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #8B5CF6, #A78BFA);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #666;
-        }
-        
-        .btn-danger {
-            background: #DC2626;
-            color: white;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            transition: all 0.3s;
-        }
-        
-        .back-link:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        @media (max-width: 768px) {
-            .admin-container {
-                padding: 1rem;
-            }
-            
-            .admin-header {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
-            
-            .users-table {
-                display: block;
-                overflow-x: auto;
-            }
-            
-            .search-box {
-                flex-direction: column;
-            }
-            
-            .search-box input {
-                width: 100%;
-            }
-        }
-    </style>
 </head>
-<body style="background: #F9F5FF;">
-    <!-- Header com foto de perfil -->
-    <header class="app-header" style="background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);">
-        <nav class="app-nav" style="max-width: 1400px; margin: 0 auto; padding: 1rem 2rem;">
-            <a href="/" class="logo-link">
-                <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img" style="height: 40px;">
-            </a>
+<body class="admin-page">
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="admin-header-content">
+            <h1 class="admin-title">
+                <i class="fas fa-crown"></i>
+                Painel Administrativo
+            </h1>
             
             <!-- User Area -->
-            <div class="user-area" style="display: flex; align-items: center; gap: 1rem;">
-                <a href="perfil.html" class="user-profile-link" style="display: flex; align-items: center; gap: 0.75rem; color: white; text-decoration: none;">
-                    <div class="user-avatar" id="headerAvatar" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; background: rgba(255,255,255,0.2); overflow: hidden;">
+            <div class="user-area" id="userArea">
+                <a href="perfil.html">
+                    <div class="user-avatar" id="headerAvatar">
                         <span id="avatarInitial">A</span>
-                        <img id="avatarImage" src="" alt="Avatar" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                        <img id="avatarImage" src="" alt="Avatar" style="display: none;">
                     </div>
-                    <span class="user-name" id="headerUserName" style="font-weight: 500;">Admin</span>
+                    <div class="user-info">
+                        <span class="user-name" id="headerUserName">Admin</span>
+                        <span class="user-role">Administrador</span>
+                    </div>
                 </a>
-                <button class="logout-btn" id="logoutBtn" title="Sair" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Sair</span>
-                </button>
-            </div>
-        </nav>
-    </header>
-
-    <div class="admin-container">
-        <!-- Header -->
-        <div class="admin-header">
-            <div>
-                <h1>Painel Administrativo</h1>
-                <p>Gerencie usuárias e configurações do GlowMeClub</p>
             </div>
         </div>
-        
-        <!-- Stats -->
-        <div class="admin-stats">
-            <div class="stat-card">
-                <h3>Total de Usuárias</h3>
-                <div class="value" id="totalUsers">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Pontos Distribuídos</h3>
-                <div class="value" id="totalPoints">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Metas Criadas</h3>
-                <div class="value" id="totalGoals">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Missões Completadas</h3>
-                <div class="value" id="totalMissions">0</div>
-            </div>
+    </header>
+
+    <main class="admin-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Gerencie suas usuárias</h2>
+            <p class="page-subtitle">Visualize e administre todas as participantes do GlowMeClub</p>
         </div>
         
         <!-- Users Section -->
-        <div class="users-section">
-            <div class="users-header">
-                <h2><i class="fas fa-users"></i> Usuárias</h2>
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Buscar por nome ou email...">
-                </div>
-            </div>
-            
-            <table class="users-table">
-                <thead>
-                    <tr>
-                        <th>Usuária</th>
-                        <th>Nível</th>
-                        <th>Pontos</th>
-                        <th>Área de Foco</th>
-                        <th>Tipo</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    <!-- Usuários serão carregados dinamicamente -->
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Minhas Metas Section -->
-        <div class="users-section" style="margin-top: 2rem;">
-            <div class="users-header">
-                <h2><i class="fas fa-bullseye"></i> Minhas Metas</h2>
-                <a href="metas.html" class="btn btn-primary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
-                    <i class="fas fa-plus"></i> Nova Meta
-                </a>
-            </div>
-            
-            <div id="adminGoalsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">
-                <!-- Metas serão carregadas dinamicamente -->
-            </div>
-            
-            <div id="emptyGoals" style="display: none; text-align: center; padding: 2rem; color: #999;">
-                <i class="fas fa-bullseye" style="font-size: 3rem; color: #DDD6FE; margin-bottom: 1rem;"></i>
-                <p>Você ainda não tem metas. Crie sua primeira meta!</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal de Edição -->
-    <div class="modal" id="editModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Editar Usuária</h3>
-                <button class="close-btn" id="closeEditModal">&times;</button>
-            </div>
-            <form id="editForm">
-                <input type="hidden" id="editUserId">
-                <div class="form-group">
-                    <label class="form-label">Nome</label>
-                    <input type="text" class="form-input" id="editName" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" id="editEmail" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Pontos Totais</label>
-                    <input type="number" class="form-input" id="editPoints" min="0">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Área de Foco</label>
-                    <select class="form-input" id="editFocusArea">
+        <div class="admin-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-users"></i> Usuárias
+                </h3>
+                <div class="filter-controls">
+                    <label for="focusFilter" style="font-size: 0.875rem; color: #666; margin-right: 0.5rem;">Filtrar por:</label>
+                    <select class="filter-select" id="focusFilter">
+                        <option value="">Todas as áreas</option>
                         <option value="Mental">Mental</option>
                         <option value="Físico">Físico</option>
                         <option value="Emocional">Emocional</option>
@@ -499,37 +70,154 @@
                         <option value="Aparência">Aparência</option>
                     </select>
                 </div>
+            </div>
+            
+            <div class="users-list" id="usersList">
+                <!-- Users will be loaded here -->
+            </div>
+            
+            <div class="empty-state" id="emptyUsers" style="display: none;">
+                <i class="fas fa-users empty-icon"></i>
+                <h4>Nenhuma usuária encontrada</h4>
+                <p>Quando suas usuárias se cadastrarem, elas aparecerão aqui.</p>
+            </div>
+        </div>
+        
+        <!-- Rewards Section -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-gift"></i> Recompensas
+                </h3>
+                <button class="btn btn-primary btn-sm" id="addRewardBtn">
+                    <i class="fas fa-plus"></i> Nova Recompensa
+                </button>
+            </div>
+            
+            <div class="rewards-grid" id="rewardsList">
+                <!-- Rewards will be loaded here -->
+            </div>
+            
+            <div class="empty-state" id="emptyRewards" style="display: none;">
+                <i class="fas fa-gift empty-icon"></i>
+                <h4>Nenhuma recompensa cadastrada</h4>
+                <p>Crie recompensas para suas usuárias trocarem por pontos.</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Edit User Modal -->
+    <div class="modal" id="editUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar Usuária</h3>
+                <button class="modal-close" id="closeEditModal">&times;</button>
+            </div>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-input" id="editName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="editEmail" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Pontos Totais</label>
+                        <input type="number" class="form-input" id="editPoints" disabled>
+                    </div>
+                    
+                    <!-- Grant Points Section -->
+                    <div class="grant-points-section">
+                        <h4 class="grant-points-title">
+                            <i class="fas fa-coins"></i> Conceder Pontos
+                        </h4>
+                        <div class="grant-points-grid">
+                            <div class="form-group">
+                                <label class="form-label">Quantidade de Pontos</label>
+                                <input type="number" class="form-input" id="grantPointsAmount" min="1" placeholder="Ex: 100">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Motivo</label>
+                                <input type="text" class="form-input" id="grantPointsReason" placeholder="Ex: Missão relâmpago">
+                            </div>
+                            <button type="button" class="btn btn-success btn-sm" id="grantPointsBtn">
+                                <i class="fas fa-plus"></i> Conceder Pontos
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancelEdit">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEditUser">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                 </div>
             </form>
         </div>
     </div>
     
-    <!-- Modal de Reset de Senha -->
-    <div class="modal" id="resetModal">
+    <!-- Reward Modal -->
+    <div class="modal" id="rewardModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Resetar Senha</h3>
-                <button class="close-btn" id="closeResetModal">&times;</button>
+                <h3 class="modal-title" id="rewardModalTitle">Nova Recompensa</h3>
+                <button class="modal-close" id="closeRewardModal">&times;</button>
             </div>
-            <form id="resetForm">
-                <input type="hidden" id="resetUserId">
-                <p style="margin-bottom: 1rem; color: #666;">
-                    Defina uma nova senha para <strong id="resetUserName"></strong>
-                </p>
-                <div class="form-group">
-                    <label class="form-label">Nova Senha</label>
-                    <input type="password" class="form-input" id="newPassword" required minlength="8" placeholder="Mínimo 8 caracteres">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Confirmar Senha</label>
-                    <input type="password" class="form-input" id="confirmNewPassword" required minlength="8">
+            <form id="rewardForm">
+                <input type="hidden" id="rewardId">
+                <div class="modal-body">
+                    <div class="image-upload-container">
+                        <label class="form-label">Imagem da Recompensa</label>
+                        <div class="image-preview" id="rewardImagePreview">
+                            <div class="image-preview-empty">
+                                <i class="fas fa-image"></i>
+                                <p>Clique para adicionar</p>
+                            </div>
+                            <img id="rewardImageElement" src="" alt="Preview" style="display: none;">
+                        </div>
+                        <label class="file-input-label" for="rewardImage">
+                            <i class="fas fa-upload"></i> Escolher Imagem
+                        </label>
+                        <input type="file" class="file-input" id="rewardImage" accept="image/*">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nome da Recompensa</label>
+                        <input type="text" class="form-input" id="rewardTitle" required placeholder="Ex: E-book de Meditação">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-input" id="rewardDescription" rows="3" required placeholder="Descreva a recompensa..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Valor em Pontos</label>
+                        <input type="number" class="form-input" id="rewardPoints" min="1" required placeholder="Ex: 500">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Link da Recompensa</label>
+                        <input type="url" class="form-input" id="rewardLink" required placeholder="https://exemplo.com/recompensa">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <div class="toggle-container">
+                                <span>Recompensa Disponível</span>
+                                <div class="toggle-switch" id="rewardAvailableToggle">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancelReset">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Resetar Senha</button>
+                    <button type="button" class="btn btn-secondary" id="cancelReward">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="saveRewardBtn">Salvar Recompensa</button>
                 </div>
             </form>
         </div>

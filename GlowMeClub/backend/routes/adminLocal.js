@@ -262,6 +262,81 @@ router.delete('/users/:id', verifyLocalToken, isAdmin, async (req, res) => {
 });
 
 /**
+ * POST /api/admin/users/:id/grant-points
+ * Conceder pontos para um usuário
+ */
+router.post('/users/:id/grant-points', verifyLocalToken, isAdmin, async (req, res) => {
+    const db = getDb();
+    const { getUserById, updateUser, addPoints, log } = db;
+    
+    try {
+        const { id } = req.params;
+        const { points, reason } = req.body;
+        
+        // Validar dados
+        if (!points || points <= 0) {
+            return res.status(400).json({
+                error: 'Pontos inválidos',
+                message: 'A quantidade de pontos deve ser maior que zero'
+            });
+        }
+        
+        if (!reason || reason.trim() === '') {
+            return res.status(400).json({
+                error: 'Motivo obrigatório',
+                message: 'Por favor, informe o motivo da concessão'
+            });
+        }
+        
+        // Buscar usuário
+        const user = await getUserById(id);
+        
+        if (!user) {
+            return res.status(404).json({
+                error: 'Usuário não encontrado'
+            });
+        }
+        
+        log('info', 'Admin concedendo pontos', {
+            adminId: req.user.uid,
+            adminName: req.user.name,
+            targetId: id,
+            targetName: user.name,
+            points: points,
+            reason: reason
+        });
+        
+        // Adicionar pontos e registrar no histórico
+        await addPoints(id, points, `Concessão administrativa: ${reason}`);
+        
+        // Atualizar total de pontos
+        const newTotal = (user.totalPoints || 0) + points;
+        await updateUser(id, {
+            totalPoints: newTotal,
+            updatedAt: new Date().toISOString()
+        });
+        
+        log('success', 'Pontos concedidos pelo admin', {
+            targetId: id,
+            points: points,
+            newTotal: newTotal
+        });
+        
+        res.json({
+            success: true,
+            message: `${points} pontos concedidos com sucesso!`,
+            newBalance: newTotal
+        });
+        
+    } catch (error) {
+        log('error', 'Erro ao conceder pontos', error);
+        res.status(500).json({
+            error: 'Erro ao conceder pontos'
+        });
+    }
+});
+
+/**
  * GET /api/users/ranking
  * Obter ranking de usuárias (pública, sem admin)
  */

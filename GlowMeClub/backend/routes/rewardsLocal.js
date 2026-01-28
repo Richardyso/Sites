@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { verifyLocalToken } = require('../middleware/authLocal');
+const { verifyLocalToken, verifyAdmin } = require('../middleware/authLocal');
 
 // Função para obter o banco de dados dinamicamente (chamada em runtime)
 const getDb = () => {
@@ -12,8 +12,78 @@ const getDb = () => {
     return require('../config/database-local');
 };
 
+// Recompensas em memória (simulando DB)
+let rewardsDatabase = [
+    {
+        id: 'ebook-1',
+        title: 'E-book: Jornada do Autocuidado',
+        description: 'Um guia completo sobre como construir uma rotina de autocuidado que funciona para você',
+        category: 'ebooks',
+        points: 100,
+        icon: 'fa-book',
+        link: 'https://exemplo.com/ebook-autocuidado',
+        available: true,
+        image: null
+    },
+    {
+        id: 'ebook-2',
+        title: 'E-book: Mindfulness para Iniciantes',
+        description: 'Aprenda técnicas simples de mindfulness para aplicar no dia a dia',
+        category: 'ebooks',
+        points: 150,
+        icon: 'fa-book',
+        link: 'https://exemplo.com/ebook-mindfulness',
+        available: true,
+        image: null
+    },
+    {
+        id: 'aula-1',
+        title: 'Aula: Yoga Flow 30min',
+        description: 'Sequência completa de yoga para relaxamento e força',
+        category: 'aulas',
+        points: 200,
+        icon: 'fa-video',
+        link: 'https://exemplo.com/aula-yoga',
+        available: true,
+        image: null
+    },
+    {
+        id: 'aula-2',
+        title: 'Workshop: Produtividade Feminina',
+        description: 'Técnicas de produtividade alinhadas com o ciclo feminino',
+        category: 'aulas',
+        points: 250,
+        icon: 'fa-video',
+        link: 'https://exemplo.com/workshop-produtividade',
+        available: true,
+        image: null
+    },
+    {
+        id: 'desc-1',
+        title: '20% OFF em Produtos de Skincare',
+        description: 'Cupom de desconto para nossa parceira de produtos naturais',
+        category: 'descontos',
+        points: 80,
+        icon: 'fa-tag',
+        link: 'https://exemplo.com/desconto-skincare',
+        available: true,
+        image: null
+    },
+    {
+        id: 'desc-2',
+        title: '30% OFF em Sessão de Coaching',
+        description: 'Desconto exclusivo para sessão individual com coach parceira',
+        category: 'descontos',
+        points: 300,
+        icon: 'fa-tag',
+        link: 'https://exemplo.com/desconto-coaching',
+        available: true,
+        image: null
+    }
+];
+
 // ===== GET /api/rewards =====
-// Lista todas as recompensas disponíveis
+// Lista todas as recompensas (admin vê todas, usuário vê só disponíveis)
 router.get('/', verifyLocalToken, async (req, res) => {
     const db = getDb();
     const { log } = db;
@@ -21,61 +91,15 @@ router.get('/', verifyLocalToken, async (req, res) => {
     try {
         log('info', `GET /api/rewards - Usuário: ${req.user.email}`);
         
-        // Recompensas fixas disponíveis
-        const availableRewards = [
-            {
-                id: 'ebook-1',
-                name: 'E-book: Jornada do Autocuidado',
-                description: 'Um guia completo sobre como construir uma rotina de autocuidado que funciona para você',
-                category: 'ebooks',
-                points: 100,
-                icon: 'fa-book'
-            },
-            {
-                id: 'ebook-2',
-                name: 'E-book: Mindfulness para Iniciantes',
-                description: 'Aprenda técnicas simples de mindfulness para aplicar no dia a dia',
-                category: 'ebooks',
-                points: 150,
-                icon: 'fa-book'
-            },
-            {
-                id: 'aula-1',
-                name: 'Aula: Yoga Flow 30min',
-                description: 'Sequência completa de yoga para relaxamento e força',
-                category: 'aulas',
-                points: 200,
-                icon: 'fa-video'
-            },
-            {
-                id: 'aula-2',
-                name: 'Workshop: Produtividade Feminina',
-                description: 'Técnicas de produtividade alinhadas com o ciclo feminino',
-                category: 'aulas',
-                points: 250,
-                icon: 'fa-video'
-            },
-            {
-                id: 'desc-1',
-                name: '20% OFF em Produtos de Skincare',
-                description: 'Cupom de desconto para nossa parceira de produtos naturais',
-                category: 'descontos',
-                points: 80,
-                icon: 'fa-tag'
-            },
-            {
-                id: 'desc-2',
-                name: '30% OFF em Sessão de Coaching',
-                description: 'Desconto exclusivo para sessão individual com coach parceira',
-                category: 'descontos',
-                points: 300,
-                icon: 'fa-tag'
-            }
-        ];
+        // Se for admin, retorna todas
+        // Se for usuário, retorna apenas disponíveis
+        const rewards = req.user.role === 'admin' 
+            ? rewardsDatabase 
+            : rewardsDatabase.filter(r => r.available);
         
         res.json({
             success: true,
-            rewards: availableRewards
+            rewards: rewards
         });
         
     } catch (error) {
@@ -105,20 +129,15 @@ router.post('/redeem', verifyLocalToken, async (req, res) => {
             return res.status(404).json({ error: 'Usuário não encontrado' });
         }
         
-        // Verificar recompensa (mesma lista de cima)
-        const rewards = {
-            'ebook-1': { name: 'E-book: Jornada do Autocuidado', points: 100 },
-            'ebook-2': { name: 'E-book: Mindfulness para Iniciantes', points: 150 },
-            'aula-1': { name: 'Aula: Yoga Flow 30min', points: 200 },
-            'aula-2': { name: 'Workshop: Produtividade Feminina', points: 250 },
-            'desc-1': { name: '20% OFF em Produtos de Skincare', points: 80 },
-            'desc-2': { name: '30% OFF em Sessão de Coaching', points: 300 }
-        };
-        
-        const reward = rewards[rewardId];
+        // Buscar recompensa
+        const reward = rewardsDatabase.find(r => r.id === rewardId);
         
         if (!reward) {
             return res.status(404).json({ error: 'Recompensa não encontrada' });
+        }
+        
+        if (!reward.available) {
+            return res.status(400).json({ error: 'Recompensa não disponível' });
         }
         
         // Verificar pontos
@@ -127,13 +146,14 @@ router.post('/redeem', verifyLocalToken, async (req, res) => {
         }
         
         // Deduzir pontos (negativo)
-        await addPoints(req.user.uid, -reward.points, `Resgatou recompensa: ${reward.name}`);
+        await addPoints(req.user.uid, -reward.points, `Resgatou recompensa: ${reward.title}`);
         
         // Registrar resgate
         await addToSubcollection(req.user.uid, 'rewards', {
             rewardId,
-            name: reward.name,
+            title: reward.title,
             points: reward.points,
+            link: reward.link,
             redeemedAt: new Date().toISOString()
         });
         
@@ -145,7 +165,8 @@ router.post('/redeem', verifyLocalToken, async (req, res) => {
         res.json({
             success: true,
             message: 'Recompensa resgatada com sucesso!',
-            reward: reward.name,
+            reward: reward.title,
+            link: reward.link,
             pointsSpent: reward.points,
             newBalance: user.totalPoints - reward.points
         });
@@ -181,6 +202,118 @@ router.get('/history', verifyLocalToken, async (req, res) => {
             error: 'Erro ao buscar histórico',
             message: error.message 
         });
+    }
+});
+
+// ===== ROTAS DE ADMIN =====
+
+// POST /api/rewards - Criar nova recompensa (admin)
+router.post('/', verifyLocalToken, verifyAdmin, async (req, res) => {
+    const db = getDb();
+    const { log } = db;
+    
+    try {
+        const { title, description, points, link, image, available = true } = req.body;
+        
+        // Validar campos obrigatórios
+        if (!title || !description || !points || !link) {
+            return res.status(400).json({ error: 'Campos obrigatórios: title, description, points, link' });
+        }
+        
+        // Criar nova recompensa
+        const newReward = {
+            id: `reward-${Date.now()}`,
+            title,
+            description,
+            points: parseInt(points),
+            link,
+            image: image || null,
+            available,
+            category: 'custom',
+            icon: 'fa-gift',
+            createdAt: new Date().toISOString()
+        };
+        
+        // Adicionar ao "banco"
+        rewardsDatabase.push(newReward);
+        
+        log('success', `Recompensa criada: ${title}`);
+        
+        res.status(201).json({
+            success: true,
+            reward: newReward
+        });
+        
+    } catch (error) {
+        log('error', 'Erro ao criar recompensa', error);
+        res.status(500).json({ error: 'Erro ao criar recompensa' });
+    }
+});
+
+// PUT /api/rewards/:id - Atualizar recompensa (admin)
+router.put('/:id', verifyLocalToken, verifyAdmin, async (req, res) => {
+    const db = getDb();
+    const { log } = db;
+    
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+        
+        // Encontrar recompensa
+        const rewardIndex = rewardsDatabase.findIndex(r => r.id === id);
+        
+        if (rewardIndex === -1) {
+            return res.status(404).json({ error: 'Recompensa não encontrada' });
+        }
+        
+        // Atualizar dados
+        rewardsDatabase[rewardIndex] = {
+            ...rewardsDatabase[rewardIndex],
+            ...updates,
+            updatedAt: new Date().toISOString()
+        };
+        
+        log('success', `Recompensa atualizada: ${id}`);
+        
+        res.json({
+            success: true,
+            reward: rewardsDatabase[rewardIndex]
+        });
+        
+    } catch (error) {
+        log('error', 'Erro ao atualizar recompensa', error);
+        res.status(500).json({ error: 'Erro ao atualizar recompensa' });
+    }
+});
+
+// DELETE /api/rewards/:id - Deletar recompensa (admin)
+router.delete('/:id', verifyLocalToken, verifyAdmin, async (req, res) => {
+    const db = getDb();
+    const { log } = db;
+    
+    try {
+        const { id } = req.params;
+        
+        // Encontrar índice
+        const rewardIndex = rewardsDatabase.findIndex(r => r.id === id);
+        
+        if (rewardIndex === -1) {
+            return res.status(404).json({ error: 'Recompensa não encontrada' });
+        }
+        
+        // Remover
+        const removed = rewardsDatabase.splice(rewardIndex, 1);
+        
+        log('success', `Recompensa removida: ${removed[0].title}`);
+        
+        res.json({
+            success: true,
+            message: 'Recompensa removida com sucesso'
+        });
+        
+    } catch (error) {
+        log('error', 'Erro ao deletar recompensa', error);
+        res.status(500).json({ error: 'Erro ao deletar recompensa' });
     }
 });
 

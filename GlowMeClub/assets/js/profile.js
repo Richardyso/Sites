@@ -19,6 +19,27 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
 });
 
+// Ocultar elementos desnecessários para administradores
+function hideAdminUnnecessaryElements() {
+    // Ocultar navegação inferior
+    const bottomNav = document.querySelector('.app-bottom-nav');
+    if (bottomNav) {
+        bottomNav.style.display = 'none';
+    }
+    
+    // Ocultar seção de preferências
+    const prefsSection = document.querySelector('.form-section:has(.fa-palette)');
+    if (prefsSection) {
+        prefsSection.style.display = 'none';
+    }
+    
+    // Ocultar seção de preferências de email
+    const emailPrefsSection = document.querySelector('.email-prefs-section');
+    if (emailPrefsSection) {
+        emailPrefsSection.style.display = 'none';
+    }
+}
+
 // Inicializar perfil
 async function initializeProfile() {
     const token = window.api.getToken();
@@ -39,6 +60,11 @@ async function initializeProfile() {
         
         logger.info('Dados do perfil carregados');
         
+        // Se for admin, ocultar elementos desnecessários
+        if (currentUser.role === 'admin') {
+            hideAdminUnnecessaryElements();
+        }
+        
         // Preencher formulário
         populateForm();
         updateHeaderAvatarLocal();
@@ -52,6 +78,12 @@ async function initializeProfile() {
             try {
                 currentUser = JSON.parse(cachedData);
                 originalData = { ...currentUser };
+                
+                // Se for admin, ocultar elementos
+                if (currentUser.role === 'admin') {
+                    hideAdminUnnecessaryElements();
+                }
+                
                 populateForm();
                 updateHeaderAvatarLocal();
                 showStatus('Usando dados offline', 'warning');
