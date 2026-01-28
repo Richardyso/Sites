@@ -118,29 +118,8 @@ async function handleLogin(e) {
     } catch (error) {
         _log('error', '❌ Erro no login:', error.message);
         
-        // Se estiver offline e for teste@glowmeclub.com, fazer login simulado
-        if (window.api.isNetworkError(error) && email === 'teste@glowmeclub.com' && password === 'senha123') {
-            _log('warn', '🔌 Modo offline - Login simulado');
-            
-            // Criar token simulado
-            const mockToken = 'offline_token_' + Date.now();
-            window.api.saveToken(mockToken);
-            
-            // Criar usuário simulado
-            const mockUser = {
-                uid: '6ca1f9a3a8feaedbbc4a5b8bdd180525',
-                name: 'Usuária Teste',
-                email: 'teste@glowmeclub.com',
-                preferredColor: '#DDD6FE',
-                focusArea: 'Mental',
-                totalPoints: 250,
-                currentLevel: 1
-            };
-            
-            localStorage.setItem('cachedUserData', JSON.stringify(mockUser));
-            
-            // Redirecionar para dashboard
-            window.location.href = 'dashboard.html';
+        if (window.api.isNetworkError(error)) {
+            showError('Sem conexão com o servidor. Verifique sua internet.');
         } else {
             showError('Email ou senha incorretos');
         }

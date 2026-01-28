@@ -94,21 +94,13 @@ async function loadDashboardData() {
             }
         }
         
-        // Se não tiver cache, usar dados mockados (exceto para erro 401)
+        // Se não tiver cache e for erro de autenticação
         if (error.status === 401 || (error.message && error.message.includes('401'))) {
             window.api.removeToken();
             window.location.href = 'login.html';
         } else {
-            // Para outros erros, usar dados mockados
-            currentUser = {
-                name: 'Usuária Local',
-                email: 'usuario@local.com',
-                preferredColor: '#8B5CF6',
-                totalPoints: 0
-            };
-            
-            updateDashboard();
-            loadAdditionalData();
+            // Para outros erros, mostrar mensagem de erro
+            logger.error('Não foi possível carregar dados do dashboard');
             showOfflineIndicator();
         }
     }

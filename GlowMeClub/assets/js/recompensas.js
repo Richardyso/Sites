@@ -44,7 +44,7 @@ async function loadRewards() {
                 userPoints = currentUser.totalPoints || 0;
                 updateHeader();
                 updatePointsDisplay();
-                loadMockRewards();
+                await loadRewardsFromBackend();
                 logger.warn('⚠️ Usando dados do cache');
                 return;
             } catch (e) {
@@ -57,8 +57,9 @@ async function loadRewards() {
             window.api.removeToken();
             window.location.href = 'login.html';
         } else {
-            // Para outros erros, apenas mostrar dados vazios
-            loadMockRewards();
+            // Para outros erros, mostrar lista vazia
+            availableRewards = [];
+            displayRewards();
         }
     }
 }
@@ -83,58 +84,19 @@ async function loadRewardsFromBackend() {
     try {
         const data = await window.api.get('/rewards');
         availableRewards = data.rewards || [];
+        
+        if (availableRewards.length === 0) {
+            logger.info('Nenhuma recompensa disponível');
+        } else {
+            logger.info(`${availableRewards.length} recompensas carregadas`);
+        }
+        
         displayRewards();
     } catch (error) {
-        loadMockRewards();
+        logger.error('Erro ao carregar recompensas:', error);
+        availableRewards = [];
+        displayRewards();
     }
-}
-
-// Carregar recompensas mockadas
-function loadMockRewards() {
-    availableRewards = [
-        {
-            id: '1',
-            title: 'Day Spa Relaxante',
-            description: 'Um dia completo de spa com massagem e tratamentos',
-            points: 1000,
-            category: 'Bem-estar',
-            icon: '💆‍♀️'
-        },
-        {
-            id: '2',
-            title: 'Kit Skincare Premium',
-            description: 'Conjunto completo de produtos para cuidados com a pele',
-            points: 750,
-            category: 'Beleza',
-            icon: '✨'
-        },
-        {
-            id: '3',
-            title: 'Aula de Yoga Particular',
-            description: '1 mês de aulas particulares de yoga',
-            points: 500,
-            category: 'Fitness',
-            icon: '🧘‍♀️'
-        },
-        {
-            id: '4',
-            title: 'Sessão de Coaching',
-            description: '3 sessões de coaching pessoal',
-            points: 800,
-            category: 'Desenvolvimento',
-            icon: '🌟'
-        },
-        {
-            id: '5',
-            title: 'Box de Livros',
-            description: 'Caixa com 5 livros de desenvolvimento pessoal',
-            points: 400,
-            category: 'Educação',
-            icon: '📚'
-        }
-    ];
-    
-    displayRewards();
 }
 
 // Exibir recompensas

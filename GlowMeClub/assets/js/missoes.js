@@ -9,55 +9,6 @@ if (!window.appConfig || !window.api) {
 let currentUser = null;
 let dailyMissions = [];
 
-// Missões padrão
-const defaultMissions = [
-    {
-        id: '1',
-        title: 'Beber 2L de água',
-        description: 'Mantenha-se hidratada ao longo do dia',
-        category: 'Saúde',
-        icon: '💧',
-        points: 10,
-        completed: false
-    },
-    {
-        id: '2',
-        title: 'Fazer 10 min de alongamento',
-        description: 'Relaxe e alongue seu corpo',
-        category: 'Físico',
-        icon: '🧘‍♀️',
-        points: 15,
-        completed: false
-    },
-    {
-        id: '3',
-        title: 'Escrever 3 gratidões',
-        description: 'Reflita sobre coisas boas do seu dia',
-        category: 'Mental',
-        icon: '✨',
-        points: 10,
-        completed: false
-    },
-    {
-        id: '4',
-        title: 'Meditar 5 minutos',
-        description: 'Reserve um momento para acalmar a mente',
-        category: 'Espiritual',
-        icon: '🧘',
-        points: 15,
-        completed: false
-    },
-    {
-        id: '5',
-        title: 'Ler 15 minutos',
-        description: 'Alimente sua mente com conhecimento',
-        category: 'Mental',
-        icon: '📚',
-        points: 10,
-        completed: false
-    }
-];
-
 // Carregar missões do dia
 async function loadDailyMissions() {
     const token = window.api.getToken();
@@ -76,8 +27,8 @@ async function loadDailyMissions() {
         // Atualizar header
         updateHeader();
         
-        // Carregar missões
-        loadMissionsFromStorage();
+        // Carregar missões do backend
+        await loadMissionsFromBackend();
         
     } catch (error) {
         logger.error('Erro ao carregar missões:', error);
@@ -88,7 +39,7 @@ async function loadDailyMissions() {
             try {
                 currentUser = JSON.parse(cachedData);
                 updateHeader();
-                loadMissionsFromStorage();
+                await loadMissionsFromBackend();
                 logger.warn('⚠️ Usando dados do cache');
                 return;
             } catch (e) {
@@ -101,8 +52,9 @@ async function loadDailyMissions() {
             window.api.removeToken();
             window.location.href = 'login.html';
         } else {
-            // Para outros erros, apenas carregar missões locais
-            loadMissionsFromStorage();
+            // Para outros erros, mostrar lista vazia
+            dailyMissions = [];
+            displayMissions();
         }
     }
 }
@@ -117,22 +69,37 @@ function updateHeader() {
     }
 }
 
-// Carregar missões do storage
-function loadMissionsFromStorage() {
-    const savedMissions = localStorage.getItem('dailyMissions');
-    const today = new Date().toDateString();
-    const lastMissionDate = localStorage.getItem('lastMissionDate');
-    
-    // Se não houver missões salvas ou for um novo dia, usar as padrão
-    if (!savedMissions || !lastMissionDate || lastMissionDate !== today) {
-        dailyMissions = JSON.parse(JSON.stringify(defaultMissions)); // Clone
-        localStorage.setItem('dailyMissions', JSON.stringify(dailyMissions));
-        localStorage.setItem('lastMissionDate', today);
-    } else {
-        dailyMissions = JSON.parse(savedMissions);
+// Carregar missões do backend
+async function loadMissionsFromBackend() {
+    try {
+        // Buscar missões de hoje do servidor
+        const data = await window.api.get('/missions/today');
+        
+        if (data.missions && data.missions.length > 0) {
+            // Mapear missões do backend para o formato do frontend
+            dailyMissions = data.missions.map(mission => ({
+                id: mission.id,
+                title: mission.description,
+                description: mission.description,
+                category: mission.category,
+                icon: mission.icon || '⭐',
+                points: mission.pointsEarned || 10,
+                completed: mission.completed || false
+            }));
+            
+            logger.info(`${dailyMissions.length} missões carregadas do servidor`);
+        } else {
+            dailyMissions = [];
+            logger.info('Nenhuma missão disponível hoje');
+        }
+        
+        displayMissions();
+        
+    } catch (error) {
+        logger.error('Erro ao carregar missões do servidor:', error);
+        dailyMissions = [];
+        displayMissions();
     }
-    
-    displayMissions();
 }
 
 // Exibir missões
@@ -196,29 +163,24 @@ async function completeMission(missionId, points) {
     const missionIndex = dailyMissions.findIndex(m => m.id === missionId);
     
     if (missionIndex !== -1 && !dailyMissions[missionIndex].completed) {
-        const mission = dailyMissions[missionIndex];
-        
-        // Marcar como completada localmente
-        dailyMissions[missionIndex].completed = true;
-        localStorage.setItem('dailyMissions', JSON.stringify(dailyMissions));
-        
-        // Recarregar missões imediatamente para feedback visual
-        displayMissions();
-        
-        // Mostrar toast de sucesso
-        showSuccessToast(`+${points} pontos ganhos!`);
-        
-        // Sincronizar com servidor (enviando dados da missão)
         try {
-            const response = await window.api.put(`/missions/${missionId}/complete`, {
-                title: mission.title,
-                points: points
-            });
+            // Completar missão no servidor
+            const response = await window.api.post(`/missions/${missionId}/complete`);
             
             if (response.success) {
-                logger.info('✅ Pontos sincronizados com o servidor');
+                // Marcar como completada localmente
+                dailyMissions[missionIndex].completed = true;
                 
-                // Buscar dados atualizados do usuário para ter os pontos corretos
+                // Atualizar interface
+                displayMissions();
+                
+                // Mostrar toast de sucesso
+                const earnedPoints = response.pointsEarned || points;
+                showSuccessToast(`+${earnedPoints} pontos ganhos!`);
+                
+                logger.info('✅ Missão completada no servidor');
+                
+                // Buscar dados atualizados do usuário
                 try {
                     const userData = await window.api.get('/auth/me');
                     if (userData.user) {
@@ -229,28 +191,18 @@ async function completeMission(missionId, points) {
                     }
                 } catch (e) {
                     logger.warn('Não foi possível atualizar dados do usuário');
-                    // Atualizar localmente como fallback
-                    if (currentUser) {
-                        currentUser.totalPoints = (currentUser.totalPoints || 0) + points;
-                        localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
-                    }
                 }
                 
-                // Se completou todas as missões, mostrar bônus
-                if (response.allCompleted && response.bonusPoints > 0) {
+                // Verificar level up
+                if (response.levelUp) {
                     setTimeout(() => {
-                        showSuccessToast(`🎉 Bônus! +${response.bonusPoints} pontos por completar todas as missões!`);
+                        showSuccessToast(`🎉 Parabéns! Você subiu para o nível ${response.levelUp.newLevel}: ${response.levelUp.levelName}!`);
                     }, 1500);
                 }
             }
         } catch (error) {
-            logger.error('❌ Erro ao sincronizar com o servidor:', error);
-            // Atualizar pontos localmente como fallback
-            if (currentUser) {
-                currentUser.totalPoints = (currentUser.totalPoints || 0) + points;
-                localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
-            }
-            showSuccessToast(`⚠️ Pontos salvos localmente`);
+            logger.error('❌ Erro ao completar missão:', error);
+            showSuccessToast(`❌ Erro ao completar missão`);
         }
     }
 }
