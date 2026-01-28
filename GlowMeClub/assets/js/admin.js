@@ -87,32 +87,57 @@ function updateHeaderAvatar() {
 // ===== USUÁRIOS =====
 
 async function loadAllUsers() {
+    logger.info('👥 Carregando lista de usuários...');
+    
     try {
         const data = await window.api.get('/admin/users');
-        allUsers = (data.users || [])
-            // Filtrar admin do ranking
-            .filter(user => user.role !== 'admin')
-            // Ordenar por pontos (maior primeiro)
-            .sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+        logger.info('📦 Resposta da API:', data);
+        
+        if (!data || !data.users) {
+            logger.warn('⚠️ Nenhum usuário retornado pela API');
+            allUsers = [];
+        } else {
+            allUsers = data.users
+                // Filtrar admin do ranking
+                .filter(user => user.role !== 'admin')
+                // Ordenar por pontos (maior primeiro)
+                .sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+            
+            logger.info(`✅ ${allUsers.length} usuários carregados`);
+        }
         
         displayUsers(allUsers);
     } catch (error) {
-        logger.error('Erro ao carregar usuários:', error);
+        logger.error('❌ Erro ao carregar usuários:', error);
+        logger.error('Detalhes:', error.message);
         showToast('Erro ao carregar usuários', 'error');
+        
+        // Mostrar estado vazio
+        const usersList = document.getElementById('usersList');
+        const emptyUsers = document.getElementById('emptyUsers');
+        if (usersList) usersList.style.display = 'none';
+        if (emptyUsers) emptyUsers.style.display = 'block';
     }
 }
 
 function displayUsers(users, filter = '') {
+    logger.info('🎨 Exibindo usuários...');
+    
     const usersList = document.getElementById('usersList');
     const emptyUsers = document.getElementById('emptyUsers');
     
-    if (!usersList) return;
+    if (!usersList) {
+        logger.error('❌ Elemento usersList não encontrado!');
+        return;
+    }
     
     // Filtrar por área de foco se necessário
-    let filteredUsers = users;
+    let filteredUsers = users || [];
     if (filter) {
-        filteredUsers = users.filter(user => user.focusArea === filter);
+        filteredUsers = filteredUsers.filter(user => user.focusArea === filter);
     }
+    
+    logger.info(`📊 ${filteredUsers.length} usuários para exibir (filtro: ${filter || 'nenhum'})`);
     
     if (filteredUsers.length === 0) {
         usersList.style.display = 'none';
@@ -123,12 +148,14 @@ function displayUsers(users, filter = '') {
     usersList.style.display = 'flex';
     if (emptyUsers) emptyUsers.style.display = 'none';
     
-    usersList.innerHTML = filteredUsers.map(user => {
+    usersList.innerHTML = filteredUsers.map((user, index) => {
         const initial = (user.name || 'U').charAt(0).toUpperCase();
         const firstName = (user.name || 'Usuário').split(' ')[0];
+        const rank = index + 1;
         
         return `
             <div class="user-card" onclick="openEditUserModal('${user.uid}')">
+                <div class="user-rank">${rank}º</div>
                 <div class="user-card-avatar" style="${user.profileImage ? 
                     `background: url('${user.profileImage}') center/cover;` : 
                     `background: ${user.preferredColor || '#8B5CF6'};`}">
@@ -150,6 +177,8 @@ function displayUsers(users, filter = '') {
             </div>
         `;
     }).join('');
+    
+    logger.success('✅ Usuários exibidos com sucesso');
 }
 
 // Abrir modal de edição de usuário
@@ -313,22 +342,55 @@ function displayRewards() {
 
 // Abrir modal de recompensa
 function openAddRewardModal() {
-    // Limpar form
-    document.getElementById('rewardId').value = '';
-    document.getElementById('rewardTitle').value = '';
-    document.getElementById('rewardDescription').value = '';
-    document.getElementById('rewardPoints').value = '';
-    document.getElementById('rewardLink').value = '';
-    document.getElementById('rewardImageElement').src = '';
-    document.getElementById('rewardImageElement').style.display = 'none';
-    document.querySelector('.image-preview-empty').style.display = 'block';
+    logger.info('🎁 Abrindo modal de nova recompensa');
     
-    // Configurar modal
-    document.getElementById('rewardModalTitle').textContent = 'Nova Recompensa';
-    document.getElementById('rewardAvailableToggle').classList.add('active');
-    
-    // Abrir modal
-    document.getElementById('rewardModal').classList.add('active');
+    try {
+        // Limpar form
+        const rewardId = document.getElementById('rewardId');
+        const rewardTitle = document.getElementById('rewardTitle');
+        const rewardDescription = document.getElementById('rewardDescription');
+        const rewardPoints = document.getElementById('rewardPoints');
+        const rewardLink = document.getElementById('rewardLink');
+        const rewardImageElement = document.getElementById('rewardImageElement');
+        const imagePreviewEmpty = document.querySelector('.image-preview-empty');
+        const rewardModalTitle = document.getElementById('rewardModalTitle');
+        const rewardAvailableToggle = document.getElementById('rewardAvailableToggle');
+        const rewardModal = document.getElementById('rewardModal');
+        
+        if (rewardId) rewardId.value = '';
+        if (rewardTitle) rewardTitle.value = '';
+        if (rewardDescription) rewardDescription.value = '';
+        if (rewardPoints) rewardPoints.value = '';
+        if (rewardLink) rewardLink.value = '';
+        
+        if (rewardImageElement) {
+            rewardImageElement.src = '';
+            rewardImageElement.style.display = 'none';
+        }
+        
+        if (imagePreviewEmpty) {
+            imagePreviewEmpty.style.display = 'block';
+        }
+        
+        // Configurar modal
+        if (rewardModalTitle) {
+            rewardModalTitle.textContent = 'Nova Recompensa';
+        }
+        
+        if (rewardAvailableToggle) {
+            rewardAvailableToggle.classList.add('active');
+        }
+        
+        // Abrir modal
+        if (rewardModal) {
+            rewardModal.classList.add('active');
+            logger.success('✅ Modal de recompensa aberto');
+        } else {
+            logger.error('❌ Modal rewardModal não encontrado!');
+        }
+    } catch (error) {
+        logger.error('❌ Erro ao abrir modal:', error);
+    }
 }
 
 function openEditRewardModal(rewardId) {
@@ -534,55 +596,120 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!hasAccess) return;
     
     // Carregar dados
-    loadAllUsers();
-    loadRewards();
+    await loadAllUsers();
+    await loadRewards();
     
     // Filtro de área de foco
-    document.getElementById('focusFilter').addEventListener('change', (e) => {
-        displayUsers(allUsers, e.target.value);
-    });
-    
-    // Modal de usuário
-    document.getElementById('closeEditModal').addEventListener('click', () => closeModal('editUserModal'));
-    document.getElementById('cancelEditUser').addEventListener('click', () => closeModal('editUserModal'));
-    document.getElementById('editUserForm').addEventListener('submit', saveUserEdit);
-    document.getElementById('grantPointsBtn').addEventListener('click', grantPoints);
-    
-    // Modal de recompensa
-    document.getElementById('addRewardBtn').addEventListener('click', openAddRewardModal);
-    document.getElementById('closeRewardModal').addEventListener('click', () => closeModal('rewardModal'));
-    document.getElementById('cancelReward').addEventListener('click', () => closeModal('rewardModal'));
-    document.getElementById('rewardForm').addEventListener('submit', saveReward);
-    
-    // Upload de imagem
-    document.getElementById('rewardImage').addEventListener('change', function() {
-        handleImagePreview(this);
-    });
-    
-    // Toggle de disponibilidade
-    document.getElementById('rewardAvailableToggle').addEventListener('click', function() {
-        this.classList.toggle('active');
-    });
-    
-    // Preview de imagem clicável
-    document.getElementById('rewardImagePreview').addEventListener('click', () => {
-        document.getElementById('rewardImage').click();
-    });
-    
-    // Fechar modais ao clicar fora
-    document.getElementById('editUserModal').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) closeModal('editUserModal');
-    });
-    
-    document.getElementById('rewardModal').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) closeModal('rewardModal');
-    });
-    
-    // Logout
-    const logoutBtn = document.querySelector('#userArea a[href="perfil.html"]');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            // Permitir navegação normal para perfil.html
+    const focusFilter = document.getElementById('focusFilter');
+    if (focusFilter) {
+        focusFilter.addEventListener('change', (e) => {
+            displayUsers(allUsers, e.target.value);
         });
     }
+    
+    // Modal de usuário
+    const closeEditModal = document.getElementById('closeEditModal');
+    if (closeEditModal) {
+        closeEditModal.addEventListener('click', () => closeModal('editUserModal'));
+    }
+    
+    const cancelEditUser = document.getElementById('cancelEditUser');
+    if (cancelEditUser) {
+        cancelEditUser.addEventListener('click', () => closeModal('editUserModal'));
+    }
+    
+    const editUserForm = document.getElementById('editUserForm');
+    if (editUserForm) {
+        editUserForm.addEventListener('submit', saveUserEdit);
+    }
+    
+    const grantPointsBtn = document.getElementById('grantPointsBtn');
+    if (grantPointsBtn) {
+        grantPointsBtn.addEventListener('click', grantPoints);
+    }
+    
+    // Modal de recompensa
+    const addRewardBtn = document.getElementById('addRewardBtn');
+    if (addRewardBtn) {
+        logger.info('🎁 Botão Nova Recompensa encontrado');
+        addRewardBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            logger.info('🎁 Clicou em Nova Recompensa');
+            openAddRewardModal();
+        });
+    } else {
+        logger.error('❌ Botão addRewardBtn não encontrado!');
+    }
+    
+    const closeRewardModal = document.getElementById('closeRewardModal');
+    if (closeRewardModal) {
+        closeRewardModal.addEventListener('click', () => closeModal('rewardModal'));
+    }
+    
+    const cancelReward = document.getElementById('cancelReward');
+    if (cancelReward) {
+        cancelReward.addEventListener('click', () => closeModal('rewardModal'));
+    }
+    
+    const rewardForm = document.getElementById('rewardForm');
+    if (rewardForm) {
+        rewardForm.addEventListener('submit', saveReward);
+    }
+    
+    // Upload de imagem
+    const rewardImage = document.getElementById('rewardImage');
+    if (rewardImage) {
+        rewardImage.addEventListener('change', function() {
+            handleImagePreview(this);
+        });
+    }
+    
+    // Toggle de disponibilidade
+    const rewardAvailableToggle = document.getElementById('rewardAvailableToggle');
+    if (rewardAvailableToggle) {
+        rewardAvailableToggle.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    }
+    
+    // Preview de imagem clicável
+    const rewardImagePreview = document.getElementById('rewardImagePreview');
+    if (rewardImagePreview) {
+        rewardImagePreview.addEventListener('click', () => {
+            document.getElementById('rewardImage').click();
+        });
+    }
+    
+    // Fechar modais ao clicar fora
+    const editUserModal = document.getElementById('editUserModal');
+    if (editUserModal) {
+        editUserModal.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal('editUserModal');
+        });
+    }
+    
+    const rewardModal = document.getElementById('rewardModal');
+    if (rewardModal) {
+        rewardModal.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal('rewardModal');
+        });
+    }
+    
+    // Logout
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.logout) {
+                window.logout();
+            } else {
+                // Fallback logout
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('cachedUserData');
+                window.location.href = 'login.html';
+            }
+        });
+    }
+    
+    logger.success('✅ Painel administrativo carregado com sucesso');
 });

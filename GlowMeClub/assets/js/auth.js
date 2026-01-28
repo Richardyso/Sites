@@ -211,6 +211,9 @@ async function checkAuthState() {
     // Páginas que não precisam de autenticação
     const publicPageNames = ['index.html', 'cadastro.html', 'login.html', 'redefinir-senha.html'];
     
+    // Páginas que o admin NÃO pode acessar
+    const userOnlyPages = ['dashboard.html', 'metas.html', 'missoes.html', 'pontos.html', 'recompensas.html', 'perfil.html'];
+    
     // Pegar o nome do arquivo atual
     const currentPath = window.location.pathname;
     const currentFile = currentPath.split('/').pop() || 'index.html';
@@ -218,10 +221,18 @@ async function checkAuthState() {
     // Verificar se é uma página pública
     const isPublicPage = publicPageNames.includes(currentFile) || currentPath === '/' || currentPath === '';
     
+    // Verificar se é página admin
+    const isAdminPage = currentFile === 'admin.html';
+    
+    // Verificar se é página exclusiva de usuários normais
+    const isUserOnlyPage = userOnlyPages.includes(currentFile);
+    
     _log('debug', '📍 Informações da página:', {
         currentPath,
         currentFile,
-        isPublicPage
+        isPublicPage,
+        isAdminPage,
+        isUserOnlyPage
     });
     
     const token = window.api.getToken();
@@ -239,10 +250,26 @@ async function checkAuthState() {
                 localStorage.setItem('cachedUserData', JSON.stringify(data.user));
             }
             
+            const isAdmin = data.user && data.user.role === 'admin';
+            
+            // Se é admin e está tentando acessar página de usuário normal
+            if (isAdmin && isUserOnlyPage) {
+                _log('info', '🔒 Admin tentando acessar página de usuário, redirecionando para admin.html');
+                window.location.href = 'admin.html';
+                return;
+            }
+            
+            // Se é usuário normal tentando acessar página admin
+            if (!isAdmin && isAdminPage) {
+                _log('info', '🔒 Usuário comum tentando acessar admin, redirecionando para dashboard.html');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
             if (isPublicPage) {
                 _log('info', '➡️ Usuário autenticado em página pública, redirecionando...');
                 // Admin vai para admin.html, outros para dashboard.html
-                if (data.user && data.user.role === 'admin') {
+                if (isAdmin) {
                     window.location.href = 'admin.html';
                 } else {
                     window.location.href = 'dashboard.html';
@@ -261,6 +288,18 @@ async function checkAuthState() {
             } else {
                 // Para outros erros (rede, timeout, etc), manter sessão
                 _log('warn', '⚠️ Erro de conexão - Mantendo sessão');
+                
+                // Verificar cache para ver se é admin
+                const cachedData = localStorage.getItem('cachedUserData');
+                if (cachedData) {
+                    try {
+                        const user = JSON.parse(cachedData);
+                        if (user.role === 'admin' && isUserOnlyPage) {
+                            window.location.href = 'admin.html';
+                            return;
+                        }
+                    } catch (e) {}
+                }
                 
                 if (isPublicPage) {
                     window.location.href = 'dashboard.html';

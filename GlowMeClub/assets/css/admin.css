@@ -74,11 +74,24 @@
     color: white;
     padding: 0.25rem 0.5rem;
     border-radius: 8px;
-    transition: background-color 0.2s;
 }
 
-.user-area:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+.user-area .logout-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.user-area .logout-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .user-avatar {
@@ -204,6 +217,18 @@
     border-color: var(--admin-primary);
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.user-rank {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--admin-primary);
+    min-width: 2rem;
+    text-align: center;
+}
+
+.user-rank:nth-child(1) {
+    color: #FFD700;
 }
 
 .user-card-avatar {
