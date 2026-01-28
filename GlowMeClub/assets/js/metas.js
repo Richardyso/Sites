@@ -536,20 +536,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// CSS para toast e celebration (será movido para arquivo CSS)
+// CSS para toast e celebration - responsivo
 const style = document.createElement('style');
 style.textContent = `
 .success-toast {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #10B981;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #10B981, #34D399);
     color: white;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    animation: slideIn 0.3s ease;
-    z-index: 1000;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    max-width: calc(100vw - 2rem);
+    width: auto;
+    text-align: center;
+    word-break: break-word;
+    animation: metasToastIn 0.3s ease, metasToastOut 0.3s ease 2.7s forwards;
+    z-index: 3000;
 }
 
 .celebration-overlay {
@@ -564,33 +574,50 @@ style.textContent = `
     justify-content: center;
     z-index: 2000;
     animation: fadeIn 0.3s ease;
+    padding: 1rem;
 }
 
 .celebration-content {
     background: white;
-    padding: 3rem;
-    border-radius: 24px;
+    padding: 2rem;
+    border-radius: 20px;
     text-align: center;
     animation: scaleIn 0.5s ease;
+    max-width: 90vw;
+    width: 100%;
+    max-width: 320px;
 }
 
 .celebration-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
 }
 
 .confetti {
     position: fixed;
     top: -10px;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     animation: confettiFall 3s linear;
     z-index: 2001;
 }
 
-@keyframes slideIn {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
+@keyframes metasToastIn {
+    from { 
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+    }
+    to { 
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes metasToastOut {
+    to { 
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
 }
 
 @keyframes fadeIn {
@@ -599,8 +626,8 @@ style.textContent = `
 }
 
 @keyframes scaleIn {
-    from { transform: scale(0); }
-    to { transform: scale(1); }
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
 @keyframes confettiFall {

@@ -316,45 +316,82 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// CSS para toast
+// CSS para toast - responsivo para mobile e desktop
 const style = document.createElement('style');
 style.textContent = `
 .success-toast {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
     background: linear-gradient(135deg, #10B981, #34D399);
     color: white;
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1.25rem;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
     display: flex;
     align-items: center;
-    gap: 10px;
-    animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
-    z-index: 1000;
+    gap: 0.5rem;
+    animation: toastSlideUp 0.3s ease, toastFadeOut 0.3s ease 2.7s forwards;
+    z-index: 3000;
     font-weight: 500;
+    font-size: 0.875rem;
+    max-width: calc(100vw - 2rem);
+    width: auto;
+    text-align: center;
+    word-break: break-word;
 }
 
 .success-toast i {
-    font-size: 1.2rem;
+    font-size: 1rem;
+    flex-shrink: 0;
 }
 
-@keyframes slideInRight {
+@keyframes toastSlideUp {
     from {
-        transform: translateX(100%);
+        transform: translateX(-50%) translateY(20px);
         opacity: 0;
     }
     to {
-        transform: translateX(0);
+        transform: translateX(-50%) translateY(0);
         opacity: 1;
     }
 }
 
-@keyframes fadeOut {
+@keyframes toastFadeOut {
     to {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateX(-50%) translateY(20px);
+    }
+}
+
+/* Desktop - toast no canto superior direito */
+@media (min-width: 768px) {
+    .success-toast {
+        top: 20px;
+        bottom: auto;
+        right: 20px;
+        left: auto;
+        transform: none;
+        animation: desktopSlideIn 0.3s ease, desktopFadeOut 0.3s ease 2.7s forwards;
+    }
+    
+    @keyframes desktopSlideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes desktopFadeOut {
+        to {
+            opacity: 0;
+            transform: translateX(20px);
+        }
     }
 }
 `;
