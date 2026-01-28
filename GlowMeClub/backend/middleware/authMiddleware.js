@@ -1,8 +1,8 @@
 // ===== MIDDLEWARE DE AUTENTICAÇÃO =====
-const { auth } = require('../config/firebase-admin');
+const { auth, firestore } = require('../config/firebase-admin');
 
 /**
- * Middleware para verificar token JWT do Firebase
+ * Middleware para verificar token de sessão do Firestore
  */
 const verifyToken = async (req, res, next) => {
     try {
@@ -27,17 +27,51 @@ const verifyToken = async (req, res, next) => {
         }
         
         try {
-            // Verificar o token com Firebase Admin
-            const decodedToken = await auth.verifyIdToken(token);
+            // Buscar sessão no Firestore
+            const sessionDoc = await firestore.collection('sessions').doc(token).get();
+            
+            if (!sessionDoc.exists) {
+                return res.status(401).json({
+                    error: 'Sessão inválida',
+                    message: 'Por favor, faça login novamente'
+                });
+            }
+            
+            const sessionData = sessionDoc.data();
+            
+            // Verificar se a sessão expirou
+            if (sessionData.expiresAt && new Date() > sessionData.expiresAt.toDate()) {
+                // Deletar sessão expirada
+                await firestore.collection('sessions').doc(token).delete();
+                return res.status(401).json({
+                    error: 'Sessão expirada',
+                    message: 'Por favor, faça login novamente'
+                });
+            }
+            
+            // Buscar dados do usuário
+            const userDoc = await firestore.collection('users').doc(sessionData.userId).get();
+            
+            if (!userDoc.exists) {
+                return res.status(401).json({
+                    error: 'Usuário não encontrado',
+                    message: 'Por favor, faça login novamente'
+                });
+            }
+            
+            const userData = userDoc.data();
             
             // Adicionar informações do usuário ao request
             req.user = {
-                uid: decodedToken.uid,
-                email: decodedToken.email,
-                emailVerified: decodedToken.email_verified,
-                name: decodedToken.name,
-                picture: decodedToken.picture,
-                customClaims: decodedToken.customClaims || {}
+                uid: userData.uid,
+                email: userData.email,
+                name: userData.name,
+                role: userData.role || 'user',
+                profileImage: userData.profileImage,
+                preferredColor: userData.preferredColor,
+                focusArea: userData.focusArea,
+                totalPoints: userData.totalPoints || 0,
+                level: userData.level || 1
             };
             
             // Log para debug em desenvolvimento
@@ -50,29 +84,6 @@ const verifyToken = async (req, res, next) => {
         } catch (error) {
             console.error('Erro ao verificar token:', error);
             
-            // Tratar erros específicos do Firebase
-            if (error.code === 'auth/id-token-expired') {
-                return res.status(401).json({
-                    error: 'Token expirado',
-                    message: 'Por favor, faça login novamente'
-                });
-            }
-            
-            if (error.code === 'auth/id-token-revoked') {
-                return res.status(401).json({
-                    error: 'Token revogado',
-                    message: 'Por favor, faça login novamente'
-                });
-            }
-            
-            if (error.code === 'auth/argument-error') {
-                return res.status(401).json({
-                    error: 'Token inválido',
-                    message: 'O token fornecido é inválido'
-                });
-            }
-            
-            // Erro genérico
             return res.status(403).json({
                 error: 'Token inválido',
                 message: 'Não foi possível verificar o token'
@@ -109,15 +120,38 @@ const optionalAuth = async (req, res, next) => {
         }
         
         try {
-            const decodedToken = await auth.verifyIdToken(token);
-            req.user = {
-                uid: decodedToken.uid,
-                email: decodedToken.email,
-                emailVerified: decodedToken.email_verified,
-                name: decodedToken.name,
-                picture: decodedToken.picture,
-                customClaims: decodedToken.customClaims || {}
-            };
+            // Buscar sessão no Firestore
+            const sessionDoc = await firestore.collection('sessions').doc(token).get();
+            
+            if (!sessionDoc.exists) {
+                req.user = null;
+                return next();
+            }
+            
+            const sessionData = sessionDoc.data();
+            
+            // Verificar expiração
+            if (sessionData.expiresAt && new Date() > sessionData.expiresAt.toDate()) {
+                req.user = null;
+                return next();
+            }
+            
+            // Buscar dados do usuário
+            const userDoc = await firestore.collection('users').doc(sessionData.userId).get();
+            
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                req.user = {
+                    uid: userData.uid,
+                    email: userData.email,
+                    name: userData.name,
+                    role: userData.role || 'user',
+                    profileImage: userData.profileImage,
+                    preferredColor: userData.preferredColor
+                };
+            } else {
+                req.user = null;
+            }
         } catch (error) {
             // Token inválido, continuar sem usuário
             req.user = null;
@@ -133,9 +167,30 @@ const optionalAuth = async (req, res, next) => {
 };
 
 /**
- * Middleware para verificar claims específicos
+ * Middleware para verificar se é admin
  */
-const requireClaim = (claimName, claimValue = true) => {
+const requireAdmin = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({
+            error: 'Não autenticado',
+            message: 'Autenticação necessária'
+        });
+    }
+    
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({
+            error: 'Acesso negado',
+            message: 'Apenas administradores podem acessar este recurso'
+        });
+    }
+    
+    next();
+};
+
+/**
+ * Middleware para verificar role específico
+ */
+const requireRole = (role) => {
     return (req, res, next) => {
         if (!req.user) {
             return res.status(401).json({
@@ -144,9 +199,7 @@ const requireClaim = (claimName, claimValue = true) => {
             });
         }
         
-        const claims = req.user.customClaims || {};
-        
-        if (claims[claimName] !== claimValue) {
+        if (req.user.role !== role) {
             return res.status(403).json({
                 error: 'Acesso negado',
                 message: 'Você não tem permissão para acessar este recurso'
@@ -157,23 +210,9 @@ const requireClaim = (claimName, claimValue = true) => {
     };
 };
 
-/**
- * Middleware para verificar se o email foi verificado
- */
-const requireVerifiedEmail = (req, res, next) => {
-    if (!req.user || !req.user.emailVerified) {
-        return res.status(403).json({
-            error: 'Email não verificado',
-            message: 'Por favor, verifique seu email antes de continuar'
-        });
-    }
-    
-    next();
-};
-
 module.exports = {
     verifyToken,
     optionalAuth,
-    requireClaim,
-    requireVerifiedEmail
+    requireAdmin,
+    requireRole
 };

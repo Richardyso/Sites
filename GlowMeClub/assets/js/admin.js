@@ -1,7 +1,7 @@
 // ===== PAINEL DE ADMINISTRAÇÃO =====
 
-// Logger
-const logger = {
+// Usar logger do config.js ou criar fallback
+const logger = window.logger || {
     info: (msg, data) => console.log(`ℹ️ ${msg}`, data || ''),
     error: (msg, error) => console.error(`❌ ${msg}`, error || ''),
     warn: (msg, data) => console.warn(`⚠️ ${msg}`, data || ''),
@@ -125,7 +125,7 @@ async function loadAllUsers() {
     logger.info('👥 Carregando lista de usuários...');
     
     try {
-        const data = await window.api.get('/users/admin/users');
+        const data = await window.api.get('/admin/users');
         logger.info('📦 Resposta da API:', data);
         
         if (!data || !data.users) {

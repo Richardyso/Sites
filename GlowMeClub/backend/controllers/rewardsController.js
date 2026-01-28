@@ -2,70 +2,6 @@
 const { firestore, serverTimestamp } = require('../config/firebase-admin');
 const { sendRewardEmail } = require('../utils/email');
 
-// Catálogo de recompensas padrão
-const DEFAULT_REWARDS = [
-    {
-        id: 'ebook-skincare',
-        title: 'E-book de Skincare',
-        description: 'Guia completo com rotina de cuidados com a pele, dicas de produtos e receitas caseiras para um glow natural.',
-        pointsCost: 300,
-        category: 'ebooks',
-        imageURL: '/assets/images/rewards/ebook-skincare.png',
-        available: true,
-        instructions: 'Após o resgate, você receberá o link para download do e-book por email.'
-    },
-    {
-        id: 'aula-autocuidado',
-        title: 'Aula de Autocuidado',
-        description: 'Aula online ao vivo sobre técnicas de autocuidado, meditação e desenvolvimento de hábitos saudáveis.',
-        pointsCost: 500,
-        category: 'aulas',
-        imageURL: '/assets/images/rewards/aula-autocuidado.png',
-        available: true,
-        instructions: 'Você receberá o link para a aula e poderá escolher entre os horários disponíveis.'
-    },
-    {
-        id: 'sessao-mentoria',
-        title: 'Sessão de Mentoria',
-        description: 'Sessão individual de 1 hora com uma mentora especializada em desenvolvimento pessoal feminino.',
-        pointsCost: 1000,
-        category: 'aulas',
-        imageURL: '/assets/images/rewards/sessao-mentoria.png',
-        available: true,
-        instructions: 'Após o resgate, entraremos em contato para agendar sua sessão personalizada.'
-    },
-    {
-        id: 'badge-guerreira',
-        title: 'Badge Exclusiva: Guerreira',
-        description: 'Badge especial para seu perfil mostrando que você é uma verdadeira guerreira do autocuidado.',
-        pointsCost: 200,
-        category: 'badges',
-        imageURL: '/assets/images/rewards/badge-guerreira.png',
-        available: true,
-        instructions: 'A badge será adicionada automaticamente ao seu perfil.'
-    },
-    {
-        id: 'planner-digital',
-        title: 'Planner Digital',
-        description: 'Planner digital personalizado com páginas para metas, hábitos, gratidão e acompanhamento mensal.',
-        pointsCost: 400,
-        category: 'digital',
-        imageURL: '/assets/images/rewards/planner-digital.png',
-        available: true,
-        instructions: 'Você receberá o arquivo PDF do planner para download e impressão.'
-    },
-    {
-        id: 'kit-meditacoes',
-        title: 'Kit de Meditações Guiadas',
-        description: '10 meditações guiadas em áudio para diferentes momentos: manhã, ansiedade, sono e autoestima.',
-        pointsCost: 350,
-        category: 'digital',
-        imageURL: '/assets/images/rewards/kit-meditacoes.png',
-        available: true,
-        instructions: 'Os áudios serão enviados por email em formato MP3 para você baixar.'
-    }
-];
-
 /**
  * Listar catálogo de recompensas
  */
@@ -73,49 +9,21 @@ exports.getRewardsLibrary = async (req, res) => {
     try {
         const { category, available } = req.query;
         
-        // Por enquanto, usar o catálogo padrão
-        let rewards = [...DEFAULT_REWARDS];
+        // Buscar recompensas do Firestore
+        const rewardsSnapshot = await firestore.collection('rewards').get();
+        const rewards = [];
         
-        // Filtrar por categoria se fornecida
-        if (category) {
-            rewards = rewards.filter(r => r.category === category);
-        }
-        
-        // Filtrar por disponibilidade se fornecida
-        if (available !== undefined) {
-            rewards = rewards.filter(r => r.available === (available === 'true'));
-        }
-        
-        // Opcional: buscar do Firestore se existir
-        try {
-            const rewardsSnapshot = await firestore
-                .collection('rewardsLibrary')
-                .limit(1)
-                .get();
-            
-            if (!rewardsSnapshot.empty) {
-                // Se existir coleção no Firestore, usar ela
-                const firestoreRewards = [];
-                const allRewards = await firestore.collection('rewardsLibrary').get();
-                
-                allRewards.forEach(doc => {
-                    const rewardData = doc.data();
-                    if ((!category || rewardData.category === category) &&
-                        (available === undefined || rewardData.available === (available === 'true'))) {
-                        firestoreRewards.push({
-                            id: doc.id,
-                            ...rewardData
-                        });
-                    }
+        rewardsSnapshot.forEach(doc => {
+            const rewardData = doc.data();
+            // Aplicar filtros
+            if ((!category || rewardData.category === category) &&
+                (available === undefined || rewardData.available === (available === 'true'))) {
+                rewards.push({
+                    id: doc.id,
+                    ...rewardData
                 });
-                
-                if (firestoreRewards.length > 0) {
-                    rewards = firestoreRewards;
-                }
             }
-        } catch (error) {
-            console.log('Usando catálogo padrão de recompensas');
-        }
+        });
         
         res.json({ rewards });
         
@@ -134,33 +42,22 @@ exports.getReward = async (req, res) => {
     try {
         const { id } = req.params;
         
-        // Procurar no catálogo padrão
-        let reward = DEFAULT_REWARDS.find(r => r.id === id);
+        // Buscar do Firestore
+        const rewardDoc = await firestore
+            .collection('rewards')
+            .doc(id)
+            .get();
         
-        // Tentar buscar do Firestore
-        if (!reward) {
-            try {
-                const rewardDoc = await firestore
-                    .collection('rewardsLibrary')
-                    .doc(id)
-                    .get();
-                
-                if (rewardDoc.exists) {
-                    reward = {
-                        id: rewardDoc.id,
-                        ...rewardDoc.data()
-                    };
-                }
-            } catch (error) {
-                console.log('Recompensa não encontrada no Firestore');
-            }
-        }
-        
-        if (!reward) {
+        if (!rewardDoc.exists) {
             return res.status(404).json({
                 error: 'Recompensa não encontrada'
             });
         }
+        
+        const reward = {
+            id: rewardDoc.id,
+            ...rewardDoc.data()
+        };
         
         res.json(reward);
         
@@ -180,33 +77,22 @@ exports.redeemReward = async (req, res) => {
         const userId = req.user.uid;
         const { id } = req.params;
         
-        // Buscar dados da recompensa
-        let reward = DEFAULT_REWARDS.find(r => r.id === id);
+        // Buscar do Firestore
+        const rewardDoc = await firestore
+            .collection('rewards')
+            .doc(id)
+            .get();
         
-        // Tentar buscar do Firestore se não encontrar
-        if (!reward) {
-            try {
-                const rewardDoc = await firestore
-                    .collection('rewardsLibrary')
-                    .doc(id)
-                    .get();
-                
-                if (rewardDoc.exists) {
-                    reward = {
-                        id: rewardDoc.id,
-                        ...rewardDoc.data()
-                    };
-                }
-            } catch (error) {
-                console.log('Recompensa não encontrada no Firestore');
-            }
-        }
-        
-        if (!reward) {
+        if (!rewardDoc.exists) {
             return res.status(404).json({
                 error: 'Recompensa não encontrada'
             });
         }
+        
+        const reward = {
+            id: rewardDoc.id,
+            ...rewardDoc.data()
+        };
         
         if (!reward.available) {
             return res.status(400).json({

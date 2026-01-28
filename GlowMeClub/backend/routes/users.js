@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../middleware/authMiddleware');
 const userController = require('../controllers/userController');
-const { firestore, auth } = require('../config/firebase-admin');
+const { firestore, auth, admin } = require('../config/firebase-admin');
 
 /**
  * GET /api/user/profile
@@ -54,10 +54,10 @@ const isAdmin = async (req, res, next) => {
 };
 
 /**
- * GET /api/users/admin/users
+ * GET /api/admin/users ou /api/users/admin/users
  * Listar todos os usuários (admin only)
  */
-router.get('/admin/users', verifyToken, isAdmin, async (req, res) => {
+router.get('/users', verifyToken, isAdmin, async (req, res) => {
     try {
         console.log('🔍 Admin listando usuários:', req.user.uid);
         
@@ -86,6 +86,89 @@ router.get('/admin/users', verifyToken, isAdmin, async (req, res) => {
         console.error('Erro ao listar usuários:', error);
         res.status(500).json({
             error: 'Erro ao listar usuários',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * PUT /api/admin/users/:id
+ * Atualizar dados de um usuário (admin only)
+ */
+router.put('/users/:id', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, email } = req.body;
+        
+        console.log('📝 Admin atualizando usuário:', id);
+        
+        const updateData = {
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        };
+        
+        if (name) updateData.name = name;
+        if (email) updateData.email = email.toLowerCase();
+        
+        await firestore.collection('users').doc(id).update(updateData);
+        
+        res.json({
+            success: true,
+            message: 'Usuário atualizado com sucesso'
+        });
+        
+    } catch (error) {
+        console.error('Erro ao atualizar usuário:', error);
+        res.status(500).json({
+            error: 'Erro ao atualizar usuário',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * POST /api/admin/users/:id/grant-points
+ * Conceder pontos a um usuário (admin only)
+ */
+router.post('/users/:id/grant-points', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { points, reason } = req.body;
+        
+        console.log('🎁 Admin concedendo pontos:', { userId: id, points, reason });
+        
+        if (!points || points <= 0) {
+            return res.status(400).json({
+                error: 'Quantidade de pontos inválida'
+            });
+        }
+        
+        // Atualizar pontos do usuário
+        await firestore.collection('users').doc(id).update({
+            totalPoints: admin.firestore.FieldValue.increment(points),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Registrar no histórico de pontos
+        await firestore
+            .collection('users')
+            .doc(id)
+            .collection('pointsHistory')
+            .add({
+                points: points,
+                reason: reason || 'Pontos concedidos pelo admin',
+                type: 'admin_grant',
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+        
+        res.json({
+            success: true,
+            message: `${points} pontos concedidos com sucesso`
+        });
+        
+    } catch (error) {
+        console.error('Erro ao conceder pontos:', error);
+        res.status(500).json({
+            error: 'Erro ao conceder pontos',
             message: error.message
         });
     }
