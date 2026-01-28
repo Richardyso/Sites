@@ -2,32 +2,43 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const { verifyToken } = require('../middleware/authMiddleware');
 const { sendWelcomeEmail } = require('../utils/email');
 const { auth, firestore, admin } = require('../config/firebase-admin');
 
 // ===== FUNÇÕES AUXILIARES =====
 
-// Gerar token JWT simples para sessão
+// Gerar token de sessão
 function generateSessionToken() {
     return crypto.randomBytes(64).toString('hex');
 }
 
-// Hash de senha usando crypto nativo (PBKDF2)
-function hashPassword(password) {
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-    return `${salt}:${hash}`;
+// Hash de senha usando bcrypt
+async function hashPassword(password) {
+    return bcrypt.hash(password, 12);
 }
 
-// Verificar senha
-function verifyPassword(plainPassword, storedHash) {
-    if (!storedHash || !storedHash.includes(':')) {
+// Verificar senha (suporta bcrypt e SHA256 legado)
+async function verifyPassword(plainPassword, storedHash) {
+    if (!storedHash) {
         return false;
     }
-    const [salt, hash] = storedHash.split(':');
-    const verifyHash = crypto.pbkdf2Sync(plainPassword, salt, 10000, 64, 'sha512').toString('hex');
-    return hash === verifyHash;
+    
+    try {
+        // Se começa com $2, é bcrypt
+        if (storedHash.startsWith('$2')) {
+            return await bcrypt.compare(plainPassword, storedHash);
+        }
+        
+        // Senão, verificar como SHA256 (formato legado)
+        const sha256Hash = crypto.createHash('sha256').update(plainPassword).digest('hex');
+        return sha256Hash === storedHash;
+        
+    } catch (error) {
+        console.error('Erro ao verificar senha:', error);
+        return false;
+    }
 }
 
 /**
@@ -72,7 +83,7 @@ router.post('/register', async (req, res) => {
         const uid = crypto.randomBytes(16).toString('hex');
         
         // Hash da senha
-        const hashedPassword = hashPassword(password);
+        const hashedPassword = await hashPassword(password);
         
         // Criar documento do usuário
         const userData = {
@@ -159,7 +170,7 @@ router.post('/login', async (req, res) => {
         const userData = userDoc.data();
         
         // Verificar senha
-        const isPasswordValid = verifyPassword(password, userData.password);
+        const isPasswordValid = await verifyPassword(password, userData.password);
         
         if (!isPasswordValid) {
             console.log('❌ Senha incorreta para:', email);
@@ -363,7 +374,7 @@ router.post('/reset-password', async (req, res) => {
         }
         
         // Hash da nova senha
-        const hashedPassword = hashPassword(password);
+        const hashedPassword = await hashPassword(password);
         
         // Atualizar senha
         await firestore.collection('users').doc(tokenData.userId).update({
