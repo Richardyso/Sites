@@ -175,6 +175,105 @@ router.post('/users/:id/grant-points', verifyToken, isAdmin, async (req, res) =>
 });
 
 /**
+ * GET /api/points/history ou /api/user/points/history
+ * Obter histórico de pontos do usuário
+ */
+router.get('/points/history', verifyToken, async (req, res) => {
+    try {
+        const userId = req.user.uid;
+        
+        console.log('📊 Buscando histórico de pontos:', userId);
+        
+        // Buscar histórico de pontos do Firestore
+        // Tentar primeiro com createdAt, depois com timestamp (para registros antigos)
+        let historySnapshot;
+        
+        try {
+            historySnapshot = await firestore
+                .collection('users')
+                .doc(userId)
+                .collection('pointsHistory')
+                .orderBy('createdAt', 'desc')
+                .limit(50)
+                .get();
+        } catch (indexError) {
+            // Se falhar por causa do índice, buscar sem ordenação
+            console.log('⚠️ Índice não encontrado, buscando sem ordenação');
+            historySnapshot = await firestore
+                .collection('users')
+                .doc(userId)
+                .collection('pointsHistory')
+                .limit(50)
+                .get();
+        }
+        
+        const history = [];
+        
+        historySnapshot.forEach(doc => {
+            const data = doc.data();
+            
+            // Lidar com diferentes formatos de data (createdAt ou timestamp)
+            let dateValue = null;
+            if (data.createdAt && data.createdAt.toDate) {
+                dateValue = data.createdAt.toDate();
+            } else if (data.timestamp && data.timestamp.toDate) {
+                dateValue = data.timestamp.toDate();
+            } else if (data.createdAt) {
+                dateValue = new Date(data.createdAt);
+            } else if (data.timestamp) {
+                dateValue = new Date(data.timestamp);
+            } else {
+                dateValue = new Date();
+            }
+            
+            history.push({
+                id: doc.id,
+                points: data.points || 0,
+                action: data.reason || data.action || 'Pontos',
+                reason: data.reason || data.action || 'Pontos',
+                type: data.type || (data.points > 0 ? 'earned' : 'spent'),
+                icon: getIconForType(data.type),
+                date: dateValue,
+                createdAt: dateValue
+            });
+        });
+        
+        // Ordenar por data (mais recente primeiro)
+        history.sort((a, b) => b.date - a.date);
+        
+        console.log(`✅ ${history.length} registros de histórico encontrados`);
+        
+        res.json({
+            success: true,
+            history: history
+        });
+        
+    } catch (error) {
+        console.error('Erro ao buscar histórico de pontos:', error);
+        res.status(500).json({
+            error: 'Erro ao buscar histórico',
+            message: error.message,
+            history: []
+        });
+    }
+});
+
+// Função auxiliar para obter ícone baseado no tipo
+function getIconForType(type) {
+    const icons = {
+        'goal_completed': '🎯',
+        'mission_completed': '⭐',
+        'admin_grant': '🎁',
+        'streak_bonus': '🔥',
+        'profile_complete': '👤',
+        'reward_redeemed': '🛍️',
+        'earned': '✨',
+        'spent': '💸'
+    };
+    return icons[type] || '✨';
+}
+
+/**
  * GET /api/users/ranking
  * Obter ranking público de usuários
  */

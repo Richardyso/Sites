@@ -322,9 +322,11 @@ exports.completeGoal = async (req, res) => {
             .doc();
         
         batch.set(historyRef, {
+            reason: `Meta concluída: ${goalData.title}`,
             action: `Meta concluída: ${goalData.title}`,
             points: GOAL_POINTS,
-            timestamp: serverTimestamp()
+            type: 'goal_completed',
+            createdAt: serverTimestamp()
         });
         
         // Executar transação

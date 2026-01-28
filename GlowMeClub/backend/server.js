@@ -115,6 +115,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes); // Inclui rotas de admin e ranking
 app.use('/api/user', userRoutes); // Alias para compatibilidade
 app.use('/api/admin', userRoutes); // Rotas de admin (redirecionam para users)
+app.use('/api/points', userRoutes); // Rotas de pontos (histórico)
 app.use('/api/goals', goalsRoutes);
 app.use('/api/missions', missionsRoutes);
 app.use('/api/rewards', rewardsRoutes);

@@ -41,7 +41,7 @@ async function loadPointsHistory() {
                 currentUser = JSON.parse(cachedData);
                 updateHeader();
                 updateStats();
-                loadMockHistory();
+                await loadHistoryFromBackend();
                 logger.warn('⚠️ Usando dados do cache');
                 return;
             } catch (e) {
@@ -54,8 +54,9 @@ async function loadPointsHistory() {
             window.api.removeToken();
             window.location.href = 'login.html';
         } else {
-            // Para outros erros, apenas mostrar dados vazios
-            loadMockHistory();
+            // Para outros erros, mostrar histórico vazio
+            pointsHistory = [];
+            displayHistory();
         }
     }
 }
@@ -142,37 +143,19 @@ async function loadHistoryFromBackend() {
     try {
         const data = await window.api.get('/points/history');
         pointsHistory = data.history || [];
+        
+        if (pointsHistory.length === 0) {
+            logger.info('Nenhum histórico de pontos encontrado');
+        } else {
+            logger.info(`${pointsHistory.length} registros de histórico carregados`);
+        }
+        
         displayHistory();
     } catch (error) {
-        loadMockHistory();
+        logger.error('Erro ao carregar histórico:', error);
+        pointsHistory = [];
+        displayHistory();
     }
-}
-
-// Carregar histórico mockado
-function loadMockHistory() {
-    // Gerar histórico simulado
-    const activities = [
-        { action: 'Meta concluída', points: 100, icon: '🎯' },
-        { action: 'Missão diária', points: 50, icon: '⭐' },
-        { action: 'Série de 7 dias', points: 150, icon: '🔥' },
-        { action: 'Perfil completo', points: 30, icon: '👤' },
-        { action: 'Primeira meta', points: 75, icon: '🌟' }
-    ];
-    
-    pointsHistory = [];
-    const now = Date.now();
-    
-    for (let i = 0; i < 10; i++) {
-        const activity = activities[Math.floor(Math.random() * activities.length)];
-        pointsHistory.push({
-            id: i + 1,
-            ...activity,
-            date: new Date(now - i * 24 * 60 * 60 * 1000 - Math.random() * 24 * 60 * 60 * 1000),
-            type: activity.points > 0 ? 'earned' : 'spent'
-        });
-    }
-    
-    displayHistory();
 }
 
 // Exibir histórico
@@ -191,21 +174,52 @@ function displayHistory() {
     if (emptyHistory) emptyHistory.style.display = 'none';
     
     tableBody.innerHTML = pointsHistory.map(item => {
-        const date = new Date(item.date);
+        // Tratar data (pode vir como string ou objeto Date)
+        let date;
+        if (item.date) {
+            date = new Date(item.date);
+        } else if (item.createdAt) {
+            date = new Date(item.createdAt);
+        } else {
+            date = new Date();
+        }
+        
         const dateStr = formatDate(date);
         const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         
-        const pointsClass = item.type === 'earned' ? 'points-positive' : 'points-negative';
-        const pointsSign = item.type === 'earned' ? '+' : '-';
+        // Determinar se é ganho ou gasto
+        const points = item.points || 0;
+        const isEarned = item.type !== 'spent' && item.type !== 'reward_redeemed' && points > 0;
+        const pointsClass = isEarned ? 'points-positive' : 'points-negative';
+        const pointsSign = isEarned ? '+' : '-';
+        
+        // Obter descrição da ação
+        const actionText = item.reason || item.action || 'Pontos';
+        const icon = item.icon || getIconForType(item.type);
         
         return `
             <tr>
                 <td class="history-date">${dateStr}, ${timeStr}</td>
-                <td class="history-action">${item.icon} ${item.action}</td>
-                <td class="history-points ${pointsClass}">${pointsSign}${item.points} pts</td>
+                <td class="history-action">${icon} ${actionText}</td>
+                <td class="history-points ${pointsClass}">${pointsSign}${Math.abs(points)} pts</td>
             </tr>
         `;
     }).join('');
+}
+
+// Obter ícone baseado no tipo
+function getIconForType(type) {
+    const icons = {
+        'goal_completed': '🎯',
+        'mission_completed': '⭐',
+        'admin_grant': '🎁',
+        'streak_bonus': '🔥',
+        'profile_complete': '👤',
+        'reward_redeemed': '🛍️',
+        'earned': '✨',
+        'spent': '💸'
+    };
+    return icons[type] || '✨';
 }
 
 // Formatar data de forma amigável

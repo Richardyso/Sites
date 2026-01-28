@@ -155,9 +155,11 @@ exports.redeemReward = async (req, res) => {
             .doc();
         
         batch.set(historyRef, {
+            reason: `Recompensa resgatada: ${reward.title}`,
             action: `Recompensa resgatada: ${reward.title}`,
             points: -reward.pointsCost,
-            timestamp: serverTimestamp()
+            type: 'reward_redeemed',
+            createdAt: serverTimestamp()
         });
         
         // Executar transação

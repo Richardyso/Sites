@@ -274,9 +274,11 @@ exports.completeMission = async (req, res) => {
             .doc();
         
         batch.set(historyRef, {
+            reason: `Missão concluída: ${missionData.description}`,
             action: `Missão concluída: ${missionData.description}`,
             points: missionPoints,
-            timestamp: serverTimestamp()
+            type: 'mission_completed',
+            createdAt: serverTimestamp()
         });
         
         // Executar transação
