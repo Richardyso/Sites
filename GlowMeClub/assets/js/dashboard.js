@@ -272,20 +272,51 @@ async function loadAdditionalData() {
     if (completedEl) completedEl.textContent = completedMissions;
     if (totalEl) totalEl.textContent = totalMissions;
     
-    // Metas ativas
-    const activeGoals = userData.activeGoals || 2;
-    const activeGoalsEl = document.getElementById('activeGoalsCount');
-    if (activeGoalsEl) activeGoalsEl.textContent = activeGoals;
+    // Carregar metas ativas do backend
+    await loadActiveGoals();
     
-    // Recompensas disponíveis
-    const availableRewardsEl = document.getElementById('availableRewards');
-    if (availableRewardsEl) availableRewardsEl.textContent = '5';
+    // Carregar recompensas disponíveis do backend
+    await loadAvailableRewards();
     
     // === ACTION HUB ===
     updateActionHub(userData, completedMissions, streak);
     
     // Carregar ranking
     loadRanking();
+}
+
+// Carregar metas ativas do backend
+async function loadActiveGoals() {
+    const activeGoalsEl = document.getElementById('activeGoalsCount');
+    if (!activeGoalsEl) return;
+    
+    try {
+        const data = await window.api.get('/goals');
+        const goals = data.goals || [];
+        // Contar apenas metas não concluídas
+        const activeGoals = goals.filter(g => !g.completed).length;
+        activeGoalsEl.textContent = activeGoals;
+    } catch (error) {
+        logger.warn('Não foi possível carregar metas:', error);
+        activeGoalsEl.textContent = '0';
+    }
+}
+
+// Carregar recompensas disponíveis do backend
+async function loadAvailableRewards() {
+    const availableRewardsEl = document.getElementById('availableRewards');
+    if (!availableRewardsEl) return;
+    
+    try {
+        const data = await window.api.get('/rewards');
+        const rewards = data.rewards || [];
+        // Contar apenas recompensas disponíveis
+        const availableRewards = rewards.filter(r => r.available !== false).length;
+        availableRewardsEl.textContent = availableRewards;
+    } catch (error) {
+        logger.warn('Não foi possível carregar recompensas:', error);
+        availableRewardsEl.textContent = '0';
+    }
 }
 
 // Atualizar Action Hub
@@ -427,18 +458,16 @@ async function loadRanking() {
         // Tentar buscar ranking real do servidor
         const data = await window.api.get('/users/ranking');
         
-        if (data.ranking && data.ranking.length > 0) {
-            displayRanking(data.ranking);
-            
-            // Posição do usuário atual
-            if (userRankPosition && data.userPosition) {
-                userRankPosition.textContent = `${data.userPosition}º`;
-            }
+        // API retorna 'users' não 'ranking'
+        const rankingData = data.users || data.ranking || [];
+        
+        if (rankingData.length > 0) {
+            displayRanking(rankingData);
         } else {
             showEmptyRanking();
         }
     } catch (error) {
-        logger.warn('Não foi possível carregar ranking do servidor');
+        logger.warn('Não foi possível carregar ranking do servidor:', error);
         
         // Tentar carregar ranking do localStorage
         const cachedRanking = localStorage.getItem('cachedRanking');
