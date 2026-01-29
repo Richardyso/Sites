@@ -653,6 +653,48 @@
         :root {
             --cor-verde: #10B981;
         }
+        
+        /* Empty Rewards State */
+        .empty-rewards-state {
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+            background: var(--cor-branco);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--sombra-suave);
+        }
+        
+        .empty-rewards-state i {
+            font-size: 4rem;
+            color: var(--cor-lilas-medio);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .empty-rewards-state h3 {
+            color: var(--cor-texto-escuro);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .empty-rewards-state p {
+            color: var(--cor-texto-medio);
+        }
+        
+        /* Loading State */
+        .loading-rewards {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--cor-texto-medio);
+        }
+        
+        .loading-rewards i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+            color: var(--cor-roxo-medio);
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -756,137 +798,14 @@
             
             <!-- Rewards Grid -->
             <div class="rewards-grid" id="rewardsGrid">
-                <!-- E-book de Skincare -->
-                <div class="reward-card" data-category="ebooks" data-reward-id="1">
-                    <div class="reward-image">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="reward-content">
-                        <h3 class="reward-title">E-book de Skincare</h3>
-                        <p class="reward-description">
-                            Guia completo com rotina de cuidados com a pele, dicas de produtos e receitas caseiras para um glow natural.
-                        </p>
-                        <div class="reward-footer">
-                            <div class="reward-cost">
-                                <i class="fas fa-coins"></i>
-                                <span>300</span>
-                            </div>
-                            <button class="btn btn-redeem" onclick="openRedeemModal(1, 'E-book de Skincare', 300)">
-                                Resgatar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Aula de Autocuidado -->
-                <div class="reward-card" data-category="aulas" data-reward-id="2">
-                    <div class="reward-image">
-                        <i class="fas fa-video"></i>
-                    </div>
-                    <div class="reward-content">
-                        <h3 class="reward-title">Aula de Autocuidado</h3>
-                        <p class="reward-description">
-                            Aula online ao vivo sobre técnicas de autocuidado, meditação e desenvolvimento de hábitos saudáveis.
-                        </p>
-                        <div class="reward-footer">
-                            <div class="reward-cost">
-                                <i class="fas fa-coins"></i>
-                                <span>500</span>
-                            </div>
-                            <button class="btn btn-redeem" onclick="openRedeemModal(2, 'Aula de Autocuidado', 500)">
-                                Resgatar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Sessão de Mentoria -->
-                <div class="reward-card" data-category="aulas" data-reward-id="3">
-                    <div class="reward-image">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <div class="reward-content">
-                        <h3 class="reward-title">Sessão de Mentoria</h3>
-                        <p class="reward-description">
-                            Sessão individual de 1 hora com uma mentora especializada em desenvolvimento pessoal feminino.
-                        </p>
-                        <div class="reward-footer">
-                            <div class="reward-cost">
-                                <i class="fas fa-coins"></i>
-                                <span>1000</span>
-                            </div>
-                            <button class="btn btn-redeem" onclick="openRedeemModal(3, 'Sessão de Mentoria', 1000)">
-                                Resgatar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Badge Exclusiva: Guerreira -->
-                <div class="reward-card" data-category="badges" data-reward-id="4">
-                    <div class="reward-image">
-                        <i class="fas fa-medal"></i>
-                    </div>
-                    <div class="reward-content">
-                        <h3 class="reward-title">Badge Exclusiva: Guerreira</h3>
-                        <p class="reward-description">
-                            Badge especial para seu perfil mostrando que você é uma verdadeira guerreira do autocuidado.
-                        </p>
-                        <div class="reward-footer">
-                            <div class="reward-cost">
-                                <i class="fas fa-coins"></i>
-                                <span>200</span>
-                            </div>
-                            <button class="btn btn-redeem" onclick="openRedeemModal(4, 'Badge Exclusiva: Guerreira', 200)">
-                                Resgatar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Planner Digital -->
-                <div class="reward-card" data-category="digital" data-reward-id="5">
-                    <div class="reward-image">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="reward-content">
-                        <h3 class="reward-title">Planner Digital</h3>
-                        <p class="reward-description">
-                            Planner digital personalizado com páginas para metas, hábitos, gratidão e acompanhamento mensal.
-                        </p>
-                        <div class="reward-footer">
-                            <div class="reward-cost">
-                                <i class="fas fa-coins"></i>
-                                <span>400</span>
-                            </div>
-                            <button class="btn btn-redeem" onclick="openRedeemModal(5, 'Planner Digital', 400)">
-                                Resgatar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Kit de Meditações Guiadas -->
-                <div class="reward-card" data-category="digital" data-reward-id="6">
-                    <div class="reward-image">
-                        <i class="fas fa-headphones"></i>
-                    </div>
-                    <div class="reward-content">
-                        <h3 class="reward-title">Kit de Meditações Guiadas</h3>
-                        <p class="reward-description">
-                            10 meditações guiadas em áudio para diferentes momentos: manhã, ansiedade, sono e autoestima.
-                        </p>
-                        <div class="reward-footer">
-                            <div class="reward-cost">
-                                <i class="fas fa-coins"></i>
-                                <span>350</span>
-                            </div>
-                            <button class="btn btn-redeem" onclick="openRedeemModal(6, 'Kit de Meditações Guiadas', 350)">
-                                Resgatar
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <!-- Recompensas serão carregadas dinamicamente do backend -->
+            </div>
+            
+            <!-- Empty State -->
+            <div class="empty-rewards-state" id="emptyRewardsState" style="display: none;">
+                <i class="fas fa-gift"></i>
+                <h3>Nenhuma recompensa disponível</h3>
+                <p>Quando o administrador criar recompensas, elas aparecerão aqui!</p>
             </div>
             
             </div><!-- End rewardsSection -->

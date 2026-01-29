@@ -166,6 +166,21 @@ img {
     font-size: 1.125rem;
 }
 
+.btn-nav {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+}
+
+.btn-outline.btn-nav {
+    border-width: 1.5px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
 /* Cards */
 .card {
     background: var(--cor-branco);
