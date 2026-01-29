@@ -544,30 +544,35 @@ router.get('/users/:id/history', verifyToken, isAdmin, async (req, res) => {
  */
 router.get('/ranking', async (req, res) => {
     try {
-        // Buscar usuários ordenados por pontos
+        // Buscar todos os usuários ordenados por pontos
         const usersSnapshot = await firestore
             .collection('users')
-            .where('role', '!=', 'admin')
             .orderBy('totalPoints', 'desc')
-            .limit(50)
+            .limit(100)
             .get();
         
         const users = [];
         usersSnapshot.forEach(doc => {
             const userData = doc.data();
-            users.push({
-                uid: doc.id,
-                name: userData.name || 'Usuário',
-                totalPoints: userData.totalPoints || 0,
-                level: userData.level || 1,
-                profileImage: userData.profileImage || null,
-                preferredColor: userData.preferredColor || '#8B5CF6'
-            });
+            // Filtrar admins no código (evita necessidade de índice composto)
+            if (userData.role !== 'admin') {
+                users.push({
+                    uid: doc.id,
+                    name: userData.name || 'Usuário',
+                    totalPoints: userData.totalPoints || 0,
+                    level: userData.level || 1,
+                    profileImage: userData.profileImage || null,
+                    preferredColor: userData.preferredColor || '#8B5CF6'
+                });
+            }
         });
+        
+        // Limitar a 50 após filtrar
+        const topUsers = users.slice(0, 50);
         
         res.json({
             success: true,
-            users: users
+            users: topUsers
         });
         
     } catch (error) {

@@ -99,29 +99,32 @@
                 </div>
             </section>
 
-            <!-- Quick Actions -->
-            <section class="quick-actions-section">
-                <div class="quick-actions">
-                    <a href="missoes.html" class="quick-action">
-                        <i class="fas fa-star"></i>
-                        <span>Missões do Dia</span>
-                    </a>
-                    <a href="metas.html" class="quick-action">
-                        <i class="fas fa-bullseye"></i>
-                        <span>Minhas Metas</span>
-                    </a>
-                    <a href="recompensas.html" class="quick-action">
-                        <i class="fas fa-gift"></i>
-                        <span>Recompensas</span>
-                    </a>
+            <!-- Ranking Destaque -->
+            <section class="ranking-highlight-section">
+                <div class="ranking-card-full">
+                    <div class="ranking-header">
+                        <h3><i class="fas fa-trophy"></i> Ranking Glow</h3>
+                        <span class="ranking-subtitle">Top 10 Deusas</span>
+                    </div>
+                    <div class="ranking-list" id="rankingList">
+                        <!-- Rankings serão carregados dinamicamente -->
+                        <div class="ranking-loading" style="text-align: center; padding: 2rem; color: #999;">
+                            <i class="fas fa-spinner fa-spin"></i> Carregando ranking...
+                        </div>
+                    </div>
+                    <div class="ranking-footer">
+                        <div class="user-ranking">
+                            <span>Sua posição:</span>
+                            <strong id="userRankPosition">-</strong>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <!-- Dashboard Grid with Ranking -->
-            <div class="dashboard-layout">
-                <!-- Left Side - User Cards -->
-                <div class="dashboard-cards">
-                    <!-- Nível Atual com Imagem -->
+            <!-- Stats Grid -->
+            <section class="stats-section">
+                <div class="stats-grid-new">
+                    <!-- Nível Atual -->
                     <div class="level-showcase-card">
                         <div class="level-image-container">
                             <img src="../assets/images/plebeia.png" alt="Nível Plebeia" id="levelImage" class="level-image">
@@ -144,76 +147,51 @@
                         </div>
                     </div>
 
-                    <!-- Stats Grid -->
-                    <div class="stats-grid">
-                        <!-- Total de Pontos -->
-                        <a href="pontos.html" class="dashboard-card card-sparkle">
-                            <div class="card-icon card-points">
-                                <i class="fas fa-gem"></i>
-                            </div>
-                            <h3>BabiPoints</h3>
-                            <div class="points-display">
-                                <div class="points-number" id="totalPoints">0</div>
-                                <div class="card-label">Pontos conquistados</div>
-                            </div>
-                        </a>
+                    <!-- Total de Pontos -->
+                    <a href="pontos.html" class="dashboard-card card-sparkle">
+                        <div class="card-icon card-points">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <h3>BabiPoints</h3>
+                        <div class="points-display">
+                            <div class="points-number" id="totalPoints">0</div>
+                            <div class="card-label">Pontos conquistados</div>
+                        </div>
+                    </a>
 
-                        <!-- Metas Ativas -->
-                        <a href="metas.html" class="dashboard-card">
-                            <div class="card-icon card-goals">
-                                <i class="fas fa-bullseye"></i>
-                            </div>
-                            <h3>Metas Ativas</h3>
-                            <div class="card-value" id="activeGoalsCount">0</div>
-                            <div class="card-label">Em andamento</div>
-                        </a>
+                    <!-- Metas Ativas -->
+                    <a href="metas.html" class="dashboard-card">
+                        <div class="card-icon card-goals">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h3>Metas Ativas</h3>
+                        <div class="card-value" id="activeGoalsCount">0</div>
+                        <div class="card-label">Em andamento</div>
+                    </a>
 
-                        <!-- Missões de Hoje -->
-                        <a href="missoes.html" class="dashboard-card">
-                            <div class="card-icon card-missions">
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <h3>Missões de Hoje</h3>
-                            <div class="card-value">
-                                <span id="completedMissions">0</span>/<span id="totalMissions">3</span>
-                            </div>
-                            <div class="card-label">Completadas</div>
-                        </a>
+                    <!-- Missões de Hoje -->
+                    <a href="missoes.html" class="dashboard-card">
+                        <div class="card-icon card-missions">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3>Missões de Hoje</h3>
+                        <div class="card-value">
+                            <span id="completedMissions">0</span>/<span id="totalMissions">3</span>
+                        </div>
+                        <div class="card-label">Completadas</div>
+                    </a>
 
-                        <!-- Recompensas Disponíveis -->
-                        <a href="recompensas.html" class="dashboard-card">
-                            <div class="card-icon card-rewards">
-                                <i class="fas fa-gift"></i>
-                            </div>
-                            <h3>Recompensas</h3>
-                            <div class="card-value" id="availableRewards">0</div>
-                            <div class="card-label">Disponíveis</div>
-                        </a>
-                    </div>
+                    <!-- Recompensas Disponíveis -->
+                    <a href="recompensas.html" class="dashboard-card">
+                        <div class="card-icon card-rewards">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <h3>Recompensas</h3>
+                        <div class="card-value" id="availableRewards">0</div>
+                        <div class="card-label">Disponíveis</div>
+                    </a>
                 </div>
-
-                <!-- Right Side - Ranking -->
-                <div class="ranking-section">
-                    <div class="ranking-card">
-                        <div class="ranking-header">
-                            <h3><i class="fas fa-trophy"></i> Ranking Glow</h3>
-                            <span class="ranking-subtitle">Top 10 Deusas</span>
-                        </div>
-                        <div class="ranking-list" id="rankingList">
-                            <!-- Rankings serão carregados dinamicamente -->
-                            <div class="ranking-loading" style="text-align: center; padding: 2rem; color: #999;">
-                                <i class="fas fa-spinner fa-spin"></i> Carregando ranking...
-                            </div>
-                        </div>
-                        <div class="ranking-footer">
-                            <div class="user-ranking">
-                                <span>Sua posição:</span>
-                                <strong id="userRankPosition">-</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </section>
     </main>
 
     <!-- Bottom Navigation (Mobile) -->

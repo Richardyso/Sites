@@ -579,54 +579,33 @@ function displayRanking(rankingData) {
     const userRankPosition = document.getElementById('userRankPosition');
     if (!rankingList) return;
     
-    // Mapear nível para imagem
-    const levelImages = {
-        1: 'plebeia.png',
-        2: 'princesa.png',
-        3: 'rainha.png',
-        4: 'imperatriz.png',
-        5: 'deusa.png'
-    };
+    // Limitar a 10 usuários para o Top 10
+    const top10 = rankingData.slice(0, 10);
     
-    const levelNames = {
-        1: 'Plebeia',
-        2: 'Princesa',
-        3: 'Rainha',
-        4: 'Imperatriz',
-        5: 'Deusa Glow'
-    };
-    
-    rankingList.innerHTML = rankingData.map((user, index) => {
-        const positionClass = index < 3 ? `rank-${index + 1}` : '';
-        const level = Math.min(Math.floor((user.totalPoints || 0) / 500) + 1, 5);
-        const levelImage = levelImages[level];
-        const levelName = levelNames[level];
+    rankingList.innerHTML = top10.map((user, index) => {
+        const isCurrentUser = currentUser && user.uid === currentUser.uid;
         
         // Verificar se o usuário tem foto de perfil
         let avatarHtml;
         if (user.profileImage) {
-            avatarHtml = `<img src="${user.profileImage}" alt="${user.name || 'Usuária'}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            avatarHtml = `<img src="${user.profileImage}" alt="${user.name || 'Usuária'}">`;
         } else {
             // Sem foto - mostrar inicial com cor preferida
             const initial = (user.name || 'U').charAt(0).toUpperCase();
             const bgColor = user.preferredColor || '#8B5CF6';
-            avatarHtml = `<div style="width:100%;height:100%;background:${bgColor};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1.25rem;border-radius:50%;">${initial}</div>`;
+            avatarHtml = `<span style="background:${bgColor};width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:50%;">${initial}</span>`;
         }
         
         return `
-            <div class="ranking-item">
-                <div class="rank-position ${positionClass}">${index + 1}º</div>
-                <div class="rank-avatar">
+            <div class="ranking-item ${isCurrentUser ? 'current-user' : ''}">
+                <div class="ranking-position">${index + 1}</div>
+                <div class="ranking-avatar" style="background:${user.preferredColor || '#8B5CF6'}">
                     ${avatarHtml}
                 </div>
-                <div class="rank-info">
-                    <div class="rank-name">${user.name || 'Usuária'}</div>
-                    <div class="rank-level">${levelName}</div>
+                <div class="ranking-info">
+                    <div class="ranking-name">${user.name || 'Usuária'}</div>
                 </div>
-                <div class="rank-points">
-                    <i class="fas fa-gem"></i>
-                    <span>${(user.totalPoints || 0).toLocaleString('pt-BR')}</span>
-                </div>
+                <div class="ranking-points">${(user.totalPoints || 0).toLocaleString('pt-BR')} pts</div>
             </div>
         `;
     }).join('');
@@ -637,8 +616,8 @@ function displayRanking(rankingData) {
         if (userPosition !== -1) {
             userRankPosition.textContent = `${userPosition + 1}º`;
         } else {
-            // Usuário não está no top 10, calcular posição estimada
-            userRankPosition.textContent = rankingData.length > 0 ? `${rankingData.length + 1}º+` : '-';
+            // Usuário não está no ranking
+            userRankPosition.textContent = '-';
         }
     }
     
