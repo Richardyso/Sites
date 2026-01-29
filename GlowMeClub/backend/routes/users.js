@@ -175,6 +175,106 @@ router.post('/users/:id/grant-points', verifyToken, isAdmin, async (req, res) =>
 });
 
 /**
+ * POST /api/user/checkin
+ * Fazer check-in diário e ganhar 10 pontos
+ */
+router.post('/checkin', verifyToken, async (req, res) => {
+    try {
+        const userId = req.user.uid;
+        const CHECKIN_POINTS = 10;
+        const today = new Date().toISOString().split('T')[0];
+        
+        console.log('✅ Usuário fazendo check-in:', userId);
+        
+        // Buscar dados do usuário
+        const userRef = firestore.collection('users').doc(userId);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) {
+            return res.status(404).json({
+                error: 'Usuário não encontrado'
+            });
+        }
+        
+        const userData = userDoc.data();
+        const lastCheckinDate = userData.lastCheckinDate || null;
+        
+        // Verificar se já fez check-in hoje
+        if (lastCheckinDate === today) {
+            return res.status(400).json({
+                error: 'Check-in já realizado hoje',
+                message: 'Você já fez check-in hoje. Volte amanhã!'
+            });
+        }
+        
+        // Calcular novo streak
+        let newStreak = 1;
+        if (lastCheckinDate) {
+            const lastDate = new Date(lastCheckinDate);
+            const todayDate = new Date(today);
+            const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) {
+                // Consecutivo - incrementa streak
+                newStreak = (userData.streak || 0) + 1;
+            } else {
+                // Mais de 1 dia - reseta streak
+                newStreak = 1;
+            }
+        }
+        
+        const currentPoints = userData.totalPoints || 0;
+        const newTotalPoints = currentPoints + CHECKIN_POINTS;
+        
+        // Usar batch para atualizar tudo de uma vez
+        const batch = firestore.batch();
+        
+        // Atualizar usuário
+        batch.update(userRef, {
+            totalPoints: newTotalPoints,
+            streak: newStreak,
+            lastCheckinDate: today,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Adicionar ao histórico de pontos
+        const historyRef = firestore
+            .collection('users')
+            .doc(userId)
+            .collection('pointsHistory')
+            .doc();
+        
+        batch.set(historyRef, {
+            points: CHECKIN_POINTS,
+            reason: `Check-in diário (${newStreak} dias seguidos)`,
+            action: `Check-in diário (${newStreak} dias seguidos)`,
+            type: 'checkin',
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Executar batch
+        await batch.commit();
+        
+        console.log(`✅ Check-in realizado! Streak: ${newStreak}, Pontos: ${newTotalPoints}`);
+        
+        res.json({
+            success: true,
+            message: 'Check-in realizado com sucesso!',
+            pointsEarned: CHECKIN_POINTS,
+            newStreak: newStreak,
+            newTotalPoints: newTotalPoints
+        });
+        
+    } catch (error) {
+        console.error('Erro ao fazer check-in:', error);
+        res.status(500).json({
+            error: 'Erro ao fazer check-in',
+            message: error.message
+        });
+    }
+});
+
+/**
  * GET /api/points/history
  * Obter histórico de pontos do usuário
  */
@@ -267,6 +367,7 @@ function getIconForType(type) {
         'streak_bonus': '🔥',
         'profile_complete': '👤',
         'reward_redeemed': '🛍️',
+        'checkin': '✅',
         'earned': '✨',
         'spent': '💸'
     };

@@ -216,6 +216,7 @@ function getIconForType(type) {
         'streak_bonus': '🔥',
         'profile_complete': '👤',
         'reward_redeemed': '🛍️',
+        'checkin': '✅',
         'earned': '✨',
         'spent': '💸'
     };

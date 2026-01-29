@@ -147,6 +147,60 @@
     font-size: 0.9rem;
 }
 
+.streak-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+    gap: 1rem;
+}
+
+.btn-checkin {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-checkin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.btn-checkin:active {
+    transform: scale(0.98);
+}
+
+.btn-checkin:disabled {
+    background: #C4B5FD;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-checkin i {
+    font-size: 1rem;
+}
+
+.checkin-status {
+    font-size: 0.8rem;
+    color: #6B21A8;
+    font-weight: 500;
+}
+
+.checkin-status.success {
+    color: #059669;
+}
+
 .streak-progress {
     display: flex;
     align-items: center;

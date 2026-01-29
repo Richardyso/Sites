@@ -82,35 +82,20 @@
                     </a>
                 </div>
                 
-                <!-- Streak do dia -->
+                <!-- Streak do dia com Check-in -->
                 <div class="hub-card streak-card">
                     <div class="streak-header">
                         <span class="streak-emoji" id="streakEmoji">🔥</span>
                         <span class="streak-count" id="streakCount">0</span>
                         <span class="streak-label">dias cuidando de você</span>
                     </div>
-                    <div class="streak-progress">
-                        <div class="streak-dots">
-                            <span class="streak-dot" id="dot1"></span>
-                            <span class="streak-dot" id="dot2"></span>
-                            <span class="streak-dot" id="dot3"></span>
-                            <span class="streak-dot" id="dot4"></span>
-                            <span class="streak-dot" id="dot5"></span>
-                        </div>
-                        <span class="streak-goal"><span id="missionsToday">0</span>/5 missões hoje</span>
+                    <div class="streak-actions">
+                        <button class="btn-checkin" id="checkinBtn" onclick="doCheckin()">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Check-in (+10 pts)</span>
+                        </button>
+                        <span class="checkin-status" id="checkinStatus"></span>
                     </div>
-                </div>
-                
-                <!-- CTA Recompensa -->
-                <div class="hub-card reward-cta-card" id="rewardCtaCard">
-                    <div class="hub-icon">🎁</div>
-                    <div class="hub-content">
-                        <span class="hub-label">Quase lá!</span>
-                        <strong id="rewardCtaText">Faltam 50 pontos para resgatar E-book de Skincare</strong>
-                    </div>
-                    <a href="recompensas.html" class="hub-action">
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
                 </div>
             </section>
 

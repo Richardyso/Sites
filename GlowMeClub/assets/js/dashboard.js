@@ -324,7 +324,6 @@ function updateActionHub(userData, missionsToday, streak) {
     // === STREAK ===
     const streakCount = document.getElementById('streakCount');
     const streakEmoji = document.getElementById('streakEmoji');
-    const missionsTodayEl = document.getElementById('missionsToday');
     
     if (streakCount) streakCount.textContent = streak;
     if (streakEmoji) {
@@ -334,19 +333,9 @@ function updateActionHub(userData, missionsToday, streak) {
         else if (streak < 7) streakEmoji.textContent = '💪';
         else streakEmoji.textContent = '⭐';
     }
-    if (missionsTodayEl) missionsTodayEl.textContent = missionsToday;
     
-    // Atualizar dots do streak
-    for (let i = 1; i <= 5; i++) {
-        const dot = document.getElementById(`dot${i}`);
-        if (dot) {
-            if (i <= missionsToday) {
-                dot.classList.add('completed');
-            } else {
-                dot.classList.remove('completed');
-            }
-        }
-    }
+    // === CHECK-IN ===
+    updateCheckinStatus(userData);
     
     // === RECOMENDAÇÃO ===
     const recommendationText = document.getElementById('recommendationText');
@@ -361,10 +350,152 @@ function updateActionHub(userData, missionsToday, streak) {
             if (link) link.href = recommendations.link;
         }
     }
-    
-    // === CTA RECOMPENSA ===
-    updateRewardCta(userData);
 }
+
+// Verificar e atualizar status do check-in
+function updateCheckinStatus(userData) {
+    const checkinBtn = document.getElementById('checkinBtn');
+    const checkinStatus = document.getElementById('checkinStatus');
+    
+    if (!checkinBtn) return;
+    
+    // Verificar se já fez check-in hoje
+    const today = new Date().toISOString().split('T')[0];
+    const lastCheckin = userData.lastCheckinDate || null;
+    const alreadyCheckedIn = lastCheckin === today;
+    
+    if (alreadyCheckedIn) {
+        checkinBtn.disabled = true;
+        checkinBtn.innerHTML = '<i class="fas fa-check"></i> <span>Feito hoje!</span>';
+        if (checkinStatus) {
+            checkinStatus.textContent = '✨ Volte amanhã!';
+            checkinStatus.classList.add('success');
+        }
+    } else {
+        checkinBtn.disabled = false;
+        checkinBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span>Check-in (+10 pts)</span>';
+        if (checkinStatus) {
+            checkinStatus.textContent = '';
+            checkinStatus.classList.remove('success');
+        }
+    }
+}
+
+// Função de Check-in
+async function doCheckin() {
+    const checkinBtn = document.getElementById('checkinBtn');
+    const checkinStatus = document.getElementById('checkinStatus');
+    const streakCount = document.getElementById('streakCount');
+    
+    if (!checkinBtn || checkinBtn.disabled) return;
+    
+    // Desabilitar botão durante a requisição
+    checkinBtn.disabled = true;
+    checkinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Fazendo check-in...</span>';
+    
+    try {
+        // Chamar API de check-in
+        const response = await window.api.post('/user/checkin');
+        
+        if (response.success) {
+            // Atualizar streak na tela
+            if (streakCount) {
+                streakCount.textContent = response.newStreak || (parseInt(streakCount.textContent) + 1);
+            }
+            
+            // Atualizar pontos na tela
+            const totalPointsEl = document.getElementById('totalPoints');
+            if (totalPointsEl && response.newTotalPoints !== undefined) {
+                totalPointsEl.textContent = response.newTotalPoints;
+            }
+            
+            // Atualizar botão
+            checkinBtn.innerHTML = '<i class="fas fa-check"></i> <span>Feito hoje!</span>';
+            if (checkinStatus) {
+                checkinStatus.textContent = '✨ +10 pontos!';
+                checkinStatus.classList.add('success');
+            }
+            
+            // Atualizar cache local
+            if (currentUser) {
+                currentUser.streak = response.newStreak || (currentUser.streak || 0) + 1;
+                currentUser.totalPoints = response.newTotalPoints || currentUser.totalPoints;
+                currentUser.lastCheckinDate = new Date().toISOString().split('T')[0];
+                localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+            }
+            
+            // Animação de celebração
+            showCheckinCelebration();
+        }
+    } catch (error) {
+        logger.error('Erro ao fazer check-in:', error);
+        
+        // Reativar botão em caso de erro
+        checkinBtn.disabled = false;
+        checkinBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span>Check-in (+10 pts)</span>';
+        
+        if (checkinStatus) {
+            checkinStatus.textContent = 'Erro, tente novamente';
+            checkinStatus.classList.remove('success');
+        }
+    }
+}
+
+// Animação de celebração do check-in
+function showCheckinCelebration() {
+    // Criar confetes simples
+    const colors = ['#8B5CF6', '#EC4899', '#F59E0B', '#10B981'];
+    
+    for (let i = 0; i < 20; i++) {
+        const confetti = document.createElement('div');
+        confetti.style.cssText = `
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            animation: confetti-fall 1s ease-out forwards;
+        `;
+        
+        const angle = (Math.random() * 360) * (Math.PI / 180);
+        const velocity = 100 + Math.random() * 100;
+        const x = Math.cos(angle) * velocity;
+        const y = Math.sin(angle) * velocity;
+        
+        confetti.style.setProperty('--x', `${x}px`);
+        confetti.style.setProperty('--y', `${y}px`);
+        
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => confetti.remove(), 1000);
+    }
+    
+    // Adicionar animação CSS se não existir
+    if (!document.getElementById('confetti-style')) {
+        const style = document.createElement('style');
+        style.id = 'confetti-style';
+        style.textContent = `
+            @keyframes confetti-fall {
+                0% {
+                    transform: translate(0, 0) scale(1);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translate(var(--x), var(--y)) scale(0);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// Expor função globalmente
+window.doCheckin = doCheckin;
 
 // Gerar recomendação personalizada
 function getRecommendation(missionsToday, streak, userData) {
@@ -408,43 +539,6 @@ function getRecommendation(missionsToday, streak, userData) {
         text: `Mais ${5 - missionsToday} missões para completar o dia!`,
         link: 'missoes.html'
     };
-}
-
-// Atualizar CTA de recompensa
-function updateRewardCta(userData) {
-    const rewardCtaCard = document.getElementById('rewardCtaCard');
-    const rewardCtaText = document.getElementById('rewardCtaText');
-    
-    if (!rewardCtaCard || !rewardCtaText) return;
-    
-    const userPoints = userData.totalPoints || 0;
-    
-    // Recompensas disponíveis com seus custos
-    const rewards = [
-        { title: 'Badge Exclusiva', cost: 200 },
-        { title: 'E-book de Skincare', cost: 300 },
-        { title: 'Aula de Autocuidado', cost: 500 },
-        { title: 'Sessão de Mentoria', cost: 1000 }
-    ];
-    
-    // Encontrar a próxima recompensa mais próxima que o usuário AINDA não pode comprar
-    let nextReward = null;
-    for (const reward of rewards) {
-        if (userPoints < reward.cost) {
-            nextReward = reward;
-            break;
-        }
-    }
-    
-    if (nextReward) {
-        const pointsNeeded = nextReward.cost - userPoints;
-        rewardCtaText.textContent = `Faltam ${pointsNeeded} pontos para resgatar ${nextReward.title}`;
-        rewardCtaCard.classList.remove('hidden');
-    } else {
-        // Usuário pode comprar todas as recompensas!
-        rewardCtaText.textContent = 'Você pode resgatar qualquer recompensa! 🎁';
-        rewardCtaCard.classList.remove('hidden');
-    }
 }
 
 // Carregar ranking (dados reais do servidor)
