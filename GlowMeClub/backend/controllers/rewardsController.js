@@ -113,13 +113,35 @@ exports.redeemReward = async (req, res) => {
         const userData = userDoc.data();
         const currentPoints = userData.totalPoints || 0;
         
+        // Usar points OU pointsCost (compatibilidade com recompensas antigas e novas)
+        const rewardCost = reward.points || reward.pointsCost || 0;
+        
+        // Validar que o custo é um número válido
+        if (!rewardCost || isNaN(rewardCost) || rewardCost <= 0) {
+            console.error('Custo da recompensa inválido:', rewardCost, reward);
+            return res.status(400).json({
+                error: 'Recompensa com custo inválido'
+            });
+        }
+        
         // Verificar se tem pontos suficientes
-        if (currentPoints < reward.pointsCost) {
+        if (currentPoints < rewardCost) {
             return res.status(400).json({
                 error: 'Pontos insuficientes',
-                message: `Você precisa de ${reward.pointsCost - currentPoints} pontos a mais`,
+                message: `Você precisa de ${rewardCost - currentPoints} pontos a mais`,
                 currentPoints,
-                required: reward.pointsCost
+                required: rewardCost
+            });
+        }
+        
+        // Calcular novos pontos
+        const newTotalPoints = currentPoints - rewardCost;
+        
+        // Validar que o resultado é um número válido
+        if (isNaN(newTotalPoints) || newTotalPoints < 0) {
+            console.error('Erro no cálculo de pontos:', { currentPoints, rewardCost, newTotalPoints });
+            return res.status(500).json({
+                error: 'Erro ao calcular pontos'
             });
         }
         
@@ -128,7 +150,7 @@ exports.redeemReward = async (req, res) => {
         
         // Descontar pontos
         batch.update(userRef, {
-            totalPoints: currentPoints - reward.pointsCost
+            totalPoints: newTotalPoints
         });
         
         // Adicionar recompensa resgatada
@@ -141,7 +163,7 @@ exports.redeemReward = async (req, res) => {
         batch.set(userRewardRef, {
             rewardId: reward.id,
             rewardTitle: reward.title,
-            pointsCost: reward.pointsCost,
+            pointsCost: rewardCost,
             redeemedAt: serverTimestamp(),
             status: 'pending',
             instructions: reward.instructions || null
@@ -157,13 +179,15 @@ exports.redeemReward = async (req, res) => {
         batch.set(historyRef, {
             reason: `Recompensa resgatada: ${reward.title}`,
             action: `Recompensa resgatada: ${reward.title}`,
-            points: -reward.pointsCost,
+            points: -rewardCost,
             type: 'reward_redeemed',
             createdAt: serverTimestamp()
         });
         
         // Executar transação
         await batch.commit();
+        
+        console.log(`✅ Recompensa resgatada: ${reward.title} por ${rewardCost} pts. Usuário ${userId} agora tem ${newTotalPoints} pts`);
         
         // Enviar email com instruções
         if (userData.email) {
@@ -181,9 +205,9 @@ exports.redeemReward = async (req, res) => {
             reward: {
                 id: reward.id,
                 title: reward.title,
-                pointsCost: reward.pointsCost
+                pointsCost: rewardCost
             },
-            newTotalPoints: currentPoints - reward.pointsCost,
+            newTotalPoints: newTotalPoints,
             userRewardId: userRewardRef.id
         });
         
