@@ -532,9 +532,9 @@ async function sendPasswordChangedEmail(userEmail, userName) {
 /**
  * Enviar email de recompensa resgatada
  */
-async function sendRewardEmail(userEmail, userName, rewardTitle, rewardInstructions) {
+async function sendRewardEmail(userEmail, userName, rewardData) {
     emailLog('info', '=== ENVIANDO EMAIL DE RECOMPENSA ===');
-    emailLog('debug', 'Recompensa:', rewardTitle);
+    emailLog('debug', 'Recompensa:', rewardData.title);
     
     try {
         await initTransporter();
@@ -545,6 +545,11 @@ async function sendRewardEmail(userEmail, userName, rewardTitle, rewardInstructi
         }
         
         const firstName = userName ? userName.split(' ')[0] : 'Maravilhosa';
+        const { title, description, link, instructions } = rewardData;
+        
+        // URL do botão - usar link da recompensa se existir
+        const buttonUrl = link || `${process.env.FRONTEND_URL || 'http://localhost:3000'}/pages/recompensas.html`;
+        const buttonText = link ? '🎁 Acesse sua recompensa' : '🎁 Ver minhas recompensas';
         
         const content = `
             <div class="header">
@@ -557,24 +562,23 @@ async function sendRewardEmail(userEmail, userName, rewardTitle, rewardInstructi
                 <p>Você acabou de resgatar uma recompensa incrível! Tô muito feliz por você!</p>
                 
                 <div class="code-box" style="background: linear-gradient(135deg, #10B981, #059669);">
-                    <div style="font-size: 18px; font-weight: 600;">🎁 ${rewardTitle}</div>
+                    <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">🎁 ${title}</div>
+                    ${description ? `<div style="font-size: 14px; opacity: 0.9; font-weight: 400;">${description}</div>` : ''}
                 </div>
                 
-                ${rewardInstructions ? `
+                ${instructions ? `
                 <div class="highlight-box">
                     <strong>📋 Como acessar sua recompensa:</strong><br><br>
-                    ${rewardInstructions}
+                    ${instructions}
                 </div>
-                ` : `
-                <p>Em breve você receberá mais informações sobre como aproveitar sua recompensa!</p>
-                `}
+                ` : ''}
                 
                 <p>Continue completando missões e metas para ganhar mais pontos e 
                 desbloquear recompensas ainda mais incríveis!</p>
                 
                 <center>
-                    <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/pages/recompensas.html" class="button">
-                        🎁 Ver mais recompensas
+                    <a href="${buttonUrl}" class="button">
+                        ${buttonText}
                     </a>
                 </center>
                 
@@ -588,7 +592,7 @@ async function sendRewardEmail(userEmail, userName, rewardTitle, rewardInstructi
         const mailOptions = {
             from: `"GlowMeClub" <${process.env.SMTP_USER}>`,
             to: userEmail,
-            subject: `🎁 ${rewardTitle} - Sua recompensa chegou!`,
+            subject: `🎁 ${title} - Sua recompensa chegou!`,
             html: emailTemplate(content)
         };
         

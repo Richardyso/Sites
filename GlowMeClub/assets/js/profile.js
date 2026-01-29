@@ -201,6 +201,11 @@ function selectColor(color, colorName) {
     if (!selectedImageBase64 && !currentUser?.profileImage) {
         document.getElementById('profileAvatar').style.background = color;
     }
+    
+    // Atualizar tema em tempo real
+    if (window.GlowTheme && window.GlowTheme.apply) {
+        window.GlowTheme.apply(color);
+    }
 }
 
 function openColorPickerModal() {

@@ -194,8 +194,12 @@ exports.redeemReward = async (req, res) => {
             sendRewardEmail(
                 userData.email,
                 userData.name,
-                reward.title,
-                reward.instructions
+                {
+                    title: reward.title,
+                    description: reward.description || '',
+                    link: reward.link || '',
+                    instructions: reward.instructions || ''
+                }
             ).catch(err => console.error('Erro ao enviar email de recompensa:', err));
         }
         
