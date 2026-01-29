@@ -4,8 +4,8 @@
 (function() {
     'use strict';
     
-    // Usar logger global ou criar um local
-    const log = window.logger || {
+    // Logger local com todas as funções necessárias
+    const log = {
         info: (msg, data) => console.log(`ℹ️ ${msg}`, data || ''),
         error: (msg, error) => console.error(`❌ ${msg}`, error || ''),
         warn: (msg, data) => console.warn(`⚠️ ${msg}`, data || ''),
@@ -292,21 +292,21 @@
         
         // Campos do formulário
         document.getElementById('editUserId').value = user.uid;
-        document.getElementById('editName').value = user.name || '';
-        document.getElementById('editEmail').value = user.email || '';
         document.getElementById('editPoints').value = user.totalPoints || 0;
         
         // ===== NOVO: Profile Header =====
         const userAvatar = document.getElementById('editUserAvatar');
         const userInitial = document.getElementById('editUserInitial');
         const displayName = document.getElementById('editUserDisplayName');
+        const emailDisplay = document.getElementById('editUserEmailDisplay');
         const userLevel = document.getElementById('editUserLevel');
         
         // Nome e inicial
         const firstName = (user.name || 'Usuária').split(' ')[0];
         const initial = (user.name || 'U').charAt(0).toUpperCase();
         
-        if (displayName) displayName.textContent = firstName;
+        if (displayName) displayName.textContent = user.name || 'Usuária';
+        if (emailDisplay) emailDisplay.textContent = user.email || '';
         if (userInitial) userInitial.textContent = initial;
         
         // Avatar com imagem ou cor de fundo
@@ -438,6 +438,7 @@
             const isCompleted = goal.completed;
             const statusClass = isCompleted ? 'completed' : 'active';
             const statusText = isCompleted ? 'Concluída' : 'Em andamento';
+            const description = goal.description ? `<div class="goal-item-description">${goal.description}</div>` : '';
             
             return `
                 <div class="goal-item ${isCompleted ? 'completed' : ''}">
@@ -447,6 +448,7 @@
                     <div class="goal-item-info">
                         <div class="goal-item-title">${goal.title}</div>
                         <div class="goal-item-category">${goal.category || 'Geral'}</div>
+                        ${description}
                     </div>
                     <div class="goal-item-status ${statusClass}">
                         ${statusText}
@@ -806,12 +808,6 @@
         const rewardForm = document.getElementById('rewardForm');
         if (rewardForm) {
             rewardForm.onsubmit = saveReward;
-        }
-        
-        // Formulário de usuário
-        const editUserForm = document.getElementById('editUserForm');
-        if (editUserForm) {
-            editUserForm.onsubmit = saveUserEdit;
         }
         
         // Botão conceder pontos

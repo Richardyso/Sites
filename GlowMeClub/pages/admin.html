@@ -111,10 +111,10 @@
     <div class="modal" id="editUserModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Editar Usuária</h3>
+                <h3 class="modal-title">Perfil da Usuária</h3>
                 <button class="modal-close" id="closeEditModal">&times;</button>
             </div>
-            <form id="editUserForm">
+            <div id="editUserForm">
                 <input type="hidden" id="editUserId">
                 <div class="modal-body">
                     <!-- User Profile Header -->
@@ -124,6 +124,7 @@
                         </div>
                         <div class="user-profile-info">
                             <span class="user-profile-name" id="editUserDisplayName">Usuária</span>
+                            <span class="user-profile-email" id="editUserEmailDisplay">email@exemplo.com</span>
                             <span class="user-profile-level" id="editUserLevel">Nível 1</span>
                         </div>
                     </div>
@@ -157,18 +158,6 @@
                                 <span class="info-card-value" id="editUserFocusArea">Não definida</span>
                             </div>
                         </div>
-                    </div>
-                    
-                    <hr class="modal-divider">
-                    
-                    <div class="form-group">
-                        <label class="form-label">Nome</label>
-                        <input type="text" class="form-input" id="editName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-input" id="editEmail" required>
                     </div>
                     
                     <input type="hidden" id="editPoints">
@@ -231,10 +220,11 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancelEditUser">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEditUser">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
     

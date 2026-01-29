@@ -803,6 +803,11 @@
     color: var(--admin-gray-900);
 }
 
+.user-profile-email {
+    font-size: 0.875rem;
+    color: var(--admin-gray-500);
+}
+
 .user-profile-level {
     font-size: 0.9rem;
     color: var(--admin-gray-600);
@@ -1067,7 +1072,7 @@
 
 .goal-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.75rem;
     padding: 0.75rem;
     background: white;
@@ -1113,6 +1118,18 @@
 .goal-item-category {
     font-size: 0.75rem;
     color: var(--admin-gray-500);
+}
+
+.goal-item-description {
+    font-size: 0.75rem;
+    color: var(--admin-gray-600);
+    margin-top: 0.25rem;
+    font-style: italic;
+    line-height: 1.4;
+    background: var(--admin-gray-100);
+    padding: 0.375rem 0.5rem;
+    border-radius: 4px;
+    border-left: 2px solid var(--admin-primary);
 }
 
 .goal-item-status {
