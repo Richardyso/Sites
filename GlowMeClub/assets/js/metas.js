@@ -148,17 +148,20 @@ async function handleCreateGoal(e) {
     const saveBtn = form.querySelector('[type="submit"]');
     const originalText = saveBtn.innerHTML;
     
+    // Pegar categoria do select
+    const categorySelect = form.goalCategory || form.querySelector('#goalCategory');
+    const category = categorySelect ? categorySelect.value : 'Mental';
+    
+    // Validar categoria
+    if (!category) {
+        showError('Por favor, selecione uma área de foco');
+        return;
+    }
+    
     const newGoal = {
-        id: Date.now().toString(),
         title: form.goalTitle.value.trim(),
-        description: form.goalDescription.value.trim(),
-        category: 'geral', // Categoria padrão
-        target: parseInt(form.goalTarget.value) || 1, // Horas por dia
-        current: 0,
-        deadline: form.goalDeadline.value,
-        points: 50, // Sempre 50 pontos ao completar
-        completed: false,
-        createdAt: new Date().toISOString()
+        category: category,
+        deadline: form.goalDeadline.value
     };
     
     // Mostrar loading

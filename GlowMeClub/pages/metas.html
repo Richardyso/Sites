@@ -138,39 +138,28 @@
                         >
                     </div>
 
-                    <!-- Descrição -->
+                    <!-- Categoria -->
                     <div class="form-group">
-                        <label for="goalDescription" class="form-label">Descrição (opcional)</label>
-                        <textarea 
-                            id="goalDescription"
-                            class="form-textarea"
-                            placeholder="Detalhes sobre sua meta..."
-                            rows="3"
-                        ></textarea>
-                    </div>
-
-                    <!-- Meta -->
-                    <div class="form-group">
-                        <label for="goalTarget" class="form-label">Quanto tempo em horas vou me dedicar por dia</label>
-                        <input 
-                            type="number" 
-                            id="goalTarget" 
-                            class="form-input"
-                            placeholder="Ex: 2"
-                            min="1"
-                            required
-                        >
+                        <label for="goalCategory" class="form-label">Área de foco</label>
+                        <select id="goalCategory" class="form-input" required>
+                            <option value="">Selecione uma área</option>
+                            <option value="Mental">🧠 Mental</option>
+                            <option value="Físico">💪 Físico</option>
+                            <option value="Emocional">💜 Emocional</option>
+                            <option value="Espiritual">✨ Espiritual</option>
+                            <option value="Financeiro">💰 Financeiro</option>
+                            <option value="Aparência">💅 Aparência</option>
+                        </select>
                     </div>
 
                     <!-- Prazo -->
                     <div class="form-group">
-                        <label for="goalDeadline" class="form-label">Prazo</label>
+                        <label for="goalDeadline" class="form-label">Prazo (opcional)</label>
                         <p class="form-hint">Quando você pretende terminar</p>
                         <input 
                             type="date" 
                             id="goalDeadline" 
                             class="form-input"
-                            required
                         >
                     </div>
                 </div>
@@ -201,12 +190,26 @@
             if (goal.completed) {
                 card.classList.add('completed');
             }
+            
+            // Ícones por categoria
+            const categoryIcons = {
+                'Mental': '🧠',
+                'Físico': '💪',
+                'Emocional': '💜',
+                'Espiritual': '✨',
+                'Financeiro': '💰',
+                'Aparência': '💅'
+            };
+            const categoryIcon = categoryIcons[goal.category] || '🎯';
 
             card.innerHTML = `
                 <div class="goal-header">
                     <div class="goal-info">
+                        <div class="goal-category-badge">
+                            <span class="category-icon">${categoryIcon}</span>
+                            <span class="category-name">${goal.category || 'Geral'}</span>
+                        </div>
                         <h3>${goal.title}</h3>
-                        ${goal.description ? `<p class="goal-description">${goal.description}</p>` : ''}
                     </div>
                     <div class="goal-actions">
                         <button class="goal-action" data-action="delete" data-id="${goal.id}" title="Excluir">
@@ -216,10 +219,6 @@
                 </div>
                 
                 <div class="goal-details">
-                    <div class="goal-detail">
-                        <i class="fas fa-clock"></i>
-                        <span>${goal.target}h por dia</span>
-                    </div>
                     <div class="goal-detail">
                         <i class="fas fa-calendar"></i>
                         <span>Prazo: ${formatDate(goal.deadline)}</span>
