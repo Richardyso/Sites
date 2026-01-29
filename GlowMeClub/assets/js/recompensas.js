@@ -19,6 +19,9 @@ let availableRewards = [];
 let userPoints = 0;
 let currentCategory = 'all';
 
+// Expor globalmente para o script inline poder acessar
+window.availableRewards = availableRewards;
+
 // Carregar recompensas
 async function loadRewards() {
     const token = window.api.getToken();
@@ -114,6 +117,9 @@ async function loadRewardsFromBackend() {
         // Filtrar apenas recompensas disponíveis
         availableRewards = (data.rewards || []).filter(r => r.available !== false);
         
+        // Atualizar referência global para o script inline poder acessar
+        window.availableRewards = availableRewards;
+        
         if (availableRewards.length === 0) {
             log.info('Nenhuma recompensa disponível');
         } else {
@@ -124,6 +130,7 @@ async function loadRewardsFromBackend() {
     } catch (error) {
         log.error('Erro ao carregar recompensas:', error);
         availableRewards = [];
+        window.availableRewards = availableRewards;
         displayRewards();
     }
 }
@@ -216,83 +223,8 @@ window.filterCategory = function(category) {
     displayRewards();
 }
 
-// Resgatar recompensa - atualizar função confirmRedeem
-window.confirmRedeem = async function() {
-    if (!currentRewardId) return;
-    
-    const reward = availableRewards.find(r => r.id === currentRewardId);
-    if (!reward) {
-        // Se não encontrou nas recompensas carregadas, usar os dados do modal
-        const rewardName = document.getElementById('modalRewardName').textContent;
-        const rewardCost = currentRewardCost;
-        
-        if (userPoints < rewardCost) {
-            showError('Pontos insuficientes!');
-            return;
-        }
-        
-        try {
-            await window.api.post(`/rewards/${currentRewardId}/redeem`);
-            
-            // Atualizar pontos localmente
-            userPoints -= rewardCost;
-            if (currentUser) {
-                currentUser.totalPoints = userPoints;
-                localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
-            }
-            
-            updatePointsDisplay();
-            closeRedeemModal();
-            
-            setTimeout(() => {
-                document.getElementById('successModal').classList.add('active');
-            }, 300);
-            
-        } catch (error) {
-            log.error('Erro ao resgatar:', error);
-            if (window.api && window.api.isNetworkError && window.api.isNetworkError(error)) {
-                showError('Não foi possível resgatar no modo offline');
-            } else {
-                showError(error.message || 'Erro ao resgatar recompensa');
-            }
-        }
-        return;
-    }
-    
-    const points = reward.points || reward.pointsCost || 0;
-    
-    if (userPoints < points) {
-        showError('Pontos insuficientes!');
-        return;
-    }
-    
-    try {
-        await window.api.post(`/rewards/${currentRewardId}/redeem`);
-        
-        // Atualizar pontos localmente
-        userPoints -= points;
-        if (currentUser) {
-            currentUser.totalPoints = userPoints;
-            localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
-        }
-        
-        updatePointsDisplay();
-        displayRewards();
-        closeRedeemModal();
-        
-        setTimeout(() => {
-            document.getElementById('successModal').classList.add('active');
-        }, 300);
-        
-    } catch (error) {
-        log.error('Erro ao resgatar:', error);
-        if (window.api && window.api.isNetworkError && window.api.isNetworkError(error)) {
-            showError('Não foi possível resgatar no modo offline');
-        } else {
-            showError(error.message || 'Erro ao resgatar recompensa');
-        }
-    }
-}
+// Nota: A função confirmRedeem está definida no script inline do HTML
+// para ter acesso direto às variáveis do modal
 
 // Mostrar mensagens
 function showSuccess(message) {

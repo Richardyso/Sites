@@ -876,11 +876,25 @@
             <div class="modal-body">
                 <p style="font-size: 1.1rem; margin-bottom: var(--spacing-md);">Parabéns! 🎉</p>
                 <p>Sua recompensa foi resgatada com sucesso.</p>
-                <p>Você receberá um e-mail com todas as instruções.</p>
+                <p id="successRewardName" style="font-weight: 600; color: var(--cor-roxo-medio); margin: var(--spacing-md) 0;"></p>
+                
+                <!-- Link da recompensa -->
+                <div id="rewardLinkContainer" style="display: none; margin-top: var(--spacing-md); padding: var(--spacing-md); background: var(--cor-lilas-suave); border-radius: var(--radius-md);">
+                    <p style="margin-bottom: var(--spacing-sm); font-weight: 500;">
+                        <i class="fas fa-link"></i> Acesse sua recompensa:
+                    </p>
+                    <a id="rewardLink" href="#" target="_blank" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-external-link-alt"></i> Acessar Recompensa
+                    </a>
+                </div>
+                
+                <p id="noLinkMessage" style="margin-top: var(--spacing-md); color: var(--cor-texto-medio); font-size: 0.9rem;">
+                    Você também receberá um e-mail com todas as instruções.
+                </p>
             </div>
             
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="closeSuccessModal()">
+                <button type="button" class="btn btn-secondary" onclick="closeSuccessModal()">
                     Fechar
                 </button>
             </div>
@@ -896,66 +910,55 @@
     <script>
         // Toggle dropdown menu
         function toggleDropdown() {
-            document.querySelector('.user-menu').classList.toggle('active');
+            const userMenu = document.querySelector('.user-menu');
+            if (userMenu) userMenu.classList.toggle('active');
         }
         
         // Fechar dropdown ao clicar fora
         document.addEventListener('click', function(e) {
-            if (!e.target.closest('.user-menu')) {
-                document.querySelector('.user-menu').classList.remove('active');
+            const userMenu = document.querySelector('.user-menu');
+            if (userMenu && !e.target.closest('.user-menu')) {
+                userMenu.classList.remove('active');
             }
         });
         
         // Mobile menu
         function openMobileMenu() {
-            document.getElementById('mobileMenuModal').classList.add('active');
+            const modal = document.getElementById('mobileMenuModal');
+            if (modal) modal.classList.add('active');
         }
         
         function closeMobileMenu() {
-            document.getElementById('mobileMenuModal').classList.remove('active');
-        }
-        
-        // Filter categories
-        function filterCategory(category) {
-            // Update active tab
-            document.querySelectorAll('.category-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Filter cards
-            const cards = document.querySelectorAll('.reward-card');
-            cards.forEach(card => {
-                if (category === 'all' || card.dataset.category === category) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+            const modal = document.getElementById('mobileMenuModal');
+            if (modal) modal.classList.remove('active');
         }
         
         // Redeem modal
         let currentRewardId = null;
         let currentRewardCost = 0;
+        let currentRewardLink = null;
+        let currentRewardName = null;
         
         function openRedeemModal(rewardId, rewardName, cost) {
             currentRewardId = rewardId;
             currentRewardCost = cost;
+            currentRewardName = rewardName;
             
             document.getElementById('modalRewardName').textContent = rewardName;
-            document.getElementById('modalRewardCost').textContent = cost;
+            document.getElementById('modalRewardCost').textContent = cost.toLocaleString('pt-BR');
             
             // Verificar se tem pontos suficientes
-            const userPoints = parseInt(document.getElementById('userPoints').textContent);
+            const userPointsText = document.getElementById('userPoints').textContent.replace(/\./g, '');
+            const userPoints = parseInt(userPointsText) || 0;
             const confirmBtn = document.getElementById('confirmRedeemBtn');
             
             if (userPoints < cost) {
                 document.getElementById('modalMessage').innerHTML = 
-                    `<span style="color: #DC2626;">Você precisa de mais ${cost - userPoints} pontos para resgatar esta recompensa.</span>`;
+                    `<span style="color: #DC2626;">Você precisa de mais ${(cost - userPoints).toLocaleString('pt-BR')} pontos para resgatar esta recompensa.</span>`;
                 confirmBtn.disabled = true;
             } else {
                 document.getElementById('modalMessage').textContent = 
-                    'Após o resgate, você receberá as instruções por e-mail.';
+                    'Após o resgate, você terá acesso à sua recompensa.';
                 confirmBtn.disabled = false;
             }
             
@@ -964,24 +967,89 @@
         
         function closeRedeemModal() {
             document.getElementById('redeemModal').classList.remove('active');
-            currentRewardId = null;
-            currentRewardCost = 0;
         }
         
-        function confirmRedeem() {
-            // Esta função será implementada em rewards.js
-            console.log('Resgatando recompensa:', currentRewardId, 'Custo:', currentRewardCost);
+        // Função principal de resgate - chama a API
+        async function confirmRedeem() {
+            if (!currentRewardId) return;
             
-            // Por enquanto, vamos simular o sucesso
-            closeRedeemModal();
-            setTimeout(() => {
-                document.getElementById('successModal').classList.add('active');
-            }, 300);
+            const confirmBtn = document.getElementById('confirmRedeemBtn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resgatando...';
+            
+            try {
+                // Chamar API para resgatar
+                const response = await window.api.post(`/rewards/${currentRewardId}/redeem`);
+                
+                console.log('Resposta do resgate:', response);
+                
+                // Atualizar pontos na tela
+                if (response.newTotalPoints !== undefined) {
+                    document.getElementById('userPoints').textContent = response.newTotalPoints.toLocaleString('pt-BR');
+                    
+                    // Atualizar cache local
+                    const cachedData = localStorage.getItem('cachedUserData');
+                    if (cachedData) {
+                        const userData = JSON.parse(cachedData);
+                        userData.totalPoints = response.newTotalPoints;
+                        localStorage.setItem('cachedUserData', JSON.stringify(userData));
+                    }
+                } else {
+                    // Se a API não retornou os novos pontos, calcular localmente
+                    const userPointsText = document.getElementById('userPoints').textContent.replace(/\./g, '');
+                    const currentPoints = parseInt(userPointsText) || 0;
+                    const newPoints = currentPoints - currentRewardCost;
+                    document.getElementById('userPoints').textContent = newPoints.toLocaleString('pt-BR');
+                }
+                
+                // Buscar link da recompensa
+                let rewardLink = null;
+                if (window.availableRewards) {
+                    const reward = window.availableRewards.find(r => r.id === currentRewardId);
+                    if (reward) rewardLink = reward.link;
+                }
+                
+                // Fechar modal de confirmação
+                closeRedeemModal();
+                
+                // Configurar modal de sucesso
+                const successRewardName = document.getElementById('successRewardName');
+                const rewardLinkContainer = document.getElementById('rewardLinkContainer');
+                const rewardLinkEl = document.getElementById('rewardLink');
+                const noLinkMessage = document.getElementById('noLinkMessage');
+                
+                if (successRewardName) {
+                    successRewardName.textContent = currentRewardName;
+                }
+                
+                if (rewardLink && rewardLinkEl && rewardLinkContainer) {
+                    rewardLinkEl.href = rewardLink;
+                    rewardLinkContainer.style.display = 'block';
+                    if (noLinkMessage) noLinkMessage.style.display = 'none';
+                } else {
+                    if (rewardLinkContainer) rewardLinkContainer.style.display = 'none';
+                    if (noLinkMessage) noLinkMessage.style.display = 'block';
+                }
+                
+                // Mostrar modal de sucesso
+                setTimeout(() => {
+                    document.getElementById('successModal').classList.add('active');
+                }, 300);
+                
+            } catch (error) {
+                console.error('Erro ao resgatar:', error);
+                alert(error.message || 'Erro ao resgatar recompensa. Tente novamente.');
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'Confirmar Resgate';
+            }
         }
         
         function closeSuccessModal() {
             document.getElementById('successModal').classList.remove('active');
-            // Atualizar pontos e recarregar página
+            currentRewardId = null;
+            currentRewardCost = 0;
+            currentRewardName = null;
+            // Recarregar para atualizar a lista
             location.reload();
         }
         
