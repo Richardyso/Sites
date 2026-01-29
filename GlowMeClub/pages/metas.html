@@ -152,6 +152,17 @@
                         </select>
                     </div>
 
+                    <!-- Descrição -->
+                    <div class="form-group">
+                        <label for="goalDescription" class="form-label">Observações (opcional)</label>
+                        <textarea 
+                            id="goalDescription"
+                            class="form-textarea"
+                            placeholder="Detalhes sobre sua meta, como você pretende alcançá-la..."
+                            rows="3"
+                        ></textarea>
+                    </div>
+
                     <!-- Prazo -->
                     <div class="form-group">
                         <label for="goalDeadline" class="form-label">Prazo (opcional)</label>
@@ -202,6 +213,9 @@
             };
             const categoryIcon = categoryIcons[goal.category] || '🎯';
 
+            // Formatar prazo
+            const deadlineText = formatDate(goal.deadline);
+
             card.innerHTML = `
                 <div class="goal-header">
                     <div class="goal-info">
@@ -210,6 +224,7 @@
                             <span class="category-name">${goal.category || 'Geral'}</span>
                         </div>
                         <h3>${goal.title}</h3>
+                        ${goal.description ? `<p class="goal-description">${goal.description}</p>` : ''}
                     </div>
                     <div class="goal-actions">
                         <button class="goal-action" data-action="delete" data-id="${goal.id}" title="Excluir">
@@ -218,12 +233,14 @@
                     </div>
                 </div>
                 
+                ${deadlineText ? `
                 <div class="goal-details">
                     <div class="goal-detail">
                         <i class="fas fa-calendar"></i>
-                        <span>Prazo: ${formatDate(goal.deadline)}</span>
+                        <span>Prazo: ${deadlineText}</span>
                     </div>
                 </div>
+                ` : ''}
                 
                 ${goal.completed ? `
                     <div class="goal-completed-badge">
@@ -241,9 +258,15 @@
             return card;
         }
 
-        // Formatar data
+        // Formatar data - retorna vazio se data inválida
         function formatDate(dateString) {
+            if (!dateString) return '';
+            
             const date = new Date(dateString);
+            
+            // Verificar se é uma data válida
+            if (isNaN(date.getTime())) return '';
+            
             const options = { day: '2-digit', month: 'short', year: 'numeric' };
             return date.toLocaleDateString('pt-BR', options);
         }

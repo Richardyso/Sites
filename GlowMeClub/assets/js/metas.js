@@ -158,10 +158,15 @@ async function handleCreateGoal(e) {
         return;
     }
     
+    // Pegar descrição
+    const descriptionField = form.goalDescription || form.querySelector('#goalDescription');
+    const description = descriptionField ? descriptionField.value.trim() : '';
+    
     const newGoal = {
         title: form.goalTitle.value.trim(),
         category: category,
-        deadline: form.goalDeadline.value
+        deadline: form.goalDeadline.value || null,
+        description: description || null
     };
     
     // Mostrar loading
@@ -234,7 +239,7 @@ window.toggleGoal = async function(goalId) {
     
     // Sincronizar com o servidor
     try {
-        const response = await window.api.put(`/goals/${goalId}/complete`);
+        const response = await window.api.post(`/goals/${goalId}/complete`);
         
         if (response.success) {
             logger.info('✅ Meta sincronizada com o servidor');

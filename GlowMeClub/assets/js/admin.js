@@ -357,8 +357,103 @@
         
         document.getElementById('editUserModal').classList.add('active');
         
+        // Carregar metas do usuário
+        loadUserGoals(userId);
+        
         // Carregar histórico do usuário
         loadUserHistory(userId);
+    }
+    
+    // ===== METAS DO USUÁRIO =====
+    
+    async function loadUserGoals(userId) {
+        const goalsList = document.getElementById('userGoalsList');
+        const goalsEmpty = document.getElementById('userGoalsEmpty');
+        
+        if (!goalsList) return;
+        
+        // Mostrar loading
+        goalsList.innerHTML = `
+            <div class="goals-loading">
+                <i class="fas fa-spinner fa-spin"></i> Carregando metas...
+            </div>
+        `;
+        if (goalsEmpty) goalsEmpty.style.display = 'none';
+        
+        try {
+            // Buscar metas do usuário via API
+            const data = await window.api.get(`/admin/users/${userId}/goals`);
+            const goals = data.goals || [];
+            
+            log.info(`${goals.length} metas encontradas`);
+            
+            // Exibir metas
+            displayUserGoals(goals);
+            
+        } catch (error) {
+            log.error('Erro ao carregar metas:', error);
+            goalsList.innerHTML = '';
+            if (goalsEmpty) {
+                goalsEmpty.innerHTML = `
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Erro ao carregar metas</p>
+                `;
+                goalsEmpty.style.display = 'block';
+            }
+        }
+    }
+    
+    function displayUserGoals(goals) {
+        const goalsList = document.getElementById('userGoalsList');
+        const goalsEmpty = document.getElementById('userGoalsEmpty');
+        
+        if (!goalsList) return;
+        
+        if (goals.length === 0) {
+            goalsList.innerHTML = '';
+            if (goalsEmpty) {
+                goalsEmpty.innerHTML = `
+                    <i class="fas fa-bullseye"></i>
+                    <p>Nenhuma meta criada</p>
+                `;
+                goalsEmpty.style.display = 'block';
+            }
+            return;
+        }
+        
+        if (goalsEmpty) goalsEmpty.style.display = 'none';
+        
+        // Ícones por categoria
+        const categoryIcons = {
+            'Mental': '🧠',
+            'Físico': '💪',
+            'Emocional': '💜',
+            'Espiritual': '✨',
+            'Financeiro': '💰',
+            'Aparência': '💅'
+        };
+        
+        goalsList.innerHTML = goals.map(goal => {
+            const icon = categoryIcons[goal.category] || '🎯';
+            const isCompleted = goal.completed;
+            const statusClass = isCompleted ? 'completed' : 'active';
+            const statusText = isCompleted ? 'Concluída' : 'Em andamento';
+            
+            return `
+                <div class="goal-item ${isCompleted ? 'completed' : ''}">
+                    <div class="goal-item-icon">
+                        ${icon}
+                    </div>
+                    <div class="goal-item-info">
+                        <div class="goal-item-title">${goal.title}</div>
+                        <div class="goal-item-category">${goal.category || 'Geral'}</div>
+                    </div>
+                    <div class="goal-item-status ${statusClass}">
+                        ${statusText}
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
     
     // ===== HISTÓRICO DO USUÁRIO =====

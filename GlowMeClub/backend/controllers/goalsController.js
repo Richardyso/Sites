@@ -86,7 +86,7 @@ exports.getGoal = async (req, res) => {
 exports.createGoal = async (req, res) => {
     try {
         const userId = req.user.uid;
-        const { title, category, deadline } = req.body;
+        const { title, category, deadline, description } = req.body;
         
         // Validações
         if (!title || !title.trim()) {
@@ -110,6 +110,11 @@ exports.createGoal = async (req, res) => {
             completed: false,
             createdAt: serverTimestamp()
         };
+        
+        // Adicionar descrição se fornecida
+        if (description && description.trim()) {
+            goalData.description = description.trim();
+        }
         
         // Adicionar deadline se fornecido
         if (deadline) {

@@ -375,6 +375,88 @@ function getIconForType(type) {
 }
 
 /**
+ * GET /api/admin/users/:id/goals
+ * Obter metas de um usuário específico (admin only)
+ */
+router.get('/users/:id/goals', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log('📋 Admin buscando metas do usuário:', id);
+        
+        // Buscar metas do usuário
+        const goalsSnapshot = await firestore
+            .collection('users')
+            .doc(id)
+            .collection('goals')
+            .orderBy('createdAt', 'desc')
+            .limit(50)
+            .get();
+        
+        const goals = [];
+        
+        goalsSnapshot.forEach(doc => {
+            const data = doc.data();
+            
+            // Lidar com diferentes formatos de data
+            let deadlineValue = null;
+            if (data.deadline) {
+                if (data.deadline.toDate) {
+                    deadlineValue = data.deadline.toDate();
+                } else {
+                    deadlineValue = new Date(data.deadline);
+                }
+            }
+            
+            let createdAtValue = null;
+            if (data.createdAt) {
+                if (data.createdAt.toDate) {
+                    createdAtValue = data.createdAt.toDate();
+                } else {
+                    createdAtValue = new Date(data.createdAt);
+                }
+            }
+            
+            let completedAtValue = null;
+            if (data.completedAt) {
+                if (data.completedAt.toDate) {
+                    completedAtValue = data.completedAt.toDate();
+                } else {
+                    completedAtValue = new Date(data.completedAt);
+                }
+            }
+            
+            goals.push({
+                id: doc.id,
+                title: data.title || 'Meta sem título',
+                description: data.description || null,
+                category: data.category || 'Geral',
+                completed: data.completed || false,
+                progress: data.progress || 0,
+                deadline: deadlineValue,
+                createdAt: createdAtValue,
+                completedAt: completedAtValue
+            });
+        });
+        
+        console.log(`✅ ${goals.length} metas encontradas para usuário ${id}`);
+        
+        res.json({
+            success: true,
+            goals: goals
+        });
+        
+    } catch (error) {
+        console.error('Erro ao buscar metas do usuário:', error);
+        res.status(500).json({
+            error: 'Erro ao buscar metas',
+            message: error.message,
+            goals: []
+        });
+    }
+});
+
+/**
  * GET /api/admin/users/:id/history
  * Obter histórico de pontos de um usuário específico (admin only)
  */
