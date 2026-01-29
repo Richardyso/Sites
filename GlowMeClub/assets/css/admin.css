@@ -804,15 +804,12 @@
 }
 
 .user-profile-level {
-    font-size: 0.875rem;
-    color: var(--admin-gray-500);
+    font-size: 0.9rem;
+    color: var(--admin-gray-600);
     display: flex;
     align-items: center;
     gap: 0.375rem;
-}
-
-.user-profile-level::before {
-    content: '⭐';
+    font-weight: 500;
 }
 
 /* ===== User Info Cards ===== */

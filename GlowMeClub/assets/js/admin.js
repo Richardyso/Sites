@@ -317,10 +317,10 @@
             }
         }
         
-        // Nível baseado em pontos
+        // Nível baseado em pontos - mostrar categoria (Plebeia, Princesa, etc.)
         if (userLevel) {
-            const level = calculateLevel(user.totalPoints || 0);
-            userLevel.textContent = `Nível ${level}`;
+            const levelInfo = getLevelInfo(user.totalPoints || 0);
+            userLevel.textContent = `${levelInfo.emoji} ${levelInfo.name}`;
         }
         
         // ===== NOVO: Info Cards =====
@@ -356,18 +356,27 @@
         document.getElementById('editUserModal').classList.add('active');
     }
     
-    // Calcular nível baseado em pontos
+    // Obter informações do nível baseado em pontos
+    function getLevelInfo(points) {
+        const levels = [
+            { level: 1, name: 'Plebeia', emoji: '🌱', minPoints: 0, maxPoints: 500 },
+            { level: 2, name: 'Princesa', emoji: '👑', minPoints: 500, maxPoints: 1500 },
+            { level: 3, name: 'Rainha', emoji: '💎', minPoints: 1500, maxPoints: 3000 },
+            { level: 4, name: 'Imperatriz', emoji: '✨', minPoints: 3000, maxPoints: 5000 },
+            { level: 5, name: 'Deusa Glow', emoji: '🌟', minPoints: 5000, maxPoints: Infinity }
+        ];
+        
+        for (let i = levels.length - 1; i >= 0; i--) {
+            if (points >= levels[i].minPoints) {
+                return levels[i];
+            }
+        }
+        return levels[0];
+    }
+    
+    // Calcular nível numérico baseado em pontos
     function calculateLevel(points) {
-        if (points < 100) return 1;
-        if (points < 300) return 2;
-        if (points < 600) return 3;
-        if (points < 1000) return 4;
-        if (points < 1500) return 5;
-        if (points < 2500) return 6;
-        if (points < 4000) return 7;
-        if (points < 6000) return 8;
-        if (points < 10000) return 9;
-        return 10;
+        return getLevelInfo(points).level;
     }
     
     // Obter nome da cor baseado no hex
