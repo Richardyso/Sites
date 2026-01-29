@@ -175,10 +175,10 @@ router.post('/users/:id/grant-points', verifyToken, isAdmin, async (req, res) =>
 });
 
 /**
- * GET /api/points/history ou /api/user/points/history
+ * GET /api/points/history
  * Obter histórico de pontos do usuário
  */
-router.get('/points/history', verifyToken, async (req, res) => {
+router.get('/history', verifyToken, async (req, res) => {
     try {
         const userId = req.user.uid;
         
