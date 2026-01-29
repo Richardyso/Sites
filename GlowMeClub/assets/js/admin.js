@@ -18,6 +18,7 @@
     let allRewards = [];
     let currentUserHistory = [];
     let currentHistoryFilter = 'all';
+    let rewardImageBase64 = null; // Imagem da recompensa em base64
     
     // ===== AUTENTICAÇÃO E ACESSO =====
     
@@ -252,10 +253,16 @@
         const toggle = document.getElementById('rewardAvailableToggle');
         if (toggle) toggle.classList.add('active');
         
-        const imgElement = document.getElementById('rewardImageElement');
-        if (imgElement) imgElement.style.display = 'none';
+        // Limpar imagem
+        rewardImageBase64 = null;
         
-        const imgEmpty = document.querySelector('.image-preview-empty');
+        const imgElement = document.getElementById('rewardImageElement');
+        if (imgElement) {
+            imgElement.src = '';
+            imgElement.style.display = 'none';
+        }
+        
+        const imgEmpty = document.querySelector('#rewardImagePreview .image-preview-empty');
         if (imgEmpty) imgEmpty.style.display = 'block';
         
         modal.classList.add('active');
@@ -280,6 +287,26 @@
             } else {
                 toggle.classList.remove('active');
             }
+        }
+        
+        // Carregar imagem existente
+        const imgElement = document.getElementById('rewardImageElement');
+        const imgEmpty = document.querySelector('#rewardImagePreview .image-preview-empty');
+        
+        if (reward.image) {
+            rewardImageBase64 = reward.image;
+            if (imgElement) {
+                imgElement.src = reward.image;
+                imgElement.style.display = 'block';
+            }
+            if (imgEmpty) imgEmpty.style.display = 'none';
+        } else {
+            rewardImageBase64 = null;
+            if (imgElement) {
+                imgElement.src = '';
+                imgElement.style.display = 'none';
+            }
+            if (imgEmpty) imgEmpty.style.display = 'block';
         }
         
         document.getElementById('rewardModalTitle').textContent = 'Editar Recompensa';
@@ -644,6 +671,145 @@
         if (modal) modal.classList.remove('active');
     }
     
+    // ===== UPLOAD DE IMAGEM =====
+    
+    // Handler para seleção de imagem da recompensa
+    function handleRewardImageSelect(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Validar tipo de arquivo
+        if (!file.type.startsWith('image/')) {
+            showToast('Por favor, selecione uma imagem válida', 'error');
+            return;
+        }
+        
+        // Validar tamanho inicial (máximo 5MB antes de comprimir)
+        if (file.size > 5 * 1024 * 1024) {
+            showToast('Imagem muito grande. Máximo 5MB', 'error');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
+                log.info('Comprimindo imagem...');
+                
+                // Comprimir imagem
+                const compressedImage = await compressImage(event.target.result, {
+                    maxWidth: 400,
+                    maxHeight: 400,
+                    quality: 0.8,
+                    maxSizeKB: 150 // Máximo 150KB para recompensas
+                });
+                
+                // Salvar base64
+                rewardImageBase64 = compressedImage;
+                
+                // Mostrar preview
+                const imgElement = document.getElementById('rewardImageElement');
+                const imgEmpty = document.querySelector('#rewardImagePreview .image-preview-empty');
+                
+                if (imgElement) {
+                    imgElement.src = compressedImage;
+                    imgElement.style.display = 'block';
+                }
+                
+                if (imgEmpty) {
+                    imgEmpty.style.display = 'none';
+                }
+                
+                log.success('Imagem carregada com sucesso!');
+                
+            } catch (error) {
+                log.error('Erro ao processar imagem:', error);
+                showToast('Erro ao processar imagem. Tente outra.', 'error');
+            }
+        };
+        
+        reader.readAsDataURL(file);
+    }
+    
+    // Função de compressão de imagem
+    async function compressImage(imageSrc, options = {}) {
+        const {
+            maxWidth = 400,
+            maxHeight = 400,
+            quality = 0.8,
+            maxSizeKB = 150
+        } = options;
+        
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+                
+                // Calcular novo tamanho mantendo proporção
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+                
+                // Criar canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                
+                // Fundo branco e desenhar imagem
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Converter para base64 com qualidade ajustável
+                let currentQuality = quality;
+                let base64 = canvas.toDataURL('image/jpeg', currentQuality);
+                
+                // Reduzir qualidade até atingir tamanho máximo
+                while (getBase64SizeKB(base64) > maxSizeKB && currentQuality > 0.1) {
+                    currentQuality -= 0.1;
+                    base64 = canvas.toDataURL('image/jpeg', currentQuality);
+                }
+                
+                // Se ainda estiver muito grande, reduzir dimensões
+                if (getBase64SizeKB(base64) > maxSizeKB) {
+                    const scale = Math.sqrt(maxSizeKB / getBase64SizeKB(base64));
+                    canvas.width = Math.round(width * scale);
+                    canvas.height = Math.round(height * scale);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    base64 = canvas.toDataURL('image/jpeg', 0.6);
+                }
+                
+                log.info(`Imagem comprimida: ${getBase64SizeKB(base64).toFixed(2)}KB`);
+                resolve(base64);
+            };
+            
+            img.onerror = () => reject(new Error('Erro ao carregar imagem'));
+            img.src = imageSrc;
+        });
+    }
+    
+    // Calcular tamanho do base64 em KB
+    function getBase64SizeKB(base64String) {
+        // Remover o prefixo data:image/xxx;base64,
+        const base64 = base64String.split(',')[1] || base64String;
+        // Calcular tamanho aproximado em bytes
+        const padding = (base64.match(/=/g) || []).length;
+        const sizeInBytes = (base64.length * 3) / 4 - padding;
+        return sizeInBytes / 1024;
+    }
+    
     // ===== AÇÕES =====
     
     async function saveReward(e) {
@@ -661,9 +827,22 @@
         };
         
         const linkField = document.getElementById('rewardLink');
-        if (linkField) rewardData.link = linkField.value;
+        if (linkField && linkField.value) {
+            rewardData.link = linkField.value;
+        }
+        
+        // Adicionar imagem se houver
+        if (rewardImageBase64) {
+            rewardData.image = rewardImageBase64;
+        }
         
         try {
+            const saveBtn = document.getElementById('saveRewardBtn');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+            }
+            
             if (rewardId) {
                 await window.api.put(`/rewards/${rewardId}`, rewardData);
                 showToast('Recompensa atualizada!', 'success');
@@ -673,10 +852,17 @@
             }
             
             closeModal('rewardModal');
+            rewardImageBase64 = null; // Limpar após salvar
             await loadRewards();
         } catch (error) {
             log.error('Erro ao salvar recompensa:', error);
             showToast('Erro ao salvar recompensa', 'error');
+        } finally {
+            const saveBtn = document.getElementById('saveRewardBtn');
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = 'Salvar Recompensa';
+            }
         }
     }
     
@@ -808,6 +994,19 @@
         const rewardForm = document.getElementById('rewardForm');
         if (rewardForm) {
             rewardForm.onsubmit = saveReward;
+        }
+        
+        // Input de imagem da recompensa
+        const rewardImageInput = document.getElementById('rewardImage');
+        if (rewardImageInput) {
+            rewardImageInput.onchange = handleRewardImageSelect;
+        }
+        
+        // Permitir clicar na área de preview para selecionar imagem
+        const rewardImagePreview = document.getElementById('rewardImagePreview');
+        if (rewardImagePreview && rewardImageInput) {
+            rewardImagePreview.onclick = () => rewardImageInput.click();
+            rewardImagePreview.style.cursor = 'pointer';
         }
         
         // Botão conceder pontos
