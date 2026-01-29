@@ -983,23 +983,36 @@
                 
                 console.log('Resposta do resgate:', response);
                 
-                // Atualizar pontos na tela
-                if (response.newTotalPoints !== undefined) {
-                    document.getElementById('userPoints').textContent = response.newTotalPoints.toLocaleString('pt-BR');
-                    
-                    // Atualizar cache local
-                    const cachedData = localStorage.getItem('cachedUserData');
-                    if (cachedData) {
-                        const userData = JSON.parse(cachedData);
-                        userData.totalPoints = response.newTotalPoints;
-                        localStorage.setItem('cachedUserData', JSON.stringify(userData));
-                    }
+                // Calcular novos pontos
+                let newPoints;
+                
+                // Verificar se a API retornou os novos pontos (e não é null/undefined)
+                if (response && response.newTotalPoints !== undefined && response.newTotalPoints !== null) {
+                    newPoints = response.newTotalPoints;
                 } else {
                     // Se a API não retornou os novos pontos, calcular localmente
-                    const userPointsText = document.getElementById('userPoints').textContent.replace(/\./g, '');
+                    const userPointsEl = document.getElementById('userPoints');
+                    const userPointsText = userPointsEl ? userPointsEl.textContent.replace(/\./g, '') : '0';
                     const currentPoints = parseInt(userPointsText) || 0;
-                    const newPoints = currentPoints - currentRewardCost;
-                    document.getElementById('userPoints').textContent = newPoints.toLocaleString('pt-BR');
+                    newPoints = Math.max(0, currentPoints - currentRewardCost);
+                }
+                
+                // Atualizar pontos na tela
+                const userPointsDisplay = document.getElementById('userPoints');
+                if (userPointsDisplay) {
+                    userPointsDisplay.textContent = newPoints.toLocaleString('pt-BR');
+                }
+                
+                // Atualizar cache local
+                const cachedData = localStorage.getItem('cachedUserData');
+                if (cachedData) {
+                    try {
+                        const userData = JSON.parse(cachedData);
+                        userData.totalPoints = newPoints;
+                        localStorage.setItem('cachedUserData', JSON.stringify(userData));
+                    } catch (e) {
+                        console.warn('Erro ao atualizar cache:', e);
+                    }
                 }
                 
                 // Buscar link da recompensa
