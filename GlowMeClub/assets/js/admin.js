@@ -288,17 +288,111 @@
         const user = allUsers.find(u => u.uid === userId);
         if (!user) return;
         
+        // Campos do formulário
         document.getElementById('editUserId').value = user.uid;
         document.getElementById('editName').value = user.name || '';
         document.getElementById('editEmail').value = user.email || '';
         document.getElementById('editPoints').value = user.totalPoints || 0;
         
+        // ===== NOVO: Profile Header =====
+        const userAvatar = document.getElementById('editUserAvatar');
+        const userInitial = document.getElementById('editUserInitial');
+        const displayName = document.getElementById('editUserDisplayName');
+        const userLevel = document.getElementById('editUserLevel');
+        
+        // Nome e inicial
+        const firstName = (user.name || 'Usuária').split(' ')[0];
+        const initial = (user.name || 'U').charAt(0).toUpperCase();
+        
+        if (displayName) displayName.textContent = firstName;
+        if (userInitial) userInitial.textContent = initial;
+        
+        // Avatar com imagem ou cor de fundo
+        if (userAvatar) {
+            if (user.profileImage) {
+                userAvatar.innerHTML = `<img src="${user.profileImage}" alt="${firstName}">`;
+            } else {
+                userAvatar.innerHTML = `<span id="editUserInitial">${initial}</span>`;
+                userAvatar.style.background = user.preferredColor || 'linear-gradient(135deg, var(--admin-primary), var(--admin-secondary))';
+            }
+        }
+        
+        // Nível baseado em pontos
+        if (userLevel) {
+            const level = calculateLevel(user.totalPoints || 0);
+            userLevel.textContent = `Nível ${level}`;
+        }
+        
+        // ===== NOVO: Info Cards =====
+        // Pontos
+        const pointsDisplay = document.getElementById('editUserPointsDisplay');
+        if (pointsDisplay) {
+            pointsDisplay.textContent = (user.totalPoints || 0).toLocaleString('pt-BR');
+        }
+        
+        // Cor Favorita
+        const colorIcon = document.getElementById('editUserColorIcon');
+        const colorName = document.getElementById('editUserColorName');
+        
+        if (colorIcon && colorName) {
+            const userColor = user.preferredColor || '#8B5CF6';
+            colorIcon.style.background = userColor + '30'; // 30% opacity
+            colorIcon.innerHTML = `<i class="fas fa-palette" style="color: ${userColor};"></i>`;
+            colorName.innerHTML = `<span class="color-swatch" style="background: ${userColor};"></span>${getColorName(userColor)}`;
+        }
+        
+        // Área de Foco
+        const focusArea = document.getElementById('editUserFocusArea');
+        if (focusArea) {
+            focusArea.textContent = user.focusArea || 'Não definida';
+        }
+        
+        // Limpar campos de grant points
         const grantAmount = document.getElementById('grantPointsAmount');
         const grantReason = document.getElementById('grantPointsReason');
         if (grantAmount) grantAmount.value = '';
         if (grantReason) grantReason.value = '';
         
         document.getElementById('editUserModal').classList.add('active');
+    }
+    
+    // Calcular nível baseado em pontos
+    function calculateLevel(points) {
+        if (points < 100) return 1;
+        if (points < 300) return 2;
+        if (points < 600) return 3;
+        if (points < 1000) return 4;
+        if (points < 1500) return 5;
+        if (points < 2500) return 6;
+        if (points < 4000) return 7;
+        if (points < 6000) return 8;
+        if (points < 10000) return 9;
+        return 10;
+    }
+    
+    // Obter nome da cor baseado no hex
+    function getColorName(hex) {
+        const colors = {
+            '#8B5CF6': 'Roxo',
+            '#EC4899': 'Rosa',
+            '#F59E0B': 'Laranja',
+            '#10B981': 'Verde',
+            '#3B82F6': 'Azul',
+            '#EF4444': 'Vermelho',
+            '#6366F1': 'Índigo',
+            '#14B8A6': 'Turquesa',
+            '#F97316': 'Laranja Forte',
+            '#A855F7': 'Violeta',
+            '#06B6D4': 'Ciano',
+            '#84CC16': 'Lima'
+        };
+        
+        // Procurar cor exata ou similar
+        const upperHex = hex?.toUpperCase();
+        if (colors[upperHex]) return colors[upperHex];
+        
+        // Se não encontrar, retornar o próprio hex
+        return hex || 'Padrão';
     }
     
     function closeModal(modalId) {
