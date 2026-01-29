@@ -16,6 +16,8 @@
     let currentUser = null;
     let allUsers = [];
     let allRewards = [];
+    let currentUserHistory = [];
+    let currentHistoryFilter = 'all';
     
     // ===== AUTENTICAÇÃO E ACESSO =====
     
@@ -354,6 +356,141 @@
         if (grantReason) grantReason.value = '';
         
         document.getElementById('editUserModal').classList.add('active');
+        
+        // Carregar histórico do usuário
+        loadUserHistory(userId);
+    }
+    
+    // ===== HISTÓRICO DO USUÁRIO =====
+    
+    async function loadUserHistory(userId) {
+        const historyList = document.getElementById('userHistoryList');
+        const historyEmpty = document.getElementById('userHistoryEmpty');
+        
+        if (!historyList) return;
+        
+        // Mostrar loading
+        historyList.innerHTML = `
+            <div class="history-loading">
+                <i class="fas fa-spinner fa-spin"></i> Carregando histórico...
+            </div>
+        `;
+        if (historyEmpty) historyEmpty.style.display = 'none';
+        
+        try {
+            // Buscar histórico do usuário via API
+            const data = await window.api.get(`/admin/users/${userId}/history`);
+            currentUserHistory = data.history || [];
+            
+            log.info(`${currentUserHistory.length} registros de histórico carregados`);
+            
+            // Exibir histórico
+            displayUserHistory();
+            
+        } catch (error) {
+            log.error('Erro ao carregar histórico:', error);
+            currentUserHistory = [];
+            historyList.innerHTML = '';
+            if (historyEmpty) {
+                historyEmpty.innerHTML = `
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Erro ao carregar histórico</p>
+                `;
+                historyEmpty.style.display = 'block';
+            }
+        }
+    }
+    
+    function displayUserHistory() {
+        const historyList = document.getElementById('userHistoryList');
+        const historyEmpty = document.getElementById('userHistoryEmpty');
+        
+        if (!historyList) return;
+        
+        // Aplicar filtro
+        let filteredHistory = currentUserHistory;
+        if (currentHistoryFilter === 'earned') {
+            filteredHistory = currentUserHistory.filter(item => item.points > 0);
+        } else if (currentHistoryFilter === 'spent') {
+            filteredHistory = currentUserHistory.filter(item => item.points < 0);
+        }
+        
+        if (filteredHistory.length === 0) {
+            historyList.innerHTML = '';
+            if (historyEmpty) {
+                historyEmpty.innerHTML = `
+                    <i class="fas fa-inbox"></i>
+                    <p>Nenhum registro encontrado</p>
+                `;
+                historyEmpty.style.display = 'block';
+            }
+            return;
+        }
+        
+        if (historyEmpty) historyEmpty.style.display = 'none';
+        
+        historyList.innerHTML = filteredHistory.map(item => {
+            const isEarned = item.points > 0;
+            const pointsClass = isEarned ? 'positive' : 'negative';
+            const pointsSign = isEarned ? '+' : '';
+            const iconClass = isEarned ? 'earned' : 'spent';
+            const icon = getHistoryIcon(item.type);
+            
+            // Formatar data
+            let dateStr = 'Data desconhecida';
+            if (item.date || item.createdAt) {
+                const date = new Date(item.date || item.createdAt);
+                dateStr = date.toLocaleDateString('pt-BR', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            return `
+                <div class="history-item">
+                    <div class="history-item-icon ${iconClass}">
+                        ${icon}
+                    </div>
+                    <div class="history-item-info">
+                        <div class="history-item-reason">${item.reason || item.action || 'Pontos'}</div>
+                        <div class="history-item-date">${dateStr}</div>
+                    </div>
+                    <div class="history-item-points ${pointsClass}">
+                        ${pointsSign}${item.points} pts
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function getHistoryIcon(type) {
+        const icons = {
+            'goal_completed': '🎯',
+            'mission_completed': '⭐',
+            'admin_grant': '🎁',
+            'streak_bonus': '🔥',
+            'profile_complete': '👤',
+            'reward_redeemed': '🛍️',
+            'earned': '✨',
+            'spent': '💸'
+        };
+        return icons[type] || '✨';
+    }
+    
+    function filterHistory(filter, button) {
+        currentHistoryFilter = filter;
+        
+        // Atualizar visual dos botões
+        document.querySelectorAll('.history-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        if (button) button.classList.add('active');
+        
+        // Reexibir histórico com novo filtro
+        displayUserHistory();
     }
     
     // Obter informações do nível baseado em pontos
@@ -537,6 +674,7 @@
     window.adminEditReward = openEditRewardModal;
     window.adminDeleteReward = deleteReward;
     window.adminOpenAddReward = openAddRewardModal;
+    window.adminFilterHistory = filterHistory;
     
     // ===== INICIALIZAÇÃO =====
     document.addEventListener('DOMContentLoaded', async () => {

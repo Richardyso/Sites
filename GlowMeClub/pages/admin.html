@@ -192,6 +192,27 @@
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- Extrato Detalhado Section -->
+                    <div class="user-history-section">
+                        <h4 class="user-history-title">
+                            <i class="fas fa-history"></i> Extrato Detalhado
+                        </h4>
+                        <div class="user-history-tabs">
+                            <button class="history-tab active" data-tab="all" onclick="window.adminFilterHistory('all', this)">Todos</button>
+                            <button class="history-tab" data-tab="earned" onclick="window.adminFilterHistory('earned', this)">Ganhos</button>
+                            <button class="history-tab" data-tab="spent" onclick="window.adminFilterHistory('spent', this)">Gastos</button>
+                        </div>
+                        <div class="user-history-list" id="userHistoryList">
+                            <div class="history-loading">
+                                <i class="fas fa-spinner fa-spin"></i> Carregando histórico...
+                            </div>
+                        </div>
+                        <div class="user-history-empty" id="userHistoryEmpty" style="display: none;">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum registro encontrado</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="cancelEditUser">Cancelar</button>

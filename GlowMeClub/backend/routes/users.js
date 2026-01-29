@@ -274,6 +274,88 @@ function getIconForType(type) {
 }
 
 /**
+ * GET /api/admin/users/:id/history
+ * Obter histórico de pontos de um usuário específico (admin only)
+ */
+router.get('/users/:id/history', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log('📊 Admin buscando histórico do usuário:', id);
+        
+        // Buscar histórico de pontos do usuário
+        let historySnapshot;
+        
+        try {
+            historySnapshot = await firestore
+                .collection('users')
+                .doc(id)
+                .collection('pointsHistory')
+                .orderBy('createdAt', 'desc')
+                .limit(100)
+                .get();
+        } catch (indexError) {
+            // Se falhar por causa do índice, buscar sem ordenação
+            console.log('⚠️ Índice não encontrado, buscando sem ordenação');
+            historySnapshot = await firestore
+                .collection('users')
+                .doc(id)
+                .collection('pointsHistory')
+                .limit(100)
+                .get();
+        }
+        
+        const history = [];
+        
+        historySnapshot.forEach(doc => {
+            const data = doc.data();
+            
+            // Lidar com diferentes formatos de data
+            let dateValue = null;
+            if (data.createdAt && data.createdAt.toDate) {
+                dateValue = data.createdAt.toDate();
+            } else if (data.timestamp && data.timestamp.toDate) {
+                dateValue = data.timestamp.toDate();
+            } else if (data.createdAt) {
+                dateValue = new Date(data.createdAt);
+            } else if (data.timestamp) {
+                dateValue = new Date(data.timestamp);
+            } else {
+                dateValue = new Date();
+            }
+            
+            history.push({
+                id: doc.id,
+                points: data.points || 0,
+                action: data.reason || data.action || 'Pontos',
+                reason: data.reason || data.action || 'Pontos',
+                type: data.type || (data.points > 0 ? 'earned' : 'spent'),
+                date: dateValue,
+                createdAt: dateValue
+            });
+        });
+        
+        // Ordenar por data (mais recente primeiro)
+        history.sort((a, b) => b.date - a.date);
+        
+        console.log(`✅ ${history.length} registros de histórico encontrados para usuário ${id}`);
+        
+        res.json({
+            success: true,
+            history: history
+        });
+        
+    } catch (error) {
+        console.error('Erro ao buscar histórico do usuário:', error);
+        res.status(500).json({
+            error: 'Erro ao buscar histórico',
+            message: error.message,
+            history: []
+        });
+    }
+});
+
+/**
  * GET /api/users/ranking
  * Obter ranking público de usuários
  */
