@@ -113,6 +113,14 @@ function populateForm() {
     document.getElementById('userName').value = currentUser.name || '';
     document.getElementById('userEmail').value = currentUser.email || '';
     
+    // Telefone
+    const phoneInput = document.getElementById('userPhone');
+    if (phoneInput && currentUser.phone) {
+        // Remover o +55 se existir no início
+        let phone = currentUser.phone.replace(/^\+55\s*/, '');
+        phoneInput.value = formatPhoneNumber(phone);
+    }
+    
     // Cor preferida
     const preferredColor = currentUser.preferredColor || '#8B5CF6';
     document.getElementById('preferredColor').value = preferredColor;
@@ -143,6 +151,55 @@ function populateForm() {
     // Resetar flag de mudanças
     hasUnsavedChanges = false;
     updateSaveButton();
+}
+
+// ===== FORMATAÇÃO E VALIDAÇÃO DE TELEFONE =====
+function formatPhoneNumber(value) {
+    // Remove tudo que não é número
+    let phone = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos (DDD + 9 dígitos)
+    phone = phone.substring(0, 11);
+    
+    // Formata: (XX) XXXXX-XXXX
+    if (phone.length > 0) {
+        phone = phone.replace(/^(\d{2})/, '($1) ');
+        phone = phone.replace(/(\(\d{2}\) )(\d{5})/, '$1$2-');
+    }
+    
+    return phone;
+}
+
+function validateBrazilianPhone(phone) {
+    // Remove formatação
+    const digits = phone.replace(/\D/g, '');
+    
+    // Deve ter 11 dígitos (DDD + 9 dígitos de celular)
+    if (digits.length !== 11) {
+        return false;
+    }
+    
+    // O nono dígito deve ser 9 para celulares brasileiros
+    if (digits.charAt(2) !== '9') {
+        return false;
+    }
+    
+    return true;
+}
+
+function getPhoneForSave() {
+    const phoneInput = document.getElementById('userPhone');
+    if (!phoneInput || !phoneInput.value.trim()) {
+        return null;
+    }
+    
+    const digits = phoneInput.value.replace(/\D/g, '');
+    if (digits.length === 0) {
+        return null;
+    }
+    
+    // Retorna com DDI do Brasil
+    return '+55' + digits;
 }
 
 // ===== AVATAR =====
@@ -419,6 +476,23 @@ function setupEventListeners() {
         document.getElementById(id).addEventListener('change', markAsChanged);
     });
     
+    // Campo de telefone - formatação automática
+    const phoneInput = document.getElementById('userPhone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            const cursorPos = e.target.selectionStart;
+            const oldLength = e.target.value.length;
+            e.target.value = formatPhoneNumber(e.target.value);
+            const newLength = e.target.value.length;
+            
+            // Ajusta posição do cursor
+            const newCursorPos = cursorPos + (newLength - oldLength);
+            e.target.setSelectionRange(newCursorPos, newCursorPos);
+            
+            markAsChanged();
+        });
+    }
+    
     // Preferências de email
     ['emailWeekly', 'emailRewards', 'emailLevelUp', 'emailReminders'].forEach(id => {
         const el = document.getElementById(id);
@@ -632,6 +706,22 @@ async function handleSaveProfile(e) {
             focusArea: document.getElementById('focusArea').value,
             emailPreferences: getEmailPreferences()
         };
+        
+        // Adicionar telefone (opcional no perfil)
+        const phone = getPhoneForSave();
+        if (phone) {
+            // Validar formato do telefone brasileiro
+            const phoneInput = document.getElementById('userPhone');
+            if (phoneInput && phoneInput.value.trim() && !validateBrazilianPhone(phoneInput.value)) {
+                showStatus('Telefone inválido. Use o formato: (DDD) 9XXXX-XXXX', 'error');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar alterações';
+                return;
+            }
+            formData.phone = phone;
+        } else {
+            formData.phone = null; // Permite remover o telefone
+        }
         
         // Adicionar imagem se houver
         if (selectedImageBase64) {

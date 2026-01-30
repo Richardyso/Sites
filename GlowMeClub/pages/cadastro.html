@@ -101,6 +101,57 @@
             border-color: #DC2626;
         }
         
+        /* Phone Input */
+        .phone-input-wrapper {
+            display: flex;
+            align-items: center;
+            border: 2px solid var(--cor-lilas-suave);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition-base);
+            background: var(--cor-branco);
+        }
+        
+        .phone-input-wrapper:focus-within {
+            border-color: var(--cor-roxo-medio);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+        
+        .phone-ddi-badge {
+            padding: 0.75rem 0.875rem;
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-right: 1px solid var(--cor-lilas-suave);
+            white-space: nowrap;
+        }
+        
+        .phone-field {
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            flex: 1;
+        }
+        
+        .phone-field:focus {
+            box-shadow: none !important;
+        }
+        
+        /* Color Picker Grid 3x3 */
+        .color-picker.color-picker-3x3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: var(--spacing-xs);
+            max-width: 180px;
+        }
+        
+        .color-picker.color-picker-3x3 .color-option {
+            width: 48px;
+            height: 48px;
+        }
+        
         .color-picker {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
@@ -320,45 +371,40 @@
                         </div>
                     </div>
                     
+                    <!-- Telefone (Obrigatório) -->
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Telefone *</label>
+                        <div class="phone-input-wrapper">
+                            <span class="phone-ddi-badge">+55</span>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                name="phone" 
+                                class="form-control phone-field" 
+                                required
+                                placeholder="(11) 99999-9999"
+                                maxlength="15"
+                            >
+                        </div>
+                        <span class="form-text">Formato: (DDD) 9XXXX-XXXX</span>
+                    </div>
+                    
                     <!-- Cor Preferida -->
                     <div class="form-group">
                         <label class="form-label">Cor preferida</label>
-                        <div class="color-picker">
-                            <!-- Vermelhos -->
+                        <div class="color-picker color-picker-3x3">
+                            <!-- Cores Primárias -->
                             <div class="color-option" style="background: #EF4444" data-color="#EF4444" title="Vermelho"></div>
-                            <div class="color-option" style="background: #DC2626" data-color="#DC2626" title="Vermelho escuro"></div>
-                            <div class="color-option" style="background: #F87171" data-color="#F87171" title="Vermelho claro"></div>
-                            <!-- Laranjas -->
-                            <div class="color-option" style="background: #F97316" data-color="#F97316" title="Laranja"></div>
-                            <div class="color-option" style="background: #FB923C" data-color="#FB923C" title="Laranja claro"></div>
-                            <!-- Amarelos -->
-                            <div class="color-option" style="background: #EAB308" data-color="#EAB308" title="Amarelo"></div>
-                            <div class="color-option" style="background: #FCD34D" data-color="#FCD34D" title="Amarelo claro"></div>
-                            <div class="color-option" style="background: #FBBF24" data-color="#FBBF24" title="Dourado"></div>
-                            <!-- Verdes -->
-                            <div class="color-option" style="background: #22C55E" data-color="#22C55E" title="Verde"></div>
-                            <div class="color-option" style="background: #4ADE80" data-color="#4ADE80" title="Verde claro"></div>
-                            <div class="color-option" style="background: #10B981" data-color="#10B981" title="Esmeralda"></div>
-                            <div class="color-option" style="background: #14B8A6" data-color="#14B8A6" title="Turquesa"></div>
-                            <!-- Azuis -->
-                            <div class="color-option" style="background: #06B6D4" data-color="#06B6D4" title="Ciano"></div>
-                            <div class="color-option" style="background: #0EA5E9" data-color="#0EA5E9" title="Azul céu"></div>
                             <div class="color-option" style="background: #3B82F6" data-color="#3B82F6" title="Azul"></div>
-                            <div class="color-option" style="background: #2563EB" data-color="#2563EB" title="Azul royal"></div>
-                            <!-- Roxos -->
-                            <div class="color-option" style="background: #6366F1" data-color="#6366F1" title="Índigo"></div>
-                            <div class="color-option selected" style="background: #8B5CF6" data-color="#8B5CF6" title="Roxo médio"></div>
-                            <div class="color-option" style="background: #A78BFA" data-color="#A78BFA" title="Roxo claro"></div>
-                            <div class="color-option" style="background: #7C3AED" data-color="#7C3AED" title="Violeta"></div>
-                            <!-- Rosas -->
-                            <div class="color-option" style="background: #D946EF" data-color="#D946EF" title="Fúcsia"></div>
-                            <div class="color-option" style="background: #EC4899" data-color="#EC4899" title="Pink"></div>
-                            <div class="color-option" style="background: #F472B6" data-color="#F472B6" title="Rosa"></div>
-                            <div class="color-option" style="background: #F9A8D4" data-color="#F9A8D4" title="Rosa claro"></div>
-                            <!-- Neutros -->
-                            <div class="color-option" style="background: #78716C" data-color="#78716C" title="Cinza quente"></div>
-                            <div class="color-option" style="background: #57534E" data-color="#57534E" title="Marrom"></div>
-                            <div class="color-option" style="background: #1F2937" data-color="#1F2937" title="Carvão"></div>
+                            <div class="color-option" style="background: #EAB308" data-color="#EAB308" title="Amarelo"></div>
+                            <!-- Cores Secundárias -->
+                            <div class="color-option" style="background: #F97316" data-color="#F97316" title="Laranja"></div>
+                            <div class="color-option" style="background: #22C55E" data-color="#22C55E" title="Verde"></div>
+                            <div class="color-option selected" style="background: #8B5CF6" data-color="#8B5CF6" title="Roxo"></div>
+                            <!-- Tons Neutros -->
+                            <div class="color-option" style="background: #6B7280" data-color="#6B7280" title="Cinza"></div>
+                            <div class="color-option" style="background: #D4A574" data-color="#D4A574" title="Bege"></div>
+                            <div class="color-option" style="background: #EC4899" data-color="#EC4899" title="Rosa"></div>
                         </div>
                         <input type="hidden" id="preferredColor" name="preferredColor" value="#8B5CF6">
                     </div>

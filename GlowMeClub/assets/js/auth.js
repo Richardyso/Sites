@@ -14,6 +14,43 @@ if (!window.appConfig || !window.api) {
     console.error('❌ Dependências não encontradas. Certifique-se de carregar config.js e api.js primeiro.');
 }
 
+// ===== FUNÇÕES DE TELEFONE =====
+
+// Formata o número de telefone brasileiro
+function formatPhoneInput(value) {
+    // Remove tudo que não é número
+    let phone = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos (DDD + 9 dígitos)
+    phone = phone.substring(0, 11);
+    
+    // Formata: (XX) XXXXX-XXXX
+    if (phone.length > 0) {
+        phone = phone.replace(/^(\d{2})/, '($1) ');
+        phone = phone.replace(/(\(\d{2}\) )(\d{5})/, '$1$2-');
+    }
+    
+    return phone;
+}
+
+// Valida telefone brasileiro
+function validateBrazilianPhone(phone) {
+    // Remove formatação
+    const digits = phone.replace(/\D/g, '');
+    
+    // Deve ter 11 dígitos (DDD + 9 dígitos de celular)
+    if (digits.length !== 11) {
+        return false;
+    }
+    
+    // O nono dígito deve ser 9 para celulares brasileiros
+    if (digits.charAt(2) !== '9') {
+        return false;
+    }
+    
+    return true;
+}
+
 // ===== FUNÇÕES DE AUTENTICAÇÃO =====
 
 // Cadastro
@@ -25,13 +62,16 @@ async function handleSignup(e) {
     const originalText = submitBtn.innerHTML;
     
     // Obter dados do formulário
+    const phoneValue = form.phone ? form.phone.value.trim() : '';
+    
     const formData = {
         name: form.name.value.trim(),
         email: form.email.value.trim(),
         password: form.password.value,
         confirmPassword: form.confirmPassword.value,
         preferredColor: form.preferredColor.value,
-        focusArea: form.focusArea.value
+        focusArea: form.focusArea.value,
+        phone: phoneValue
     };
     
     // Validações
@@ -45,6 +85,21 @@ async function handleSignup(e) {
         return;
     }
     
+    // Validar telefone (obrigatório no cadastro)
+    if (!formData.phone) {
+        showError('O telefone é obrigatório');
+        return;
+    }
+    
+    if (!validateBrazilianPhone(formData.phone)) {
+        showError('Telefone inválido. Use o formato: (DDD) 9XXXX-XXXX');
+        return;
+    }
+    
+    // Formatar telefone com DDI
+    const phoneDigits = formData.phone.replace(/\D/g, '');
+    const phoneWithDDI = '+55' + phoneDigits;
+    
     // Mostrar loading
     submitBtn.classList.add('btn-loading');
     submitBtn.disabled = true;
@@ -56,7 +111,8 @@ async function handleSignup(e) {
             email: formData.email,
             password: formData.password,
             preferredColor: formData.preferredColor,
-            focusArea: formData.focusArea
+            focusArea: formData.focusArea,
+            phone: phoneWithDDI
         });
         
         // Mostrar mensagem de sucesso e redirecionar para login
@@ -351,6 +407,21 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         document.body.insertBefore(warningDiv, document.body.firstChild);
+    }
+    
+    // Formatação automática do telefone no cadastro
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            const cursorPos = e.target.selectionStart;
+            const oldLength = e.target.value.length;
+            e.target.value = formatPhoneInput(e.target.value);
+            const newLength = e.target.value.length;
+            
+            // Ajusta posição do cursor
+            const newCursorPos = cursorPos + (newLength - oldLength);
+            e.target.setSelectionRange(newCursorPos, newCursorPos);
+        });
     }
     
     // Formulário de cadastro

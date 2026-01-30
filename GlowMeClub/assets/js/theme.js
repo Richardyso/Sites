@@ -164,6 +164,39 @@
                 border-color: rgba(${rgbString}, 0.3) !important;
             }
 
+            /* Ranking Card */
+            .ranking-card {
+                box-shadow: 0 10px 30px rgba(${rgbString}, 0.1) !important;
+                border: 2px solid rgba(${rgbString}, 0.1) !important;
+            }
+
+            .ranking-header h3 {
+                color: ${color} !important;
+            }
+
+            .user-ranking strong {
+                color: ${color} !important;
+            }
+
+            /* Ranking Card Full (Dark theme) */
+            .ranking-card-full {
+                box-shadow: 0 8px 32px rgba(${rgbString}, 0.15) !important;
+                border: 1px solid rgba(${rgbString}, 0.2) !important;
+            }
+
+            .ranking-card-full .ranking-item.current-user {
+                background: linear-gradient(135deg, rgba(${rgbString}, 0.2), rgba(${rgbString}, 0.15)) !important;
+                border: 1px solid rgba(${rgbString}, 0.3) !important;
+            }
+
+            .ranking-card-full .user-ranking strong {
+                color: ${lightColor} !important;
+            }
+
+            .ranking-item:hover {
+                background: rgba(${rgbString}, 0.08) !important;
+            }
+
             /* Header avatar border */
             .user-avatar {
                 border: 2px solid ${color} !important;
@@ -190,6 +223,26 @@
             /* Welcome card gradient */
             .welcome-card {
                 background: linear-gradient(135deg, ${color} 0%, ${darkColor} 100%) !important;
+            }
+
+            /* Welcome Section (Dashboard h1) */
+            .welcome-section {
+                background: linear-gradient(135deg, ${color} 0%, ${lightColor} 100%) !important;
+                box-shadow: 0 10px 30px rgba(${rgbString}, 0.2) !important;
+            }
+
+            /* Hamburger Menu */
+            .hamburger-btn span {
+                background: ${color} !important;
+            }
+
+            .hamburger-btn:hover {
+                background: rgba(${rgbString}, 0.1) !important;
+            }
+
+            /* Mobile Menu Header */
+            .mobile-menu-header {
+                background: linear-gradient(135deg, ${color}, ${darkColor}) !important;
             }
 
             /* Stats card icons */

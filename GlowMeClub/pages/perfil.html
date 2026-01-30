@@ -49,6 +49,7 @@
                 <a href="missoes.html" class="nav-link">Missões</a>
                 <a href="pontos.html" class="nav-link">Pontos</a>
                 <a href="recompensas.html" class="nav-link">Recompensas</a>
+                <a href="sobre.html" class="nav-link">Sobre</a>
             </div>
             
             <!-- User Area -->
@@ -181,6 +182,23 @@
                             disabled
                         >
                         <span class="form-hint">O e-mail não pode ser alterado</span>
+                    </div>
+                    
+                    <!-- Telefone -->
+                    <div class="form-group">
+                        <label for="userPhone" class="form-label">Telefone (opcional)</label>
+                        <div class="phone-input-container">
+                            <span class="phone-ddi">+55</span>
+                            <input 
+                                type="tel" 
+                                id="userPhone" 
+                                name="phone" 
+                                class="form-input phone-input"
+                                placeholder="(11) 99999-9999"
+                                maxlength="15"
+                            >
+                        </div>
+                        <span class="form-hint">Formato: (DDD) 9XXXX-XXXX</span>
                     </div>
                 </div>
 
@@ -337,45 +355,19 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="color-grid" id="colorGrid">
-                    <!-- Vermelhos -->
+                <div class="color-grid color-grid-3x3" id="colorGrid">
+                    <!-- Cores Primárias -->
                     <div class="color-option" style="background: #EF4444" data-color="#EF4444" data-name="Vermelho"></div>
-                    <div class="color-option" style="background: #DC2626" data-color="#DC2626" data-name="Vermelho escuro"></div>
-                    <div class="color-option" style="background: #F87171" data-color="#F87171" data-name="Vermelho claro"></div>
-                    <!-- Laranjas -->
-                    <div class="color-option" style="background: #F97316" data-color="#F97316" data-name="Laranja"></div>
-                    <div class="color-option" style="background: #EA580C" data-color="#EA580C" data-name="Laranja escuro"></div>
-                    <div class="color-option" style="background: #FB923C" data-color="#FB923C" data-name="Laranja claro"></div>
-                    <!-- Amarelos -->
-                    <div class="color-option" style="background: #EAB308" data-color="#EAB308" data-name="Amarelo"></div>
-                    <div class="color-option" style="background: #FCD34D" data-color="#FCD34D" data-name="Amarelo claro"></div>
-                    <div class="color-option" style="background: #FBBF24" data-color="#FBBF24" data-name="Dourado"></div>
-                    <!-- Verdes -->
-                    <div class="color-option" style="background: #22C55E" data-color="#22C55E" data-name="Verde"></div>
-                    <div class="color-option" style="background: #16A34A" data-color="#16A34A" data-name="Verde escuro"></div>
-                    <div class="color-option" style="background: #4ADE80" data-color="#4ADE80" data-name="Verde claro"></div>
-                    <div class="color-option" style="background: #10B981" data-color="#10B981" data-name="Esmeralda"></div>
-                    <div class="color-option" style="background: #14B8A6" data-color="#14B8A6" data-name="Turquesa"></div>
-                    <!-- Azuis -->
-                    <div class="color-option" style="background: #06B6D4" data-color="#06B6D4" data-name="Ciano"></div>
-                    <div class="color-option" style="background: #0EA5E9" data-color="#0EA5E9" data-name="Azul céu"></div>
                     <div class="color-option" style="background: #3B82F6" data-color="#3B82F6" data-name="Azul"></div>
-                    <div class="color-option" style="background: #2563EB" data-color="#2563EB" data-name="Azul royal"></div>
-                    <div class="color-option" style="background: #1D4ED8" data-color="#1D4ED8" data-name="Azul escuro"></div>
-                    <!-- Roxos -->
-                    <div class="color-option" style="background: #6366F1" data-color="#6366F1" data-name="Índigo"></div>
-                    <div class="color-option" style="background: #8B5CF6" data-color="#8B5CF6" data-name="Roxo médio"></div>
-                    <div class="color-option" style="background: #A78BFA" data-color="#A78BFA" data-name="Roxo claro"></div>
-                    <div class="color-option" style="background: #7C3AED" data-color="#7C3AED" data-name="Violeta"></div>
-                    <!-- Rosas -->
-                    <div class="color-option" style="background: #D946EF" data-color="#D946EF" data-name="Fúcsia"></div>
-                    <div class="color-option" style="background: #EC4899" data-color="#EC4899" data-name="Pink"></div>
-                    <div class="color-option" style="background: #F472B6" data-color="#F472B6" data-name="Rosa"></div>
-                    <div class="color-option" style="background: #F9A8D4" data-color="#F9A8D4" data-name="Rosa claro"></div>
-                    <!-- Neutros -->
-                    <div class="color-option" style="background: #78716C" data-color="#78716C" data-name="Cinza quente"></div>
-                    <div class="color-option" style="background: #57534E" data-color="#57534E" data-name="Marrom"></div>
-                    <div class="color-option" style="background: #1F2937" data-color="#1F2937" data-name="Carvão"></div>
+                    <div class="color-option" style="background: #EAB308" data-color="#EAB308" data-name="Amarelo"></div>
+                    <!-- Cores Secundárias -->
+                    <div class="color-option" style="background: #F97316" data-color="#F97316" data-name="Laranja"></div>
+                    <div class="color-option" style="background: #22C55E" data-color="#22C55E" data-name="Verde"></div>
+                    <div class="color-option" style="background: #8B5CF6" data-color="#8B5CF6" data-name="Roxo"></div>
+                    <!-- Tons Neutros -->
+                    <div class="color-option" style="background: #6B7280" data-color="#6B7280" data-name="Cinza"></div>
+                    <div class="color-option" style="background: #D4A574" data-color="#D4A574" data-name="Bege"></div>
+                    <div class="color-option" style="background: #EC4899" data-color="#EC4899" data-name="Rosa"></div>
                 </div>
             </div>
             <div class="modal-footer">

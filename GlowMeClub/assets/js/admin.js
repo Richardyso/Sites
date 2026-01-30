@@ -1002,12 +1002,23 @@
         
         const reason = reasonInput ? reasonInput.value : '';
         
+        // Debug: Log dos valores que serão enviados
+        log.info('Valores a serem concedidos:', { xp: xpAmount, coins: coinsAmount, reason });
+        
         if (xpAmount <= 0 && coinsAmount <= 0) {
             showToast('Digite uma quantidade válida de XP ou moedas', 'error');
             return;
         }
         
+        // Confirmação antes de enviar
+        const confirmMsg = `Conceder:\n• ${xpAmount} XP\n• ${coinsAmount} Moedas\n\nConfirmar?`;
+        if (!confirm(confirmMsg)) {
+            return;
+        }
+        
         try {
+            log.info('Enviando para API:', { xp: xpAmount, coins: coinsAmount });
+            
             await window.api.post(`/admin/users/${userId}/grant-points`, {
                 xp: xpAmount,
                 coins: coinsAmount,

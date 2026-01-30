@@ -503,12 +503,18 @@ router.get('/history', verifyToken, async (req, res) => {
                 dateValue = new Date();
             }
             
+            // XP e Moedas separados (com fallback para points antigo)
+            const xp = data.xp !== undefined ? data.xp : (data.points || 0);
+            const coins = data.coins !== undefined ? data.coins : (data.points || 0);
+            
             history.push({
                 id: doc.id,
-                points: data.points || 0,
+                xp: xp,
+                coins: coins,
+                points: data.points || xp, // Compatibilidade
                 action: data.reason || data.action || 'Pontos',
                 reason: data.reason || data.action || 'Pontos',
-                type: data.type || (data.points > 0 ? 'earned' : 'spent'),
+                type: data.type || (xp > 0 || coins > 0 ? 'earned' : 'spent'),
                 icon: getIconForType(data.type),
                 date: dateValue,
                 createdAt: dateValue
@@ -684,12 +690,18 @@ router.get('/users/:id/history', verifyToken, isAdmin, async (req, res) => {
                 dateValue = new Date();
             }
             
+            // XP e Moedas separados (com fallback para points antigo)
+            const xp = data.xp !== undefined ? data.xp : (data.points || 0);
+            const coins = data.coins !== undefined ? data.coins : (data.points || 0);
+            
             history.push({
                 id: doc.id,
-                points: data.points || 0,
+                xp: xp,
+                coins: coins,
+                points: data.points || xp, // Compatibilidade
                 action: data.reason || data.action || 'Pontos',
                 reason: data.reason || data.action || 'Pontos',
-                type: data.type || (data.points > 0 ? 'earned' : 'spent'),
+                type: data.type || (xp > 0 || coins > 0 ? 'earned' : 'spent'),
                 date: dateValue,
                 createdAt: dateValue
             });

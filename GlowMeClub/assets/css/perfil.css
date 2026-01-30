@@ -246,11 +246,62 @@
     max-width: 360px;
 }
 
+/* Grade 3x3 para cores */
+.color-grid.color-grid-3x3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem 0;
+    max-width: 240px;
+    margin: 0 auto;
+}
+
+.color-grid.color-grid-3x3 .color-option {
+    min-height: 56px;
+    width: 56px;
+    margin: 0 auto;
+}
+
 .color-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 0.5rem;
     padding: 0.5rem 0;
+}
+
+/* Phone Input */
+.phone-input-container {
+    display: flex;
+    align-items: center;
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.phone-input-container:focus-within {
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+}
+
+.phone-ddi {
+    padding: 0.875rem 0.75rem;
+    background: #f9f9f9;
+    color: #666;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-right: 1px solid #f0f0f0;
+    white-space: nowrap;
+}
+
+.phone-input {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.phone-input:focus {
+    box-shadow: none !important;
 }
 
 .color-grid .color-option {

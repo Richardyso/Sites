@@ -719,6 +719,7 @@
                     <a href="missoes.html" class="nav-link">Missões</a>
                     <a href="pontos.html" class="nav-link">Pontos</a>
                     <a href="recompensas.html" class="nav-link active">Recompensas</a>
+                    <a href="sobre.html" class="nav-link">Sobre</a>
                 </div>
                 
                 <!-- User Area -->
@@ -997,19 +998,28 @@
             document.getElementById('modalRewardName').textContent = rewardName;
             document.getElementById('modalRewardCost').textContent = cost.toLocaleString('pt-BR');
             
-            // Verificar se tem pontos suficientes
+            // Verificar se tem MOEDAS suficientes
             const userPointsText = document.getElementById('userPoints').textContent.replace(/\./g, '');
-            const userPoints = parseInt(userPointsText) || 0;
+            const userCoins = parseInt(userPointsText) || 0;
             const confirmBtn = document.getElementById('confirmRedeemBtn');
             
-            if (userPoints < cost) {
+            console.log('Verificação de saldo:', { userCoins, cost, canRedeem: userCoins >= cost });
+            
+            if (userCoins < cost) {
                 document.getElementById('modalMessage').innerHTML = 
-                    `<span style="color: #DC2626;">Você precisa de mais ${(cost - userPoints).toLocaleString('pt-BR')} pontos para resgatar esta recompensa.</span>`;
+                    `<span style="color: #DC2626; font-weight: 600;">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Moedas insuficientes! Faltam ${(cost - userCoins).toLocaleString('pt-BR')} moedas.
+                    </span>`;
                 confirmBtn.disabled = true;
+                confirmBtn.style.opacity = '0.5';
+                confirmBtn.style.cursor = 'not-allowed';
             } else {
                 document.getElementById('modalMessage').textContent = 
                     'Após o resgate, você terá acesso à sua recompensa.';
                 confirmBtn.disabled = false;
+                confirmBtn.style.opacity = '1';
+                confirmBtn.style.cursor = 'pointer';
             }
             
             document.getElementById('redeemModal').classList.add('active');
@@ -1024,6 +1034,18 @@
             if (!currentRewardId) return;
             
             const confirmBtn = document.getElementById('confirmRedeemBtn');
+            
+            // VALIDAÇÃO CRÍTICA: Verificar saldo de moedas ANTES de chamar a API
+            const userPointsEl = document.getElementById('userPoints');
+            const userPointsText = userPointsEl ? userPointsEl.textContent.replace(/\./g, '') : '0';
+            const currentCoins = parseInt(userPointsText) || 0;
+            
+            if (currentCoins < currentRewardCost) {
+                alert(`Moedas insuficientes!\n\nVocê tem: ${currentCoins.toLocaleString('pt-BR')} moedas\nCusto: ${currentRewardCost.toLocaleString('pt-BR')} moedas\nFaltam: ${(currentRewardCost - currentCoins).toLocaleString('pt-BR')} moedas`);
+                closeRedeemModal();
+                return;
+            }
+            
             confirmBtn.disabled = true;
             confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resgatando...';
             
@@ -1033,32 +1055,33 @@
                 
                 console.log('Resposta do resgate:', response);
                 
-                // Calcular novos pontos
-                let newPoints;
+                // Usar newCoins da resposta (moedas restantes após o resgate)
+                let newCoins;
                 
-                // Verificar se a API retornou os novos pontos (e não é null/undefined)
-                if (response && response.newTotalPoints !== undefined && response.newTotalPoints !== null) {
-                    newPoints = response.newTotalPoints;
+                // Verificar se a API retornou as novas moedas
+                if (response && response.newCoins !== undefined && response.newCoins !== null) {
+                    newCoins = response.newCoins;
+                } else if (response && response.newTotalPoints !== undefined && response.newTotalPoints !== null) {
+                    // Fallback para compatibilidade
+                    newCoins = response.newTotalPoints;
                 } else {
-                    // Se a API não retornou os novos pontos, calcular localmente
-                    const userPointsEl = document.getElementById('userPoints');
-                    const userPointsText = userPointsEl ? userPointsEl.textContent.replace(/\./g, '') : '0';
-                    const currentPoints = parseInt(userPointsText) || 0;
-                    newPoints = Math.max(0, currentPoints - currentRewardCost);
+                    // Se a API não retornou, calcular localmente
+                    newCoins = Math.max(0, currentCoins - currentRewardCost);
                 }
                 
-                // Atualizar pontos na tela
+                // Atualizar moedas na tela
                 const userPointsDisplay = document.getElementById('userPoints');
                 if (userPointsDisplay) {
-                    userPointsDisplay.textContent = newPoints.toLocaleString('pt-BR');
+                    userPointsDisplay.textContent = newCoins.toLocaleString('pt-BR');
                 }
                 
-                // Atualizar cache local
+                // Atualizar cache local com moedas
                 const cachedData = localStorage.getItem('cachedUserData');
                 if (cachedData) {
                     try {
                         const userData = JSON.parse(cachedData);
-                        userData.totalPoints = newPoints;
+                        userData.coins = newCoins;
+                        userData.totalPoints = userData.xp || userData.totalPoints; // XP não muda
                         localStorage.setItem('cachedUserData', JSON.stringify(userData));
                     } catch (e) {
                         console.warn('Erro ao atualizar cache:', e);
