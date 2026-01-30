@@ -241,21 +241,39 @@
                         </div>
                     </div>
                     
-                    <!-- Extrato Detalhado Section -->
+                    <!-- Histórico de Transações Section -->
                     <div class="user-history-section">
                         <h4 class="user-history-title">
-                            <i class="fas fa-history"></i> Extrato Detalhado
+                            <i class="fas fa-history"></i> Histórico de Transações
                         </h4>
                         <div class="user-history-tabs">
                             <button class="history-tab active" data-tab="all" onclick="window.adminFilterHistory('all', this)">Todos</button>
                             <button class="history-tab" data-tab="earned" onclick="window.adminFilterHistory('earned', this)">Ganhos</button>
                             <button class="history-tab" data-tab="spent" onclick="window.adminFilterHistory('spent', this)">Gastos</button>
+                            <button class="history-tab" data-tab="penalty" onclick="window.adminFilterHistory('penalty', this)">Penalidades</button>
                         </div>
-                        <div class="user-history-list" id="userHistoryList">
-                            <div class="history-loading">
-                                <i class="fas fa-spinner fa-spin"></i> Carregando histórico...
-                            </div>
+                        
+                        <!-- Tabela de Histórico -->
+                        <div class="user-history-table-container">
+                            <table class="user-history-table" id="userHistoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Ação</th>
+                                        <th>Moedas</th>
+                                        <th>XP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userHistoryList">
+                                    <tr>
+                                        <td colspan="4" class="history-loading">
+                                            <i class="fas fa-spinner fa-spin"></i> Carregando histórico...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
+                        
                         <div class="user-history-empty" id="userHistoryEmpty" style="display: none;">
                             <i class="fas fa-inbox"></i>
                             <p>Nenhum registro encontrado</p>

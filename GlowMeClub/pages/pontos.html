@@ -323,6 +323,7 @@
         .history-date {
             color: var(--cor-texto-medio);
             font-size: 0.875rem;
+            white-space: nowrap;
         }
         
         .history-action {
@@ -330,9 +331,16 @@
             color: var(--cor-texto-escuro);
         }
         
-        .history-points {
+        .history-coins,
+        .history-xp {
             font-weight: 600;
-            text-align: right;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .history-table th:nth-child(3),
+        .history-table th:nth-child(4) {
+            text-align: center;
         }
         
         .points-positive {
@@ -343,15 +351,28 @@
             color: #DC2626;
         }
         
+        .points-neutral {
+            color: var(--cor-texto-medio);
+        }
+        
+        /* Linha de penalidade */
+        .penalty-row {
+            background: #FEF2F2;
+        }
+        
+        .penalty-row:hover {
+            background: #FEE2E2;
+        }
+        
         /* Mobile Responsive Table */
         @media (max-width: 767px) {
             .history-table {
-                font-size: 0.875rem;
+                font-size: 0.75rem;
             }
             
             .history-table th,
             .history-table td {
-                padding: var(--spacing-sm);
+                padding: var(--spacing-xs) var(--spacing-sm);
             }
             
             .history-table th:first-child,
@@ -362,6 +383,29 @@
             .history-table th:last-child,
             .history-table td:last-child {
                 padding-right: 0;
+            }
+            
+            .history-date {
+                font-size: 0.7rem;
+            }
+            
+            .history-action {
+                font-size: 0.75rem;
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .history-table th,
+            .history-table td {
+                padding: var(--spacing-xs);
+            }
+            
+            .history-coins,
+            .history-xp {
+                font-size: 0.7rem;
             }
         }
         
@@ -526,14 +570,15 @@
             </div>
             
             
-            <!-- Points History -->
+            <!-- Transaction History -->
             <div class="history-section">
                 <div class="section-header">
-                    <h2 class="section-title">Histórico de Pontos</h2>
+                    <h2 class="section-title">Histórico de Transações</h2>
                     <select class="filter-select" id="filterSelect">
                         <option value="all">Todos</option>
                         <option value="earned">Ganhos</option>
-                        <option value="spent">Gastos</option>
+                        <option value="spent">Gastos/Resgates</option>
+                        <option value="penalty">Penalidades</option>
                     </select>
                 </div>
                 
@@ -544,7 +589,8 @@
                             <tr>
                                 <th>Data</th>
                                 <th>Ação</th>
-                                <th>Pontos</th>
+                                <th>Moedas</th>
+                                <th>XP</th>
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
@@ -557,7 +603,7 @@
                         <div class="empty-icon">
                             <i class="fas fa-history"></i>
                         </div>
-                        <p>Nenhum histórico de pontos ainda</p>
+                        <p>Nenhum histórico de transações ainda</p>
                         <p>Complete missões e metas para ganhar seus primeiros pontos!</p>
                     </div>
                     

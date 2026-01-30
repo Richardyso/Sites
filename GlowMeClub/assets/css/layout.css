@@ -7,7 +7,7 @@
 
 /* Body padding para mobile */
 body {
-    padding-bottom: 70px; /* Espaço para bottom nav */
+    padding-bottom: 0; /* Sem bottom nav - usando menu hambúrguer */
     background: #F9FAFB;
 }
 
@@ -344,15 +344,9 @@ body {
     font-size: 0.875rem;
 }
 
-/* Bottom Navigation - Mobile */
+/* Bottom Navigation - Mobile - REMOVIDO (usando menu hambúrguer) */
 .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
-    z-index: 100;
+    display: none; /* Esconder bottom nav - usar menu hambúrguer */
 }
 
 .bottom-nav-items {
@@ -642,19 +636,4 @@ body {
     }
 }
 
-/* Safe area for notched phones */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-    .bottom-nav {
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-    
-    body {
-        padding-bottom: calc(70px + env(safe-area-inset-bottom));
-    }
-    
-    @media (min-width: 768px) {
-        body {
-            padding-bottom: 0;
-        }
-    }
-}
+/* Safe area for notched phones - não necessário com menu hambúrguer */

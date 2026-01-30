@@ -566,6 +566,7 @@
     function displayUserHistory() {
         const historyList = document.getElementById('userHistoryList');
         const historyEmpty = document.getElementById('userHistoryEmpty');
+        const historyTable = document.getElementById('userHistoryTable');
         
         if (!historyList) return;
         
@@ -573,24 +574,33 @@
         let filteredHistory = currentUserHistory;
         if (currentHistoryFilter === 'earned') {
             filteredHistory = currentUserHistory.filter(item => {
-                const xp = item.xp !== undefined ? item.xp : item.points;
-                const coins = item.coins !== undefined ? item.coins : item.points;
-                return xp > 0 || coins > 0;
+                const xp = item.xp !== undefined ? item.xp : (item.points || 0);
+                const coins = item.coins !== undefined ? item.coins : (item.points || 0);
+                return (xp > 0 || coins > 0) && item.type !== 'admin_penalty';
             });
         } else if (currentHistoryFilter === 'spent') {
             filteredHistory = currentUserHistory.filter(item => {
-                const xp = item.xp !== undefined ? item.xp : item.points;
-                const coins = item.coins !== undefined ? item.coins : item.points;
-                return xp < 0 || coins < 0;
+                const xp = item.xp !== undefined ? item.xp : (item.points || 0);
+                const coins = item.coins !== undefined ? item.coins : (item.points || 0);
+                return (xp < 0 || coins < 0 || item.type === 'spent' || item.type === 'reward_redeemed') && item.type !== 'admin_penalty';
             });
+        } else if (currentHistoryFilter === 'penalty') {
+            filteredHistory = currentUserHistory.filter(item => item.type === 'admin_penalty');
         }
         
         if (filteredHistory.length === 0) {
-            historyList.innerHTML = '';
+            historyList.innerHTML = '<tr><td colspan="4" class="history-empty-row">Nenhum registro encontrado</td></tr>';
+            if (historyTable) historyTable.style.display = 'table';
             if (historyEmpty) {
+                const filterMessages = {
+                    'all': 'Nenhum histórico de transações',
+                    'earned': 'Nenhum ganho registrado',
+                    'spent': 'Nenhum gasto ou resgate registrado',
+                    'penalty': 'Nenhuma penalidade registrada'
+                };
                 historyEmpty.innerHTML = `
                     <i class="fas fa-inbox"></i>
-                    <p>Nenhum registro encontrado</p>
+                    <p>${filterMessages[currentHistoryFilter] || filterMessages['all']}</p>
                 `;
                 historyEmpty.style.display = 'block';
             }
@@ -598,60 +608,53 @@
         }
         
         if (historyEmpty) historyEmpty.style.display = 'none';
+        if (historyTable) historyTable.style.display = 'table';
         
         historyList.innerHTML = filteredHistory.map(item => {
             // XP e Moedas separados (com fallback para points antigo)
-            const xp = item.xp !== undefined ? item.xp : item.points;
-            const coins = item.coins !== undefined ? item.coins : item.points;
+            const xp = item.xp !== undefined ? item.xp : (item.points || 0);
+            const coins = item.coins !== undefined ? item.coins : (item.points || 0);
             
-            const isEarned = xp > 0 || coins > 0;
             const isPenalty = item.type === 'admin_penalty';
-            const pointsClass = isPenalty ? 'penalty' : (isEarned ? 'positive' : 'negative');
-            const iconClass = isPenalty ? 'penalty' : (isEarned ? 'earned' : 'spent');
+            const isSpent = item.type === 'spent' || item.type === 'reward_redeemed';
             const icon = getHistoryIcon(item.type);
             
             // Formatar data
-            let dateStr = 'Data desconhecida';
+            let dateStr = '-';
             if (item.date || item.createdAt) {
                 const date = new Date(item.date || item.createdAt);
                 dateStr = date.toLocaleDateString('pt-BR', { 
                     day: '2-digit', 
-                    month: '2-digit', 
-                    year: 'numeric',
+                    month: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit'
                 });
             }
             
-            // Montar string de pontos (XP e/ou Moedas)
-            let pointsDisplay = [];
-            if (xp !== 0) {
-                const xpSign = xp > 0 ? '+' : '';
-                pointsDisplay.push(`${xpSign}${xp} XP`);
-            }
-            if (coins !== 0 && coins !== xp) {
-                const coinsSign = coins > 0 ? '+' : '';
-                pointsDisplay.push(`${coinsSign}${coins} 🪙`);
-            }
-            // Se só tiver points antigo
-            if (pointsDisplay.length === 0 && item.points !== undefined) {
-                const sign = item.points > 0 ? '+' : '';
-                pointsDisplay.push(`${sign}${item.points} pts`);
-            }
+            // Classes de estilo para moedas
+            let coinsClass = 'positive';
+            if (isPenalty || coins < 0) coinsClass = 'negative';
+            else if (isSpent) coinsClass = 'negative';
+            else if (coins === 0) coinsClass = 'neutral';
+            
+            // Classes de estilo para XP
+            let xpClass = 'positive';
+            if (isPenalty || xp < 0) xpClass = 'negative';
+            else if (xp === 0) xpClass = 'neutral';
+            
+            // Formatar valores
+            const coinsSign = coins > 0 ? '+' : '';
+            const xpSign = xp > 0 ? '+' : '';
+            const coinsDisplay = coins !== 0 ? `${coinsSign}${coins}` : '-';
+            const xpDisplay = xp !== 0 ? `${xpSign}${xp}` : '-';
             
             return `
-                <div class="history-item ${isPenalty ? 'penalty-item' : ''}">
-                    <div class="history-item-icon ${iconClass}">
-                        ${icon}
-                    </div>
-                    <div class="history-item-info">
-                        <div class="history-item-reason">${item.reason || item.action || 'Pontos'}</div>
-                        <div class="history-item-date">${dateStr}</div>
-                    </div>
-                    <div class="history-item-points ${pointsClass}">
-                        ${pointsDisplay.join(' / ')}
-                    </div>
-                </div>
+                <tr class="${isPenalty ? 'penalty-row' : ''}">
+                    <td class="history-date">${dateStr}</td>
+                    <td class="history-action">${icon} ${item.reason || item.action || 'Transação'}</td>
+                    <td class="history-coins ${coinsClass}">${coinsDisplay}</td>
+                    <td class="history-xp ${xpClass}">${xpDisplay}</td>
+                </tr>
             `;
         }).join('');
     }

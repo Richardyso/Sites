@@ -173,6 +173,9 @@ async function loadHistoryFromBackend() {
     }
 }
 
+// Filtro atual
+let currentFilter = 'all';
+
 // Exibir histórico
 function displayHistory() {
     const tableBody = document.getElementById('historyTableBody');
@@ -180,15 +183,42 @@ function displayHistory() {
     
     if (!tableBody) return;
     
-    if (pointsHistory.length === 0) {
+    // Aplicar filtro
+    let filteredHistory = pointsHistory;
+    if (currentFilter === 'earned') {
+        filteredHistory = pointsHistory.filter(item => {
+            const xp = item.xp !== undefined ? item.xp : (item.points || 0);
+            const coins = item.coins !== undefined ? item.coins : (item.points || 0);
+            return (xp > 0 || coins > 0) && item.type !== 'admin_penalty';
+        });
+    } else if (currentFilter === 'spent') {
+        filteredHistory = pointsHistory.filter(item => {
+            const xp = item.xp !== undefined ? item.xp : (item.points || 0);
+            const coins = item.coins !== undefined ? item.coins : (item.points || 0);
+            return (xp < 0 || coins < 0 || item.type === 'spent' || item.type === 'reward_redeemed') && item.type !== 'admin_penalty';
+        });
+    } else if (currentFilter === 'penalty') {
+        filteredHistory = pointsHistory.filter(item => item.type === 'admin_penalty');
+    }
+    
+    if (filteredHistory.length === 0) {
         tableBody.innerHTML = '';
-        if (emptyHistory) emptyHistory.style.display = 'block';
+        if (emptyHistory) {
+            emptyHistory.style.display = 'block';
+            const filterMessages = {
+                'all': 'Nenhum histórico de transações ainda',
+                'earned': 'Nenhum ganho registrado ainda',
+                'spent': 'Nenhum gasto ou resgate registrado ainda',
+                'penalty': 'Nenhuma penalidade registrada'
+            };
+            emptyHistory.querySelector('p:first-of-type').textContent = filterMessages[currentFilter] || filterMessages['all'];
+        }
         return;
     }
     
     if (emptyHistory) emptyHistory.style.display = 'none';
     
-    tableBody.innerHTML = pointsHistory.map(item => {
+    tableBody.innerHTML = filteredHistory.map(item => {
         // Tratar data (pode vir como string ou objeto Date)
         let date;
         if (item.date) {
@@ -203,44 +233,41 @@ function displayHistory() {
         const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         
         // XP e Moedas separados (com fallback para points antigo)
-        const xp = item.xp !== undefined ? item.xp : item.points;
-        const coins = item.coins !== undefined ? item.coins : item.points;
+        const xp = item.xp !== undefined ? item.xp : (item.points || 0);
+        const coins = item.coins !== undefined ? item.coins : (item.points || 0);
         
         // Determinar se é ganho, gasto ou penalização
         const isPenalty = item.type === 'admin_penalty';
         const isSpent = item.type === 'spent' || item.type === 'reward_redeemed';
-        const isEarned = !isPenalty && !isSpent && (xp > 0 || coins > 0);
         
-        // Classe de estilo
-        let pointsClass = 'points-positive';
-        if (isPenalty) pointsClass = 'points-penalty';
-        else if (isSpent || xp < 0 || coins < 0) pointsClass = 'points-negative';
+        // Classe de estilo para moedas
+        let coinsClass = 'points-positive';
+        if (isPenalty || coins < 0) coinsClass = 'points-negative';
+        else if (isSpent) coinsClass = 'points-negative';
+        else if (coins === 0) coinsClass = 'points-neutral';
         
-        // Montar string de pontos
-        let pointsDisplay = [];
-        if (xp !== undefined && xp !== 0) {
-            const xpSign = xp > 0 ? '+' : '';
-            pointsDisplay.push(`${xpSign}${xp} XP`);
-        }
-        if (coins !== undefined && coins !== 0 && coins !== xp) {
-            const coinsSign = coins > 0 ? '+' : '';
-            pointsDisplay.push(`${coinsSign}${coins} 🪙`);
-        }
-        // Fallback para points antigo
-        if (pointsDisplay.length === 0 && item.points !== undefined && item.points !== 0) {
-            const sign = item.points > 0 ? '+' : '';
-            pointsDisplay.push(`${sign}${item.points} pts`);
-        }
+        // Classe de estilo para XP
+        let xpClass = 'points-positive';
+        if (isPenalty || xp < 0) xpClass = 'points-negative';
+        else if (xp === 0) xpClass = 'points-neutral';
+        
+        // Formatar valores
+        const coinsSign = coins > 0 ? '+' : '';
+        const xpSign = xp > 0 ? '+' : '';
+        
+        const coinsDisplay = coins !== 0 ? `${coinsSign}${coins}` : '-';
+        const xpDisplay = xp !== 0 ? `${xpSign}${xp}` : '-';
         
         // Obter descrição da ação
-        const actionText = item.reason || item.action || 'Pontos';
+        const actionText = item.reason || item.action || 'Transação';
         const icon = item.icon || getIconForType(item.type);
         
         return `
             <tr class="${isPenalty ? 'penalty-row' : ''}">
                 <td class="history-date">${dateStr}, ${timeStr}</td>
                 <td class="history-action">${icon} ${actionText}</td>
-                <td class="history-points ${pointsClass}">${pointsDisplay.join(' / ') || '0'}</td>
+                <td class="history-coins ${coinsClass}">${coinsDisplay}</td>
+                <td class="history-xp ${xpClass}">${xpDisplay}</td>
             </tr>
         `;
     }).join('');
@@ -280,16 +307,21 @@ function formatDate(date) {
 
 // Filtrar histórico
 window.filterHistory = function(filter) {
-    const buttons = document.querySelectorAll('.filter-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    
-    // Por enquanto apenas visual
-    logger.info(`Filtro aplicado: ${filter}`);
+    currentFilter = filter;
+    displayHistory();
 }
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-    logger.info('💎 Carregando histórico de pontos...');
+    logger.info('💎 Carregando histórico de transações...');
     loadPointsHistory();
+    
+    // Listener para o filtro select
+    const filterSelect = document.getElementById('filterSelect');
+    if (filterSelect) {
+        filterSelect.addEventListener('change', function() {
+            currentFilter = this.value;
+            displayHistory();
+        });
+    }
 });

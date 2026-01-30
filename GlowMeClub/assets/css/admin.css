@@ -893,7 +893,7 @@
     margin-right: 0.5rem;
 }
 
-/* ===== User History Section ===== */
+/* ===== User History Section (Histórico de Transações) ===== */
 .user-history-section {
     background: var(--admin-gray-50);
     border-radius: 8px;
@@ -919,6 +919,7 @@
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
 }
 
 .history-tab {
@@ -926,7 +927,7 @@
     border: 1px solid var(--admin-gray-300);
     border-radius: 6px;
     background: white;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--admin-gray-600);
     cursor: pointer;
     transition: all 0.2s;
@@ -943,74 +944,99 @@
     color: white;
 }
 
-.user-history-list {
-    max-height: 300px;
+/* Tabela de Histórico */
+.user-history-table-container {
+    max-height: 350px;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.history-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
     background: white;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid var(--admin-gray-200);
 }
 
-.history-item-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    flex-shrink: 0;
+.user-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
 }
 
-.history-item-icon.earned {
-    background: #D1FAE5;
+.user-history-table thead {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
 }
 
-.history-item-icon.spent {
-    background: #FEE2E2;
+.user-history-table th {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 2px solid var(--admin-gray-200);
+    font-weight: 600;
+    color: var(--admin-gray-600);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
-.history-item-info {
-    flex: 1;
-    min-width: 0;
+.user-history-table th:nth-child(3),
+.user-history-table th:nth-child(4) {
+    text-align: center;
 }
 
-.history-item-reason {
-    font-size: 0.875rem;
+.user-history-table td {
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--admin-gray-100);
+    vertical-align: middle;
+}
+
+.user-history-table tr:last-child td {
+    border-bottom: none;
+}
+
+.user-history-table .history-date {
+    color: var(--admin-gray-500);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.user-history-table .history-action {
     font-weight: 500;
     color: var(--admin-gray-900);
-    white-space: nowrap;
+    max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.history-item-date {
-    font-size: 0.75rem;
-    color: var(--admin-gray-500);
-}
-
-.history-item-points {
+.user-history-table .history-coins,
+.user-history-table .history-xp {
     font-weight: 600;
-    font-size: 0.875rem;
+    text-align: center;
     white-space: nowrap;
 }
 
-.history-item-points.positive {
+.user-history-table .positive {
     color: #059669;
 }
 
-.history-item-points.negative {
+.user-history-table .negative {
     color: #DC2626;
+}
+
+.user-history-table .neutral {
+    color: var(--admin-gray-400);
+}
+
+.user-history-table .penalty-row {
+    background: #FEF2F2;
+}
+
+.user-history-table .penalty-row:hover {
+    background: #FEE2E2;
+}
+
+.user-history-table .history-empty-row {
+    text-align: center;
+    padding: 2rem;
+    color: var(--admin-gray-500);
 }
 
 .history-loading {
@@ -1038,6 +1064,22 @@
 .user-history-empty p {
     margin: 0;
     font-size: 0.875rem;
+}
+
+/* Mobile responsive para tabela de histórico */
+@media (max-width: 500px) {
+    .user-history-table {
+        font-size: 0.7rem;
+    }
+    
+    .user-history-table th,
+    .user-history-table td {
+        padding: 0.5rem;
+    }
+    
+    .user-history-table .history-action {
+        max-width: 100px;
+    }
 }
 
 /* ===== User Goals Section ===== */
