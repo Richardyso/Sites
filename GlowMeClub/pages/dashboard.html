@@ -120,135 +120,125 @@
 
     <!-- Main Content -->
     <main class="main-container">
-            <!-- Welcome Section -->
-            <section class="welcome-section">
-                <h1 class="welcome-title">Olá, <span id="userName">Usuária</span>! ✨</h1>
-                <p class="welcome-subtitle">Vamos continuar sua jornada de evolução hoje?</p>
-            </section>
-            
-            <!-- Action Hub - Nova seção de engajamento -->
-            <section class="action-hub">
-                <!-- Recomendação do dia -->
-                <div class="hub-card recommendation-card" id="recommendationCard">
-                    <div class="hub-icon">💡</div>
-                    <div class="hub-content">
-                        <span class="hub-label">Próxima ação</span>
-                        <strong id="recommendationText">Complete 1 missão e ganhe +10 pontos!</strong>
+            <!-- Welcome & Motivation Section -->
+            <section class="welcome-container">
+                <div class="welcome-header">
+                    <h1 class="welcome-title">Oi, <span id="userName">Usuária</span>! ✨</h1>
+                    <div id="motivationalMessage" class="motivational-bubble">
+                        "Você é a sua maior prioridade hoje."
                     </div>
-                    <a href="missoes.html" class="hub-action">
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
                 </div>
-                
-                <!-- Streak do dia com Check-in -->
-                <div class="hub-card streak-card">
-                    <div class="streak-header">
-                        <span class="streak-emoji" id="streakEmoji">🔥</span>
-                        <span class="streak-count" id="streakCount">0</span>
-                        <span class="streak-label">dias cuidando de você</span>
+
+                <!-- Check-in Action -->
+                <div class="checkin-container">
+                    <div class="streak-mini">
+                        <span id="streakEmoji">🔥</span>
+                        <span id="streakCount">0</span> dias
                     </div>
-                    <div class="streak-actions">
-                        <button class="btn-checkin" id="checkinBtn" onclick="doCheckin()">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Check-in (+10 pts)</span>
-                        </button>
-                        <span class="checkin-status" id="checkinStatus"></span>
+                    <button class="btn-checkin-new" id="checkinBtn" onclick="doCheckin()">
+                        <i class="fas fa-heart"></i>
+                        <span>Fazer Check-in</span>
+                    </button>
+                    <div class="checkin-status" id="checkinStatus"></div>
+                </div>
+            </section>
+
+            <!-- Level Showcase - O Grande Destaque -->
+            <section class="level-hero-section">
+                <div class="level-card-main">
+                    <div class="level-image-wrapper">
+                        <div class="level-glow-effect"></div>
+                        <img src="../assets/images/plebeia.png" alt="Nível Atual" id="levelImage" class="level-img-hero">
+                    </div>
+                    <div class="level-info-main">
+                        <span class="level-label-top">Você é uma</span>
+                        <h2 id="levelName" class="level-name-hero">Plebeia</h2>
+                        <p class="level-quote" id="levelQuote">"Toda rainha começa aqui."</p>
+                        
+                        <div class="level-progress-hero">
+                            <div class="progress-bar-hero">
+                                <div class="progress-fill-hero" id="levelProgress"></div>
+                            </div>
+                            <span class="progress-text-hero" id="levelProgressText">0/500 XP para Princesa</span>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Ranking Destaque -->
-            <section class="ranking-highlight-section">
-                <div class="ranking-card-full">
-                    <div class="ranking-header">
-                        <h3><i class="fas fa-trophy"></i> Ranking Glow</h3>
-                        <span class="ranking-subtitle">Top 10 Deusas</span>
+            <!-- User Preferences Mini Hub -->
+            <section class="preferences-hub">
+                <div class="pref-card">
+                    <div class="pref-icon">🎯</div>
+                    <div class="pref-info">
+                        <span class="pref-label">Foco Atual</span>
+                        <strong id="userFocusArea">Mental</strong>
                     </div>
-                    <div class="ranking-list" id="rankingList">
-                        <!-- Rankings serão carregados dinamicamente -->
-                        <div class="ranking-loading" style="text-align: center; padding: 2rem; color: #999;">
-                            <i class="fas fa-spinner fa-spin"></i> Carregando ranking...
+                </div>
+                <div class="pref-card">
+                    <div class="pref-icon">🎨</div>
+                    <div class="pref-info">
+                        <span class="pref-label">Sua Cor</span>
+                        <div class="pref-color-preview" id="userColorPreview"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ranking Glow -->
+            <section class="ranking-section-new">
+                <div class="ranking-card-cute">
+                    <div class="ranking-header-cute">
+                        <h3><i class="fas fa-crown"></i> Ranking Glow</h3>
+                        <p>As Deusas que estão brilhando</p>
+                    </div>
+                    <div class="ranking-list-cute" id="rankingList">
+                        <!-- Carregado via JS -->
+                        <div class="ranking-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
                         </div>
                     </div>
-                    <div class="ranking-footer">
-                        <div class="user-ranking">
-                            <span>Sua posição:</span>
-                            <strong id="userRankPosition">-</strong>
+                    <div class="ranking-footer-cute">
+                        <div class="my-position-cute">
+                            Sua posição: <strong id="userRankPosition">-</strong>
                         </div>
                     </div>
                 </div>
             </section>
 
             <!-- Stats Grid -->
-            <section class="stats-section">
-                <div class="stats-grid-new">
-                    <!-- Nível Atual -->
-                    <div class="level-showcase-card">
-                        <div class="level-image-container">
-                            <img src="../assets/images/plebeia.png" alt="Nível Plebeia" id="levelImage" class="level-image">
-                            <div class="level-glow"></div>
-                        </div>
-                        <div class="level-details">
-                            <h3>Nível Atual</h3>
-                            <div class="card-value">
-                                <span id="levelName" class="level-name">Plebeia</span>
-                            </div>
-                            <div class="level-message">"O primeiro passo para a transformação"</div>
-                            <div class="progress-container">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="levelProgress" style="width: 0%"></div>
-                                </div>
-                                <div class="card-label">
-                                    <span id="levelProgressText">0/500 pontos para Princesa</span>
-                                </div>
-                            </div>
+            <section class="stats-grid-cute">
+                <a href="missoes.html" class="stat-card-cute card-missions">
+                    <div class="stat-icon-cute">⭐</div>
+                    <div class="stat-content-cute">
+                        <h3>Missões de Hoje</h3>
+                        <div class="stat-value-cute">
+                            <span id="completedMissions">0</span>/<span id="totalMissions">5</span>
                         </div>
                     </div>
+                </a>
 
-                    <!-- Total de Pontos -->
-                    <a href="pontos.html" class="dashboard-card card-sparkle">
-                        <div class="card-icon card-points">
-                            <i class="fas fa-gem"></i>
-                        </div>
-                        <h3>BabiPoints</h3>
-                        <div class="points-display">
-                            <div class="points-number" id="totalPoints">0</div>
-                            <div class="card-label">Pontos conquistados</div>
-                        </div>
-                    </a>
-
-                    <!-- Metas Ativas -->
-                    <a href="metas.html" class="dashboard-card">
-                        <div class="card-icon card-goals">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
+                <a href="metas.html" class="stat-card-cute card-goals">
+                    <div class="stat-icon-cute">🎯</div>
+                    <div class="stat-content-cute">
                         <h3>Metas Ativas</h3>
-                        <div class="card-value" id="activeGoalsCount">0</div>
-                        <div class="card-label">Em andamento</div>
-                    </a>
+                        <div class="stat-value-cute" id="activeGoalsCount">0</div>
+                    </div>
+                </a>
 
-                    <!-- Missões de Hoje -->
-                    <a href="missoes.html" class="dashboard-card">
-                        <div class="card-icon card-missions">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <h3>Missões de Hoje</h3>
-                        <div class="card-value">
-                            <span id="completedMissions">0</span>/<span id="totalMissions">3</span>
-                        </div>
-                        <div class="card-label">Completadas</div>
-                    </a>
+                <a href="pontos.html" class="stat-card-cute card-points">
+                    <div class="stat-icon-cute">💎</div>
+                    <div class="stat-content-cute">
+                        <h3>BabiPoints</h3>
+                        <div class="stat-value-cute" id="totalPoints">0</div>
+                    </div>
+                </a>
 
-                    <!-- Recompensas Disponíveis -->
-                    <a href="recompensas.html" class="dashboard-card">
-                        <div class="card-icon card-rewards">
-                            <i class="fas fa-gift"></i>
-                        </div>
+                <a href="recompensas.html" class="stat-card-cute card-rewards">
+                    <div class="stat-icon-cute">🎁</div>
+                    <div class="stat-content-cute">
                         <h3>Recompensas</h3>
-                        <div class="card-value" id="availableRewards">0</div>
-                        <div class="card-label">Disponíveis</div>
-                    </a>
-                </div>
+                        <div class="stat-value-cute" id="availableRewards">0</div>
+                    </div>
+                </a>
             </section>
     </main>
 

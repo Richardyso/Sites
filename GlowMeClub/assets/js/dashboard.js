@@ -8,6 +8,20 @@ if (!window.appConfig || !window.api) {
 // Dados do usuário atual
 let currentUser = null;
 
+// Mensagens Motivacionais
+const motivationalMessages = [
+    "Você é a sua maior prioridade hoje. ✨",
+    "Cada pequeno passo é uma vitória. 💜",
+    "Brilhe do seu jeito, no seu tempo. 🌟",
+    "O autocuidado é a melhor forma de se amar. 🧘‍♀️",
+    "Sua evolução é constante, acredite! 💪",
+    "Hoje é um ótimo dia para ser incrível. 🌈",
+    "Você merece todo o amor que oferece. 💖",
+    "Respire fundo e continue brilhando. ✨",
+    "Seu brilho é único e necessário. 💎",
+    "Transforme seus sonhos em realidade. 🚀"
+];
+
 // Mostrar indicador de modo offline
 function showOfflineIndicator() {
     const existingIndicator = document.querySelector('.offline-indicator');
@@ -113,6 +127,9 @@ function updateDashboard() {
     // Nome do usuário
     document.getElementById('userName').textContent = currentUser.name || 'Usuária';
     
+    // Mensagem Motivacional do Dia
+    updateMotivationalMessage();
+
     // Avatar no header (usa função compartilhada que suporta imagem de perfil)
     if (window.updateHeaderAvatar) {
         window.updateHeaderAvatar(currentUser);
@@ -123,6 +140,13 @@ function updateDashboard() {
     // Moedas são para recompensas (gastável)
     const totalCoins = currentUser.coins !== undefined ? currentUser.coins : totalXp;
     
+    // Preferências
+    const userFocusArea = document.getElementById('userFocusArea');
+    if (userFocusArea) userFocusArea.textContent = currentUser.focusArea || 'Não definido';
+    
+    const userColorPreview = document.getElementById('userColorPreview');
+    if (userColorPreview) userColorPreview.style.background = currentUser.preferredColor || '#8B5CF6';
+
     // Calcular nível baseado em XP (mesma lógica do backend)
     let currentLevel;
     if (totalXp < 500) currentLevel = 1;
@@ -131,51 +155,40 @@ function updateDashboard() {
     else if (totalXp < 5000) currentLevel = 4;
     else currentLevel = 5;
     
-    // Atualizar XP (exibido como "pontos" para o usuário)
+    // Atualizar XP
     const totalPointsElement = document.getElementById('totalPoints');
     if (totalPointsElement) {
         totalPointsElement.textContent = totalXp.toLocaleString('pt-BR');
     }
     
-    // Atualizar moedas (se existir elemento)
-    const totalCoinsElement = document.getElementById('totalCoins');
-    if (totalCoinsElement) {
-        totalCoinsElement.textContent = totalCoins.toLocaleString('pt-BR');
-    }
-    
-    // Dados de nível com mensagens motivacionais e imagens (ÚNICA FONTE DE VERDADE)
+    // Dados de nível com mensagens motivacionais e imagens
     const levels = {
         1: { 
             name: 'Plebeia', 
-            emoji: '🌱',
             message: 'Toda rainha começa aqui.',
             xpNeeded: 500,
             image: 'plebeia.png'
         },
         2: { 
             name: 'Princesa', 
-            emoji: '👑',
             message: 'Consistência é o teu novo luxo.',
             xpNeeded: 1500,
             image: 'princesa.png'
         },
         3: { 
             name: 'Rainha', 
-            emoji: '✨',
             message: 'Tu assumes o teu lugar.',
             xpNeeded: 3000,
             image: 'rainha.png'
         },
         4: { 
             name: 'Imperatriz', 
-            emoji: '💎',
             message: 'Tu não pedes permissão, tu lideras.',
             xpNeeded: 5000,
             image: 'imperatriz.png'
         },
         5: { 
             name: 'Deusa Glow', 
-            emoji: '🔥',
             message: 'O glow agora é natural.',
             xpNeeded: Infinity,
             image: 'deusa.png'
@@ -184,14 +197,9 @@ function updateDashboard() {
     
     const levelInfo = levels[Math.min(currentLevel, 5)];
     
-    // Atualizar emoji (se ainda existir)
-    const levelEmoji = document.getElementById('levelEmoji');
-    if (levelEmoji) {
-        levelEmoji.textContent = levelInfo.emoji;
-    }
-    
     // Atualizar nome do nível
-    document.getElementById('levelName').textContent = levelInfo.name;
+    const levelNameEl = document.getElementById('levelName');
+    if (levelNameEl) levelNameEl.textContent = levelInfo.name;
     
     // Atualizar imagem do nível
     const levelImage = document.getElementById('levelImage');
@@ -200,25 +208,27 @@ function updateDashboard() {
         levelImage.alt = `Nível ${levelInfo.name}`;
     }
     
-    // Adicionar mensagem motivacional
-    const levelMessage = document.querySelector('.level-message');
-    if (levelMessage) {
-        levelMessage.textContent = `"${levelInfo.message}"`;
+    // Adicionar mensagem do nível
+    const levelQuote = document.getElementById('levelQuote');
+    if (levelQuote) {
+        levelQuote.textContent = `"${levelInfo.message}"`;
     }
     
     // Progresso do nível baseado em XP
-    // Thresholds: 0, 500, 1500, 3000, 5000
     const levelThresholds = [0, 500, 1500, 3000, 5000];
     const currentLevelMin = levelThresholds[currentLevel - 1];
     const nextLevelMin = currentLevel < 5 ? levelThresholds[currentLevel] : 5000;
     const xpInCurrentLevel = totalXp - currentLevelMin;
     const xpNeededForNext = nextLevelMin - currentLevelMin;
     const progress = currentLevel < 5 ? (xpInCurrentLevel / xpNeededForNext) * 100 : 100;
-    document.getElementById('levelProgress').style.width = `${Math.min(100, progress)}%`;
+    
+    const levelProgressFill = document.getElementById('levelProgress');
+    if (levelProgressFill) {
+        levelProgressFill.style.width = `${Math.min(100, progress)}%`;
+    }
     
     // Texto de progresso
     const nextLevel = currentLevel < 5 ? currentLevel + 1 : 5;
-    const xpToNext = nextLevelMin - totalXp;
     const progressText = currentLevel < 5 
         ? `${xpInCurrentLevel.toLocaleString('pt-BR')}/${xpNeededForNext.toLocaleString('pt-BR')} XP para ${levels[nextLevel].name}`
         : 'Nível máximo alcançado! ✨';
@@ -234,8 +244,21 @@ function updateDashboard() {
     }
 }
 
+// Atualizar mensagem motivacional (uma por dia baseada na data)
+function updateMotivationalMessage() {
+    const msgEl = document.getElementById('motivationalMessage');
+    if (!msgEl) return;
+
+    const today = new Date();
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+    const index = dayOfYear % motivationalMessages.length;
+    
+    msgEl.textContent = `"${motivationalMessages[index]}"`;
+}
+
 // Mostrar link de admin
 function showAdminLink() {
+    // ... (restante da função showAdminLink igual) ...
     // Verificar se já existe
     if (document.getElementById('adminLink')) return;
     
@@ -278,7 +301,6 @@ function showAdminLink() {
 
 // Carregar dados adicionais
 async function loadAdditionalData() {
-    // Buscar dados do cache para missões e streaks
     const userData = currentUser || JSON.parse(localStorage.getItem('cachedUserData') || '{}');
     
     // Missões do dia
@@ -286,25 +308,37 @@ async function loadAdditionalData() {
     const completedMissions = userData.missionsCompletedToday || 0;
     const streak = userData.streak || 0;
     
-    // Atualizar contadores existentes
+    // Atualizar contadores
     const completedEl = document.getElementById('completedMissions');
     const totalEl = document.getElementById('totalMissions');
     if (completedEl) completedEl.textContent = completedMissions;
     if (totalEl) totalEl.textContent = totalMissions;
     
+    const streakCount = document.getElementById('streakCount');
+    if (streakCount) streakCount.textContent = streak;
+
+    const streakEmoji = document.getElementById('streakEmoji');
+    if (streakEmoji) {
+        if (streak === 0) streakEmoji.textContent = '💜';
+        else if (streak < 3) streakEmoji.textContent = '🔥';
+        else if (streak < 7) streakEmoji.textContent = '💪';
+        else streakEmoji.textContent = '⭐';
+    }
+
     // Carregar metas ativas do backend
     await loadActiveGoals();
     
     // Carregar recompensas disponíveis do backend
     await loadAvailableRewards();
     
-    // === ACTION HUB ===
-    updateActionHub(userData, completedMissions, streak);
+    // Atualizar check-in
+    updateCheckinStatus(userData);
     
     // Carregar ranking
     loadRanking();
 }
 
+// ... (restante das funções loadActiveGoals e loadAvailableRewards iguais) ...
 // Carregar metas ativas do backend
 async function loadActiveGoals() {
     const activeGoalsEl = document.getElementById('activeGoalsCount');
@@ -313,7 +347,6 @@ async function loadActiveGoals() {
     try {
         const data = await window.api.get('/goals');
         const goals = data.goals || [];
-        // Contar apenas metas não concluídas
         const activeGoals = goals.filter(g => !g.completed).length;
         activeGoalsEl.textContent = activeGoals;
     } catch (error) {
@@ -330,45 +363,11 @@ async function loadAvailableRewards() {
     try {
         const data = await window.api.get('/rewards');
         const rewards = data.rewards || [];
-        // Contar apenas recompensas disponíveis
         const availableRewards = rewards.filter(r => r.available !== false).length;
         availableRewardsEl.textContent = availableRewards;
     } catch (error) {
         logger.warn('Não foi possível carregar recompensas:', error);
         availableRewardsEl.textContent = '0';
-    }
-}
-
-// Atualizar Action Hub
-function updateActionHub(userData, missionsToday, streak) {
-    // === STREAK ===
-    const streakCount = document.getElementById('streakCount');
-    const streakEmoji = document.getElementById('streakEmoji');
-    
-    if (streakCount) streakCount.textContent = streak;
-    if (streakEmoji) {
-        // Emojis baseados no streak
-        if (streak === 0) streakEmoji.textContent = '💜';
-        else if (streak < 3) streakEmoji.textContent = '🔥';
-        else if (streak < 7) streakEmoji.textContent = '💪';
-        else streakEmoji.textContent = '⭐';
-    }
-    
-    // === CHECK-IN ===
-    updateCheckinStatus(userData);
-    
-    // === RECOMENDAÇÃO ===
-    const recommendationText = document.getElementById('recommendationText');
-    if (recommendationText) {
-        const recommendations = getRecommendation(missionsToday, streak, userData);
-        recommendationText.textContent = recommendations.text;
-        
-        // Atualizar link da recomendação
-        const recommendationCard = document.getElementById('recommendationCard');
-        if (recommendationCard) {
-            const link = recommendationCard.querySelector('.hub-action');
-            if (link) link.href = recommendations.link;
-        }
     }
 }
 
@@ -379,21 +378,20 @@ function updateCheckinStatus(userData) {
     
     if (!checkinBtn) return;
     
-    // Verificar se já fez check-in hoje
     const today = new Date().toISOString().split('T')[0];
     const lastCheckin = userData.lastCheckinDate || null;
     const alreadyCheckedIn = lastCheckin === today;
     
     if (alreadyCheckedIn) {
         checkinBtn.disabled = true;
-        checkinBtn.innerHTML = '<i class="fas fa-check"></i> <span>Feito hoje!</span>';
+        checkinBtn.innerHTML = '<i class="fas fa-check"></i> <span>Check-in Feito!</span>';
         if (checkinStatus) {
-            checkinStatus.textContent = '✨ Volte amanhã!';
+            checkinStatus.textContent = '✨ Volte amanhã para brilhar mais!';
             checkinStatus.classList.add('success');
         }
     } else {
         checkinBtn.disabled = false;
-        checkinBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span>Check-in (+10 pts)</span>';
+        checkinBtn.innerHTML = '<i class="fas fa-heart"></i> <span>Fazer Check-in (+10 pts)</span>';
         if (checkinStatus) {
             checkinStatus.textContent = '';
             checkinStatus.classList.remove('success');
@@ -409,63 +407,50 @@ async function doCheckin() {
     
     if (!checkinBtn || checkinBtn.disabled) return;
     
-    // Desabilitar botão durante a requisição
     checkinBtn.disabled = true;
-    checkinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Fazendo check-in...</span>';
+    checkinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Brilhando...</span>';
     
     try {
-        // Chamar API de check-in
         const response = await window.api.post('/user/checkin');
         
         if (response.success) {
-            // Atualizar streak na tela
             if (streakCount) {
                 streakCount.textContent = response.newStreak || (parseInt(streakCount.textContent) + 1);
             }
             
-            // Atualizar pontos na tela
             const totalPointsEl = document.getElementById('totalPoints');
             if (totalPointsEl && response.newTotalPoints !== undefined) {
-                totalPointsEl.textContent = response.newTotalPoints;
+                totalPointsEl.textContent = response.newTotalPoints.toLocaleString('pt-BR');
             }
             
-            // Atualizar botão
-            checkinBtn.innerHTML = '<i class="fas fa-check"></i> <span>Feito hoje!</span>';
+            checkinBtn.innerHTML = '<i class="fas fa-check"></i> <span>Check-in Feito!</span>';
             if (checkinStatus) {
-                checkinStatus.textContent = '✨ +10 pontos!';
+                checkinStatus.textContent = '✨ +10 BabiPoints conquistados!';
                 checkinStatus.classList.add('success');
             }
             
-            // Atualizar cache local
             if (currentUser) {
                 currentUser.streak = response.newStreak || (currentUser.streak || 0) + 1;
-                currentUser.totalPoints = response.newTotalPoints || currentUser.totalPoints;
+                currentUser.xp = response.newTotalPoints || currentUser.xp; // XP é o novo totalPoints
                 currentUser.lastCheckinDate = new Date().toISOString().split('T')[0];
                 localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
             }
             
-            // Animação de celebração
             showCheckinCelebration();
         }
     } catch (error) {
         logger.error('Erro ao fazer check-in:', error);
-        
-        // Reativar botão em caso de erro
         checkinBtn.disabled = false;
-        checkinBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span>Check-in (+10 pts)</span>';
-        
+        checkinBtn.innerHTML = '<i class="fas fa-heart"></i> <span>Fazer Check-in</span>';
         if (checkinStatus) {
-            checkinStatus.textContent = 'Erro, tente novamente';
-            checkinStatus.classList.remove('success');
+            checkinStatus.textContent = 'Erro ao fazer check-in';
         }
     }
 }
 
-// Animação de celebração do check-in
+// ... (showCheckinCelebration continua igual) ...
 function showCheckinCelebration() {
-    // Criar confetes simples
     const colors = ['#8B5CF6', '#EC4899', '#F59E0B', '#10B981'];
-    
     for (let i = 0; i < 20; i++) {
         const confetti = document.createElement('div');
         confetti.style.cssText = `
@@ -480,88 +465,27 @@ function showCheckinCelebration() {
             z-index: 9999;
             animation: confetti-fall 1s ease-out forwards;
         `;
-        
         const angle = (Math.random() * 360) * (Math.PI / 180);
         const velocity = 100 + Math.random() * 100;
         const x = Math.cos(angle) * velocity;
         const y = Math.sin(angle) * velocity;
-        
         confetti.style.setProperty('--x', `${x}px`);
         confetti.style.setProperty('--y', `${y}px`);
-        
         document.body.appendChild(confetti);
-        
         setTimeout(() => confetti.remove(), 1000);
     }
-    
-    // Adicionar animação CSS se não existir
     if (!document.getElementById('confetti-style')) {
         const style = document.createElement('style');
         style.id = 'confetti-style';
-        style.textContent = `
-            @keyframes confetti-fall {
-                0% {
-                    transform: translate(0, 0) scale(1);
-                    opacity: 1;
-                }
-                100% {
-                    transform: translate(var(--x), var(--y)) scale(0);
-                    opacity: 0;
-                }
-            }
-        `;
+        style.textContent = `@keyframes confetti-fall { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }`;
         document.head.appendChild(style);
     }
 }
 
-// Expor função globalmente
+// Expor funções globalmente
 window.doCheckin = doCheckin;
 
-// Gerar recomendação personalizada
-function getRecommendation(missionsToday, streak, userData) {
-    const totalPoints = userData.totalPoints || 0;
-    
-    // Prioridade 1: Completar missão se fez poucas hoje
-    if (missionsToday < 3) {
-        const pointsGain = 10 + (missionsToday * 2);
-        return {
-            text: `Complete 1 missão e ganhe +${pointsGain} pontos!`,
-            link: 'missoes.html'
-        };
-    }
-    
-    // Prioridade 2: Se não tem streak, incentivar
-    if (streak === 0) {
-        return {
-            text: 'Comece seu streak hoje! Cada dia conta 💜',
-            link: 'missoes.html'
-        };
-    }
-    
-    // Prioridade 3: Verificar metas
-    if (userData.activeGoals && userData.activeGoals > 0) {
-        return {
-            text: 'Que tal avançar em uma das suas metas?',
-            link: 'metas.html'
-        };
-    }
-    
-    // Prioridade 4: Já completou bastante
-    if (missionsToday >= 5) {
-        return {
-            text: 'Incrível! Você completou todas as missões! 🎉',
-            link: 'recompensas.html'
-        };
-    }
-    
-    // Default
-    return {
-        text: `Mais ${5 - missionsToday} missões para completar o dia!`,
-        link: 'missoes.html'
-    };
-}
-
-// Carregar ranking (dados reais do servidor)
+// Carregar ranking
 async function loadRanking() {
     const rankingList = document.getElementById('rankingList');
     const userRankPosition = document.getElementById('userRankPosition');
@@ -569,10 +493,7 @@ async function loadRanking() {
     if (!rankingList) return;
     
     try {
-        // Tentar buscar ranking real do servidor
         const data = await window.api.get('/users/ranking');
-        
-        // API retorna 'users' não 'ranking'
         const rankingData = data.users || data.ranking || [];
         
         if (rankingData.length > 0) {
@@ -582,8 +503,6 @@ async function loadRanking() {
         }
     } catch (error) {
         logger.warn('Não foi possível carregar ranking do servidor:', error);
-        
-        // Tentar carregar ranking do localStorage
         const cachedRanking = localStorage.getItem('cachedRanking');
         if (cachedRanking) {
             displayRanking(JSON.parse(cachedRanking));
@@ -593,101 +512,68 @@ async function loadRanking() {
     }
 }
 
-// Exibir ranking
+// Exibir ranking com novo layout cute
 function displayRanking(rankingData) {
     const rankingList = document.getElementById('rankingList');
     const userRankPosition = document.getElementById('userRankPosition');
     if (!rankingList) return;
     
-    // Limitar a 10 usuários para o Top 10
     const top10 = rankingData.slice(0, 10);
     
     rankingList.innerHTML = top10.map((user, index) => {
         const isCurrentUser = currentUser && user.uid === currentUser.uid;
         
-        // Verificar se o usuário tem foto de perfil
         let avatarHtml;
         if (user.profileImage) {
             avatarHtml = `<img src="${user.profileImage}" alt="${user.name || 'Usuária'}">`;
         } else {
-            // Sem foto - mostrar inicial com cor preferida
             const initial = (user.name || 'U').charAt(0).toUpperCase();
             const bgColor = user.preferredColor || '#8B5CF6';
-            avatarHtml = `<span style="background:${bgColor};width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:50%;">${initial}</span>`;
+            avatarHtml = `<span style="background:${bgColor};width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:50%;color:white;font-weight:bold;">${initial}</span>`;
         }
         
         return `
-            <div class="ranking-item ${isCurrentUser ? 'current-user' : ''}">
-                <div class="ranking-position">${index + 1}</div>
-                <div class="ranking-avatar" style="background:${user.preferredColor || '#8B5CF6'}">
+            <div class="ranking-item-cute ${isCurrentUser ? 'current-user' : ''}">
+                <div class="rank-pos-cute">${index + 1}</div>
+                <div class="rank-avatar-cute">
                     ${avatarHtml}
                 </div>
-                <div class="ranking-info">
-                    <div class="ranking-name">${user.name || 'Usuária'}</div>
-                </div>
-                <div class="ranking-points">${(user.xp || user.totalPoints || 0).toLocaleString('pt-BR')} XP</div>
+                <div class="rank-name-cute">${user.name || 'Usuária'}</div>
+                <div class="rank-xp-cute">${(user.xp || user.totalPoints || 0).toLocaleString('pt-BR')} XP</div>
             </div>
         `;
     }).join('');
     
-    // Calcular posição do usuário atual
     if (userRankPosition && currentUser) {
         const userPosition = rankingData.findIndex(u => u.uid === currentUser.uid);
         if (userPosition !== -1) {
             userRankPosition.textContent = `${userPosition + 1}º`;
         } else {
-            // Usuário não está no ranking
             userRankPosition.textContent = '-';
         }
     }
     
-    // Salvar no cache
     localStorage.setItem('cachedRanking', JSON.stringify(rankingData));
 }
 
-// Exibir ranking vazio
 function showEmptyRanking() {
     const rankingList = document.getElementById('rankingList');
     if (!rankingList) return;
     
     rankingList.innerHTML = `
         <div class="ranking-empty">
-            <i class="fas fa-trophy" style="font-size: 2rem; color: #DDD6FE; margin-bottom: 1rem;"></i>
-            <p style="color: #999; text-align: center;">
-                O ranking será atualizado quando<br>houver mais usuárias ativas!
+            <p style="color: #999; text-align: center; padding: 1rem;">
+                Ranking em breve... ✨
             </p>
         </div>
     `;
     
-    const userRankPosition = document.getElementById('userRankPosition');
-    if (userRankPosition) {
-        userRankPosition.textContent = '-';
-    }
-}
-
-// Logout
-window.logout = async function() {
-    try {
-        await window.api.post('/auth/logout');
-    } catch (error) {
-        logger.error('Erro ao fazer logout:', error);
-    }
-    
-    window.api.removeToken();
-    localStorage.removeItem('cachedUserData');
-    window.location.href = 'login.html';
+    if (userRankPosition) userRankPosition.textContent = '-';
 }
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-    logger.info('🚀 === INICIANDO DASHBOARD ===');
-    logger.info('📍 URL atual:', window.location.href);
-    logger.info('🔑 Token presente:', !!window.api.getToken());
-    
-    // Carregar dados do dashboard
     loadDashboardData();
-    
-    // Atualizar dados a cada 30 segundos
     setInterval(() => {
         loadAdditionalData();
     }, 30000);

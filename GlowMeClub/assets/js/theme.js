@@ -225,6 +225,65 @@
                 background: linear-gradient(135deg, ${color} 0%, ${darkColor} 100%) !important;
             }
 
+            /* Redesigned Welcome Section */
+            .welcome-container {
+                background: transparent !important;
+            }
+
+            .motivational-bubble {
+                border-color: ${lightColor} !important;
+            }
+
+            .btn-checkin-new {
+                background: linear-gradient(135deg, ${color} 0%, ${darkColor} 100%) !important;
+                box-shadow: 0 6px 20px rgba(${rgbString}, 0.3) !important;
+            }
+
+            .streak-mini {
+                background: rgba(${rgbString}, 0.1) !important;
+                color: ${color} !important;
+            }
+
+            /* Level Hero Section */
+            .level-card-main {
+                border-color: rgba(${rgbString}, 0.1) !important;
+                box-shadow: 0 10px 25px rgba(${rgbString}, 0.1) !important;
+            }
+
+            .level-name-hero {
+                background: linear-gradient(135deg, ${color}, ${darkColor}) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+
+            .progress-fill-hero {
+                background: linear-gradient(90deg, ${color}, ${lightColor}) !important;
+            }
+
+            .level-glow-effect {
+                background: radial-gradient(circle, rgba(${rgbString}, 0.2) 0%, transparent 70%) !important;
+            }
+
+            /* Ranking New */
+            .ranking-card-cute {
+                box-shadow: 0 12px 30px rgba(${rgbString}, 0.15) !important;
+            }
+
+            .ranking-item-cute.current-user {
+                background: linear-gradient(135deg, rgba(${rgbString}, 0.25), rgba(${rgbString}, 0.15)) !important;
+                border-color: rgba(${rgbString}, 0.4) !important;
+            }
+
+            .my-position-cute strong {
+                color: ${color} !important;
+            }
+
+            /* Stats Grid Cute */
+            .stat-card-cute:hover {
+                border-color: ${color} !important;
+                box-shadow: 0 10px 25px rgba(${rgbString}, 0.1) !important;
+            }
+
             /* Welcome Section (Dashboard h1) */
             .welcome-section {
                 background: linear-gradient(135deg, ${color} 0%, ${lightColor} 100%) !important;
