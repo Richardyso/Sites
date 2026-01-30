@@ -1,5 +1,10 @@
 /* ===== DASHBOARD - MOBILE FIRST COMPACTO ===== */
 
+/* Reset do padding global das sections */
+.main-container section {
+    padding: 0 !important;
+}
+
 /* Container */
 .main-container {
     padding: 0.75rem;
