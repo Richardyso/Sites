@@ -288,6 +288,28 @@
                 background: linear-gradient(135deg, ${color} 0%, ${darkColor} 100%) !important;
             }
 
+            /* Points Summary Card (página pontos - BabiPoints) */
+            .points-summary-card {
+                background: linear-gradient(135deg, ${color}, ${lightColor}) !important;
+                box-shadow: 0 4px 16px rgba(${rgbString}, 0.3) !important;
+            }
+
+            /* Daily Progress Card (página missões) */
+            .daily-progress {
+                background: linear-gradient(135deg, ${color} 0%, ${lightColor} 100%) !important;
+                box-shadow: 0 10px 30px rgba(${rgbString}, 0.3) !important;
+            }
+
+            /* Points Balance (página recompensas) */
+            .points-balance {
+                background: linear-gradient(135deg, ${color}, ${lightColor}) !important;
+            }
+
+            /* About Hero (página sobre) */
+            .about-hero {
+                background: linear-gradient(135deg, ${color}, ${lightColor}) !important;
+            }
+
             /* Profile page */
             .profile-color-selector .color-option.selected {
                 box-shadow: 0 0 0 3px ${color} !important;
