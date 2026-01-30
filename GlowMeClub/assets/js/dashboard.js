@@ -140,13 +140,6 @@ function updateDashboard() {
     // Moedas são para recompensas (gastável)
     const totalCoins = currentUser.coins !== undefined ? currentUser.coins : totalXp;
     
-    // Preferências
-    const userFocusArea = document.getElementById('userFocusArea');
-    if (userFocusArea) userFocusArea.textContent = currentUser.focusArea || 'Não definido';
-    
-    const userColorPreview = document.getElementById('userColorPreview');
-    if (userColorPreview) userColorPreview.style.background = currentUser.preferredColor || '#8B5CF6';
-
     // Calcular nível baseado em XP (mesma lógica do backend)
     let currentLevel;
     if (totalXp < 500) currentLevel = 1;
