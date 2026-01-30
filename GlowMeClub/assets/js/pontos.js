@@ -111,13 +111,13 @@ function updateStats() {
     const currentLevelData = LEVELS[currentLevelNum];
     const nextLevelData = LEVELS[currentLevelNum + 1] || currentLevelData;
     
-    // Total de XP
+    // Total de BabiPoints (Moedas - gastáveis)
     const totalPointsEl = document.getElementById('totalPoints');
-    if (totalPointsEl) totalPointsEl.textContent = totalXp.toLocaleString('pt-BR');
+    if (totalPointsEl) totalPointsEl.textContent = totalCoins.toLocaleString('pt-BR');
     
-    // Total de Moedas (se existir elemento)
-    const totalCoinsEl = document.getElementById('totalCoins');
-    if (totalCoinsEl) totalCoinsEl.textContent = totalCoins.toLocaleString('pt-BR');
+    // Total de XP (se existir elemento separado)
+    const totalXpEl = document.getElementById('totalXp');
+    if (totalXpEl) totalXpEl.textContent = totalXp.toLocaleString('pt-BR');
     
     // Nível atual
     const currentLevelEl = document.getElementById('currentLevel');

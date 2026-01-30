@@ -793,19 +793,18 @@
             <!-- Page Header -->
             <div class="page-header">
                 <h1 class="page-title">Recompensas</h1>
-                <p class="page-subtitle">Troque seus pontos por prêmios exclusivos</p>
+                <p class="page-subtitle">Troque seus BabiPoints por prêmios exclusivos</p>
             </div>
             
             <!-- Points Balance -->
             <div class="points-balance">
-                <div class="balance-label">Seus pontos disponíveis</div>
+                <div class="balance-label">Seus BabiPoints disponíveis</div>
                 <div class="balance-amount">
-                    <i class="fas fa-coins balance-icon"></i>
+                    <i class="fas fa-gem balance-icon"></i>
                     <span id="userPoints">0</span>
-                    <span>pts</span>
                 </div>
                 <a href="pontos.html" class="btn-history-link">
-                    <i class="fas fa-history"></i> Ver extrato de pontos
+                    <i class="fas fa-history"></i> Ver histórico
                 </a>
             </div>
             
@@ -837,11 +836,11 @@
             <!-- Como ganhar mais pontos -->
             <div class="earn-more-section">
                 <span class="earn-more-title">
-                    <i class="fas fa-lightbulb"></i> Quer mais pontos?
+                    <i class="fas fa-lightbulb"></i> Quer mais BabiPoints?
                 </span>
                 <div class="earn-more-links">
-                    <a href="missoes.html"><i class="fas fa-star"></i> Missões (+10-15 pts)</a>
-                    <a href="metas.html"><i class="fas fa-bullseye"></i> Metas (+50-150 pts)</a>
+                    <a href="missoes.html"><i class="fas fa-star"></i> Missões</a>
+                    <a href="metas.html"><i class="fas fa-bullseye"></i> Metas</a>
                 </div>
             </div>
             
@@ -900,7 +899,7 @@
             <div class="modal-body">
                 <p>Você está prestes a resgatar:</p>
                 <h4 id="modalRewardName" style="color: var(--cor-roxo-medio); margin: var(--spacing-md) 0;">Nome da Recompensa</h4>
-                <p>Custo: <strong id="modalRewardCost">0</strong> pontos</p>
+                <p>Custo: <strong id="modalRewardCost">0</strong> BabiPoints</p>
                 <p id="modalMessage" style="margin-top: var(--spacing-md);">Após o resgate, você receberá as instruções por e-mail.</p>
             </div>
             
@@ -1009,7 +1008,7 @@
                 document.getElementById('modalMessage').innerHTML = 
                     `<span style="color: #DC2626; font-weight: 600;">
                         <i class="fas fa-exclamation-triangle"></i> 
-                        Moedas insuficientes! Faltam ${(cost - userCoins).toLocaleString('pt-BR')} moedas.
+                        BabiPoints insuficientes! Faltam ${(cost - userCoins).toLocaleString('pt-BR')} BabiPoints.
                     </span>`;
                 confirmBtn.disabled = true;
                 confirmBtn.style.opacity = '0.5';
@@ -1041,7 +1040,7 @@
             const currentCoins = parseInt(userPointsText) || 0;
             
             if (currentCoins < currentRewardCost) {
-                alert(`Moedas insuficientes!\n\nVocê tem: ${currentCoins.toLocaleString('pt-BR')} moedas\nCusto: ${currentRewardCost.toLocaleString('pt-BR')} moedas\nFaltam: ${(currentRewardCost - currentCoins).toLocaleString('pt-BR')} moedas`);
+                alert(`BabiPoints insuficientes!\n\nVocê tem: ${currentCoins.toLocaleString('pt-BR')} BabiPoints\nCusto: ${currentRewardCost.toLocaleString('pt-BR')} BabiPoints\nFaltam: ${(currentRewardCost - currentCoins).toLocaleString('pt-BR')} BabiPoints`);
                 closeRedeemModal();
                 return;
             }
@@ -1075,13 +1074,26 @@
                     userPointsDisplay.textContent = newCoins.toLocaleString('pt-BR');
                 }
                 
-                // Atualizar cache local com moedas
+                // Atualizar cache local com moedas e recompensa resgatada
                 const cachedData = localStorage.getItem('cachedUserData');
                 if (cachedData) {
                     try {
                         const userData = JSON.parse(cachedData);
                         userData.coins = newCoins;
                         userData.totalPoints = userData.xp || userData.totalPoints; // XP não muda
+                        
+                        // Adicionar recompensa ao histórico de resgates
+                        if (!userData.redeemedRewards) {
+                            userData.redeemedRewards = [];
+                        }
+                        userData.redeemedRewards.push({
+                            id: currentRewardId,
+                            title: currentRewardName,
+                            cost: currentRewardCost,
+                            redeemedAt: new Date().toISOString(),
+                            status: 'available'
+                        });
+                        
                         localStorage.setItem('cachedUserData', JSON.stringify(userData));
                     } catch (e) {
                         console.warn('Erro ao atualizar cache:', e);
@@ -1141,14 +1153,17 @@
         
         // Tab switching
         function showTab(tab) {
+            // Remover active de todas as tabs
             document.querySelectorAll('.rewards-tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
             
+            // Adicionar active na tab correta
             if (tab === 'myrewards') {
+                document.querySelector('.rewards-tab:nth-child(2)').classList.add('active');
                 document.getElementById('rewardsSection').style.display = 'none';
                 document.getElementById('myRewardsSection').style.display = 'block';
                 loadMyRewards();
             } else {
+                document.querySelector('.rewards-tab:nth-child(1)').classList.add('active');
                 document.getElementById('rewardsSection').style.display = 'block';
                 document.getElementById('myRewardsSection').style.display = 'none';
             }

@@ -148,10 +148,10 @@ function updateDashboard() {
     else if (totalXp < 5000) currentLevel = 4;
     else currentLevel = 5;
     
-    // Atualizar XP
+    // Atualizar BabiPoints (Moedas - gastáveis)
     const totalPointsElement = document.getElementById('totalPoints');
     if (totalPointsElement) {
-        totalPointsElement.textContent = totalXp.toLocaleString('pt-BR');
+        totalPointsElement.textContent = totalCoins.toLocaleString('pt-BR');
     }
     
     // Dados de nível com mensagens motivacionais e imagens
@@ -411,9 +411,10 @@ async function doCheckin() {
                 streakCount.textContent = response.newStreak || (parseInt(streakCount.textContent) + 1);
             }
             
+            // Atualizar BabiPoints (moedas) na tela
             const totalPointsEl = document.getElementById('totalPoints');
-            if (totalPointsEl && response.newTotalPoints !== undefined) {
-                totalPointsEl.textContent = response.newTotalPoints.toLocaleString('pt-BR');
+            if (totalPointsEl && response.newCoins !== undefined) {
+                totalPointsEl.textContent = response.newCoins.toLocaleString('pt-BR');
             }
             
             checkinBtn.innerHTML = '<i class="fas fa-check"></i> <span>Check-in Feito!</span>';
@@ -424,7 +425,8 @@ async function doCheckin() {
             
             if (currentUser) {
                 currentUser.streak = response.newStreak || (currentUser.streak || 0) + 1;
-                currentUser.xp = response.newTotalPoints || currentUser.xp; // XP é o novo totalPoints
+                currentUser.xp = response.newXp || response.newTotalPoints || currentUser.xp;
+                currentUser.coins = response.newCoins || (currentUser.coins || 0) + 10;
                 currentUser.lastCheckinDate = new Date().toISOString().split('T')[0];
                 localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
             }
