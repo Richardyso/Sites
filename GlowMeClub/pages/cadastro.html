@@ -23,274 +23,10 @@
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/responsive.css">
     <link rel="stylesheet" href="../assets/css/auth.css">
+    <link rel="stylesheet" href="../assets/css/cadastro.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <style>
-        /* Estilos específicos da página de cadastro */
-        .auth-page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--cor-lilas-suave) 0%, var(--cor-rosa-pastel-claro) 100%);
-            padding: var(--spacing-lg) 0;
-        }
-        
-        .auth-container {
-            width: 100%;
-            max-width: 450px;
-            background: var(--cor-branco);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--sombra-forte);
-            overflow: hidden;
-            animation: fadeInUp 0.5s ease;
-        }
-        
-        .auth-header {
-            background: linear-gradient(135deg, var(--cor-roxo-medio), var(--cor-roxo-claro));
-            color: var(--cor-branco);
-            padding: var(--spacing-xl) var(--spacing-lg);
-            text-align: center;
-        }
-        
-        .auth-header h2 {
-            color: var(--cor-branco);
-            margin-bottom: var(--spacing-xs);
-        }
-        
-        .auth-header p {
-            opacity: 0.9;
-            font-size: 0.95rem;
-        }
-        
-        .auth-body {
-            padding: var(--spacing-xl) var(--spacing-lg);
-        }
-        
-        .form-group {
-            margin-bottom: var(--spacing-md);
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: var(--spacing-xs);
-            font-weight: 500;
-            color: var(--cor-texto-escuro);
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--cor-lilas-suave);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            font-family: var(--font-body);
-            transition: var(--transition-base);
-            background: var(--cor-branco);
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--cor-roxo-medio);
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
-        }
-        
-        .form-control.error {
-            border-color: #DC2626;
-        }
-        
-        /* Phone Input */
-        .phone-input-wrapper {
-            display: flex;
-            align-items: center;
-            border: 2px solid var(--cor-lilas-suave);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            transition: var(--transition-base);
-            background: var(--cor-branco);
-        }
-        
-        .phone-input-wrapper:focus-within {
-            border-color: var(--cor-roxo-medio);
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
-        }
-        
-        .phone-ddi-badge {
-            padding: 0.75rem 0.875rem;
-            background: #f3f4f6;
-            color: #374151;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border-right: 1px solid var(--cor-lilas-suave);
-            white-space: nowrap;
-        }
-        
-        .phone-field {
-            border: none !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            flex: 1;
-        }
-        
-        .phone-field:focus {
-            box-shadow: none !important;
-        }
-        
-        /* Color Picker Grid 3x3 */
-        .color-picker.color-picker-3x3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: var(--spacing-xs);
-            max-width: 180px;
-        }
-        
-        .color-picker.color-picker-3x3 .color-option {
-            width: 48px;
-            height: 48px;
-        }
-        
-        .color-picker {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
-            gap: 8px;
-            margin-top: var(--spacing-xs);
-            max-width: 100%;
-        }
-        
-        .color-option {
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            transition: var(--transition-base);
-            border: 3px solid transparent;
-            position: relative;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .color-option:hover {
-            transform: scale(1.15);
-            z-index: 1;
-        }
-        
-        .color-option.selected {
-            border-color: var(--cor-texto-escuro);
-            transform: scale(1.1);
-        }
-        
-        .color-option.selected::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-weight: bold;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-            font-size: 14px;
-        }
-        
-        .password-toggle {
-            position: relative;
-        }
-        
-        .password-toggle .toggle-btn {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--cor-texto-medio);
-            padding: 4px;
-        }
-        
-        .password-toggle .toggle-btn:hover {
-            color: var(--cor-roxo-medio);
-        }
-        
-        .form-text {
-            font-size: 0.875rem;
-            color: var(--cor-texto-medio);
-            margin-top: var(--spacing-xs);
-        }
-        
-        .form-actions {
-            margin-top: var(--spacing-lg);
-        }
-        
-        .auth-footer {
-            text-align: center;
-            padding: var(--spacing-lg);
-            background: var(--cor-lilas-suave);
-        }
-        
-        .auth-footer p {
-            color: var(--cor-texto-medio);
-            margin-bottom: var(--spacing-xs);
-        }
-        
-        .back-link {
-            position: absolute;
-            top: var(--spacing-md);
-            left: var(--spacing-md);
-            color: var(--cor-texto-escuro);
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-            font-weight: 500;
-        }
-        
-        .back-link:hover {
-            color: var(--cor-roxo-medio);
-        }
-        
-        /* Loading state */
-        .btn-loading {
-            position: relative;
-            color: transparent;
-            pointer-events: none;
-        }
-        
-        .btn-loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 50%;
-            left: 50%;
-            margin-left: -10px;
-            margin-top: -10px;
-            border: 2px solid var(--cor-branco);
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-        }
-        
-        /* Mensagens */
-        .error-message {
-            background: #FEE2E2;
-            color: #DC2626;
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            margin-bottom: var(--spacing-md);
-            font-size: 0.9rem;
-        }
-        
-        .success-message {
-            background: #D1FAE5;
-            color: #059669;
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            margin-bottom: var(--spacing-md);
-            font-size: 0.9rem;
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
     <a href="../index.html" class="back-link">
@@ -375,7 +111,15 @@
                     <div class="form-group">
                         <label for="phone" class="form-label">Telefone *</label>
                         <div class="phone-input-wrapper">
-                            <span class="phone-ddi-badge">+55</span>
+                            <input 
+                                type="text" 
+                                id="phoneDdi" 
+                                name="phoneDdi" 
+                                class="form-control phone-ddi-field"
+                                value="+55"
+                                placeholder="+55"
+                                maxlength="5"
+                            >
                             <input 
                                 type="tel" 
                                 id="phone" 
@@ -386,7 +130,7 @@
                                 maxlength="15"
                             >
                         </div>
-                        <span class="form-text">Formato: (DDD) 9XXXX-XXXX</span>
+                        <span class="form-text">DDI padrão: +55 (Brasil). Formato: (DDD) 9XXXX-XXXX</span>
                     </div>
                     
                     <!-- Cor Preferida -->

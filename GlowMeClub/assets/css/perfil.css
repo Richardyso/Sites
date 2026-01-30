@@ -284,17 +284,30 @@
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
-.phone-ddi {
-    padding: 0.875rem 0.75rem;
+.phone-ddi-input {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    padding: 0.875rem 0.5rem;
     background: #f9f9f9;
-    color: #666;
+    color: #333;
     font-weight: 600;
     font-size: 0.9rem;
-    border-right: 1px solid #f0f0f0;
-    white-space: nowrap;
+    border: none !important;
+    border-right: 1px solid #f0f0f0 !important;
+    border-radius: 0 !important;
+    text-align: center;
+    box-shadow: none !important;
+}
+
+.phone-ddi-input:focus {
+    background: #f0f0f0;
+    outline: none;
+    box-shadow: none !important;
 }
 
 .phone-input {
+    flex: 1;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;

@@ -188,7 +188,15 @@
                     <div class="form-group">
                         <label for="userPhone" class="form-label">Telefone (opcional)</label>
                         <div class="phone-input-container">
-                            <span class="phone-ddi">+55</span>
+                            <input 
+                                type="text" 
+                                id="phoneDdi" 
+                                name="phoneDdi" 
+                                class="form-input phone-ddi-input"
+                                value="+55"
+                                placeholder="+55"
+                                maxlength="5"
+                            >
                             <input 
                                 type="tel" 
                                 id="userPhone" 
@@ -198,7 +206,7 @@
                                 maxlength="15"
                             >
                         </div>
-                        <span class="form-hint">Formato: (DDD) 9XXXX-XXXX</span>
+                        <span class="form-hint">DDI padrão: +55 (Brasil). Formato: (DDD) 9XXXX-XXXX</span>
                     </div>
                 </div>
 

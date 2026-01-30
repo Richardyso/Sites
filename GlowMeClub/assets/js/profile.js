@@ -113,12 +113,23 @@ function populateForm() {
     document.getElementById('userName').value = currentUser.name || '';
     document.getElementById('userEmail').value = currentUser.email || '';
     
-    // Telefone
+    // Telefone com DDI editável
     const phoneInput = document.getElementById('userPhone');
-    if (phoneInput && currentUser.phone) {
-        // Remover o +55 se existir no início
-        let phone = currentUser.phone.replace(/^\+55\s*/, '');
-        phoneInput.value = formatPhoneNumber(phone);
+    const ddiInput = document.getElementById('phoneDdi');
+    if (currentUser.phone) {
+        // Extrair DDI e número
+        const phoneMatch = currentUser.phone.match(/^(\+\d{1,4})\s*(.*)$/);
+        if (phoneMatch) {
+            if (ddiInput) ddiInput.value = phoneMatch[1];
+            if (phoneInput) phoneInput.value = formatPhoneNumber(phoneMatch[2]);
+        } else {
+            // Se não tiver DDI, assume +55
+            if (ddiInput) ddiInput.value = '+55';
+            if (phoneInput) phoneInput.value = formatPhoneNumber(currentUser.phone);
+        }
+    } else {
+        // Valor padrão
+        if (ddiInput) ddiInput.value = '+55';
     }
     
     // Cor preferida
@@ -189,6 +200,8 @@ function validateBrazilianPhone(phone) {
 
 function getPhoneForSave() {
     const phoneInput = document.getElementById('userPhone');
+    const ddiInput = document.getElementById('phoneDdi');
+    
     if (!phoneInput || !phoneInput.value.trim()) {
         return null;
     }
@@ -198,8 +211,14 @@ function getPhoneForSave() {
         return null;
     }
     
-    // Retorna com DDI do Brasil
-    return '+55' + digits;
+    // Pegar DDI (padrão +55 se vazio)
+    let ddi = ddiInput ? ddiInput.value.trim() : '+55';
+    if (!ddi.startsWith('+')) {
+        ddi = '+' + ddi;
+    }
+    
+    // Retorna com DDI escolhido
+    return ddi + digits;
 }
 
 // ===== AVATAR =====
@@ -493,6 +512,20 @@ function setupEventListeners() {
         });
     }
     
+    // Campo DDI - formatação
+    const ddiInput = document.getElementById('phoneDdi');
+    if (ddiInput) {
+        ddiInput.addEventListener('input', function(e) {
+            // Garantir que começa com +
+            let value = e.target.value.replace(/[^\d+]/g, '');
+            if (!value.startsWith('+')) {
+                value = '+' + value.replace(/\+/g, '');
+            }
+            e.target.value = value.substring(0, 5); // Máximo +XXXX
+            markAsChanged();
+        });
+    }
+    
     // Preferências de email
     ['emailWeekly', 'emailRewards', 'emailLevelUp', 'emailReminders'].forEach(id => {
         const el = document.getElementById(id);
@@ -696,7 +729,7 @@ async function handleSaveProfile(e) {
     
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+    saveBtn.innerHTML = '<i class="fas fa-hourglass"></i> Salvando...';
     
     try {
         // Coletar dados do formulário
@@ -813,10 +846,21 @@ function handleLogout() {
 // ===== UTILIDADES =====
 function showLoading(show) {
     const form = document.getElementById('profileForm');
+    const saveBtn = document.getElementById('saveBtn');
+    
     if (show) {
         form.classList.add('loading');
+        // Mostrar texto simples sem animação giratória
+        if (saveBtn) {
+            saveBtn.innerHTML = '<i class="fas fa-hourglass"></i> Carregando...';
+            saveBtn.disabled = true;
+        }
     } else {
         form.classList.remove('loading');
+        if (saveBtn) {
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar alterações';
+            saveBtn.disabled = false;
+        }
     }
 }
 

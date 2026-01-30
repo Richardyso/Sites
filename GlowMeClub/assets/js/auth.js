@@ -63,6 +63,7 @@ async function handleSignup(e) {
     
     // Obter dados do formulário
     const phoneValue = form.phone ? form.phone.value.trim() : '';
+    const ddiValue = form.phoneDdi ? form.phoneDdi.value.trim() : '+55';
     
     const formData = {
         name: form.name.value.trim(),
@@ -71,7 +72,8 @@ async function handleSignup(e) {
         confirmPassword: form.confirmPassword.value,
         preferredColor: form.preferredColor.value,
         focusArea: form.focusArea.value,
-        phone: phoneValue
+        phone: phoneValue,
+        phoneDdi: ddiValue
     };
     
     // Validações
@@ -91,14 +93,20 @@ async function handleSignup(e) {
         return;
     }
     
-    if (!validateBrazilianPhone(formData.phone)) {
+    // Validar formato do telefone (se DDI for +55, valida padrão brasileiro)
+    const isBrazilianDDI = formData.phoneDdi === '+55';
+    if (isBrazilianDDI && !validateBrazilianPhone(formData.phone)) {
         showError('Telefone inválido. Use o formato: (DDD) 9XXXX-XXXX');
         return;
     }
     
-    // Formatar telefone com DDI
+    // Formatar telefone com DDI escolhido
     const phoneDigits = formData.phone.replace(/\D/g, '');
-    const phoneWithDDI = '+55' + phoneDigits;
+    let ddi = formData.phoneDdi;
+    if (!ddi.startsWith('+')) {
+        ddi = '+' + ddi;
+    }
+    const phoneWithDDI = ddi + phoneDigits;
     
     // Mostrar loading
     submitBtn.classList.add('btn-loading');
@@ -421,6 +429,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // Ajusta posição do cursor
             const newCursorPos = cursorPos + (newLength - oldLength);
             e.target.setSelectionRange(newCursorPos, newCursorPos);
+        });
+    }
+    
+    // Formatação do DDI no cadastro
+    const ddiInput = document.getElementById('phoneDdi');
+    if (ddiInput) {
+        ddiInput.addEventListener('input', function(e) {
+            // Garantir que começa com +
+            let value = e.target.value.replace(/[^\d+]/g, '');
+            if (!value.startsWith('+')) {
+                value = '+' + value.replace(/\+/g, '');
+            }
+            e.target.value = value.substring(0, 5); // Máximo +XXXX
         });
     }
     
