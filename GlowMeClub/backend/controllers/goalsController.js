@@ -1,6 +1,6 @@
 // ===== CONTROLADOR DE METAS =====
 const { firestore, serverTimestamp, increment } = require('../config/firebase-admin');
-const { checkLevelUp } = require('../utils/calculateLevel');
+const { checkLevelUp, getActionReward } = require('../utils/calculateLevel');
 const { sendLevelUpEmail } = require('../utils/email');
 
 /**
@@ -266,13 +266,17 @@ exports.deleteGoal = async (req, res) => {
 };
 
 /**
- * Marcar meta como concluída e adicionar pontos
+ * Marcar meta como concluída e adicionar XP + Moedas
  */
 exports.completeGoal = async (req, res) => {
     try {
         const userId = req.user.uid;
         const { id } = req.params;
-        const GOAL_POINTS = 50;
+        
+        // Obter recompensa da ação (XP e Moedas)
+        const reward = getActionReward('goal_completed');
+        const XP_EARNED = reward.xp;      // 50 XP
+        const COINS_EARNED = reward.coins; // 30 Moedas
         
         // Buscar a meta
         const goalRef = firestore
@@ -307,16 +311,24 @@ exports.completeGoal = async (req, res) => {
             completedAt: serverTimestamp()
         });
         
-        // Buscar pontos atuais do usuário
+        // Buscar dados atuais do usuário
         const userRef = firestore.collection('users').doc(userId);
         const userDoc = await userRef.get();
         const userData = userDoc.data();
-        const currentPoints = userData.totalPoints || 0;
-        const newPoints = currentPoints + GOAL_POINTS;
         
-        // Atualizar pontos do usuário
+        // XP atual e novo (para cálculo de level up)
+        const currentXp = userData.xp || userData.totalPoints || 0;
+        const newXp = currentXp + XP_EARNED;
+        
+        // Moedas atuais e novas
+        const currentCoins = userData.coins !== undefined ? userData.coins : (userData.totalPoints || 0);
+        const newCoins = currentCoins + COINS_EARNED;
+        
+        // Atualizar XP e Moedas do usuário
         batch.update(userRef, {
-            totalPoints: increment(GOAL_POINTS)
+            xp: increment(XP_EARNED),
+            coins: increment(COINS_EARNED),
+            totalPoints: increment(XP_EARNED) // Manter totalPoints = xp para compatibilidade
         });
         
         // Adicionar ao histórico de pontos
@@ -329,7 +341,9 @@ exports.completeGoal = async (req, res) => {
         batch.set(historyRef, {
             reason: `Meta concluída: ${goalData.title}`,
             action: `Meta concluída: ${goalData.title}`,
-            points: GOAL_POINTS,
+            xp: XP_EARNED,
+            coins: COINS_EARNED,
+            points: XP_EARNED, // Compatibilidade
             type: 'goal_completed',
             createdAt: serverTimestamp()
         });
@@ -337,8 +351,8 @@ exports.completeGoal = async (req, res) => {
         // Executar transação
         await batch.commit();
         
-        // Verificar se subiu de nível
-        const levelUp = checkLevelUp(currentPoints, newPoints);
+        // Verificar se subiu de nível (baseado em XP)
+        const levelUp = checkLevelUp(currentXp, newXp);
         
         if (levelUp && userData.email) {
             // Enviar email de level up (não bloquear resposta)
@@ -354,8 +368,12 @@ exports.completeGoal = async (req, res) => {
         res.json({
             success: true,
             message: 'Meta concluída com sucesso!',
-            pointsEarned: GOAL_POINTS,
-            newTotalPoints: newPoints,
+            xpEarned: XP_EARNED,
+            coinsEarned: COINS_EARNED,
+            pointsEarned: XP_EARNED, // Compatibilidade
+            newXp,
+            newCoins,
+            newTotalPoints: newXp, // Compatibilidade
             levelUp: levelUp ? {
                 newLevel: levelUp.newLevel,
                 levelName: levelUp.levelInfo.name,

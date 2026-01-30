@@ -118,51 +118,66 @@ function updateDashboard() {
         window.updateHeaderAvatar(currentUser);
     }
     
-    // Pontos e nível
-    const totalPoints = currentUser.totalPoints || 0;
-    const currentLevel = Math.floor(totalPoints / 500) + 1;
+    // XP determina nível (não moedas!)
+    const totalXp = currentUser.xp || currentUser.totalPoints || 0;
+    // Moedas são para recompensas (gastável)
+    const totalCoins = currentUser.coins !== undefined ? currentUser.coins : totalXp;
     
-    // Atualizar pontos
+    // Calcular nível baseado em XP (mesma lógica do backend)
+    let currentLevel;
+    if (totalXp < 500) currentLevel = 1;
+    else if (totalXp < 1500) currentLevel = 2;
+    else if (totalXp < 3000) currentLevel = 3;
+    else if (totalXp < 5000) currentLevel = 4;
+    else currentLevel = 5;
+    
+    // Atualizar XP (exibido como "pontos" para o usuário)
     const totalPointsElement = document.getElementById('totalPoints');
     if (totalPointsElement) {
-        totalPointsElement.textContent = totalPoints;
+        totalPointsElement.textContent = totalXp.toLocaleString('pt-BR');
     }
     
-    // Dados de nível com mensagens motivacionais e imagens
+    // Atualizar moedas (se existir elemento)
+    const totalCoinsElement = document.getElementById('totalCoins');
+    if (totalCoinsElement) {
+        totalCoinsElement.textContent = totalCoins.toLocaleString('pt-BR');
+    }
+    
+    // Dados de nível com mensagens motivacionais e imagens (ÚNICA FONTE DE VERDADE)
     const levels = {
         1: { 
             name: 'Plebeia', 
             emoji: '🌱',
-            message: 'O primeiro passo para a transformação',
-            pointsNeeded: 500,
+            message: 'Toda rainha começa aqui.',
+            xpNeeded: 500,
             image: 'plebeia.png'
         },
         2: { 
             name: 'Princesa', 
             emoji: '👑',
-            message: 'Consistência é o teu novo luxo',
-            pointsNeeded: 1000,
+            message: 'Consistência é o teu novo luxo.',
+            xpNeeded: 1500,
             image: 'princesa.png'
         },
         3: { 
             name: 'Rainha', 
             emoji: '✨',
-            message: 'Brilhas com confiança e propósito',
-            pointsNeeded: 1500,
+            message: 'Tu assumes o teu lugar.',
+            xpNeeded: 3000,
             image: 'rainha.png'
         },
         4: { 
             name: 'Imperatriz', 
             emoji: '💎',
-            message: 'O poder da transformação está em ti',
-            pointsNeeded: 2000,
+            message: 'Tu não pedes permissão, tu lideras.',
+            xpNeeded: 5000,
             image: 'imperatriz.png'
         },
         5: { 
             name: 'Deusa Glow', 
             emoji: '🔥',
-            message: 'És a melhor versão de ti mesma',
-            pointsNeeded: Infinity,
+            message: 'O glow agora é natural.',
+            xpNeeded: Infinity,
             image: 'deusa.png'
         }
     };
@@ -191,17 +206,22 @@ function updateDashboard() {
         levelMessage.textContent = `"${levelInfo.message}"`;
     }
     
-    // Progresso do nível
-    const pointsInCurrentLevel = totalPoints % 500;
-    const progress = (pointsInCurrentLevel / 500) * 100;
-    document.getElementById('levelProgress').style.width = `${progress}%`;
+    // Progresso do nível baseado em XP
+    // Thresholds: 0, 500, 1500, 3000, 5000
+    const levelThresholds = [0, 500, 1500, 3000, 5000];
+    const currentLevelMin = levelThresholds[currentLevel - 1];
+    const nextLevelMin = currentLevel < 5 ? levelThresholds[currentLevel] : 5000;
+    const xpInCurrentLevel = totalXp - currentLevelMin;
+    const xpNeededForNext = nextLevelMin - currentLevelMin;
+    const progress = currentLevel < 5 ? (xpInCurrentLevel / xpNeededForNext) * 100 : 100;
+    document.getElementById('levelProgress').style.width = `${Math.min(100, progress)}%`;
     
     // Texto de progresso
     const nextLevel = currentLevel < 5 ? currentLevel + 1 : 5;
-    const pointsForNext = 500 - pointsInCurrentLevel;
+    const xpToNext = nextLevelMin - totalXp;
     const progressText = currentLevel < 5 
-        ? `${pointsInCurrentLevel}/500 pontos para ${levels[nextLevel].name}`
-        : 'Nível máximo alcançado!';
+        ? `${xpInCurrentLevel.toLocaleString('pt-BR')}/${xpNeededForNext.toLocaleString('pt-BR')} XP para ${levels[nextLevel].name}`
+        : 'Nível máximo alcançado! ✨';
     
     const levelProgressText = document.getElementById('levelProgressText');
     if (levelProgressText) {
@@ -605,7 +625,7 @@ function displayRanking(rankingData) {
                 <div class="ranking-info">
                     <div class="ranking-name">${user.name || 'Usuária'}</div>
                 </div>
-                <div class="ranking-points">${(user.totalPoints || 0).toLocaleString('pt-BR')} pts</div>
+                <div class="ranking-points">${(user.xp || user.totalPoints || 0).toLocaleString('pt-BR')} XP</div>
             </div>
         `;
     }).join('');

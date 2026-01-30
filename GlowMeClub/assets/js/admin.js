@@ -100,7 +100,12 @@
             } else {
                 allUsers = data.users
                     .filter(user => user.role !== 'admin')
-                    .sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+                    .sort((a, b) => {
+                        // Ordenar por XP (não moedas!)
+                        const xpA = a.xp || a.totalPoints || 0;
+                        const xpB = b.xp || b.totalPoints || 0;
+                        return xpB - xpA;
+                    });
                 
                 log.info(`${allUsers.length} usuários carregados`);
             }
@@ -145,6 +150,10 @@
             const firstName = (user.name || 'Usuário').split(' ')[0];
             const rank = index + 1;
             
+            // XP e Moedas separados
+            const xp = user.xp || user.totalPoints || 0;
+            const coins = user.coins !== undefined ? user.coins : xp;
+            
             return `
                 <div class="user-card" onclick="window.adminOpenEditUserModal('${user.uid}')">
                     <div class="user-rank">${rank}º</div>
@@ -156,8 +165,11 @@
                     <div class="user-card-info">
                         <span class="user-card-name">${firstName}</span>
                         <div class="user-card-details">
-                            <span class="user-points">
-                                <i class="fas fa-coins"></i> ${(user.totalPoints || 0).toLocaleString('pt-BR')}
+                            <span class="user-xp" title="XP (Experiência)">
+                                <i class="fas fa-star"></i> ${xp.toLocaleString('pt-BR')} XP
+                            </span>
+                            <span class="user-coins" title="Moedas">
+                                <i class="fas fa-coins"></i> ${coins.toLocaleString('pt-BR')}
                             </span>
                             ${user.focusArea ? `
                                 <span class="user-area-focus">
@@ -317,11 +329,15 @@
         const user = allUsers.find(u => u.uid === userId);
         if (!user) return;
         
+        // XP e Moedas separados
+        const userXp = user.xp || user.totalPoints || 0;
+        const userCoins = user.coins !== undefined ? user.coins : userXp;
+        
         // Campos do formulário
         document.getElementById('editUserId').value = user.uid;
-        document.getElementById('editPoints').value = user.totalPoints || 0;
+        document.getElementById('editPoints').value = userXp;
         
-        // ===== NOVO: Profile Header =====
+        // ===== Profile Header =====
         const userAvatar = document.getElementById('editUserAvatar');
         const userInitial = document.getElementById('editUserInitial');
         const displayName = document.getElementById('editUserDisplayName');
@@ -346,17 +362,29 @@
             }
         }
         
-        // Nível baseado em pontos - mostrar categoria (Plebeia, Princesa, etc.)
+        // Nível baseado em XP (não moedas!)
         if (userLevel) {
-            const levelInfo = getLevelInfo(user.totalPoints || 0);
+            const levelInfo = getLevelInfo(userXp);
             userLevel.textContent = `${levelInfo.emoji} ${levelInfo.name}`;
         }
         
-        // ===== NOVO: Info Cards =====
-        // Pontos
+        // ===== Info Cards =====
+        // XP (Experiência)
+        const xpDisplay = document.getElementById('editUserXpDisplay');
+        if (xpDisplay) {
+            xpDisplay.textContent = userXp.toLocaleString('pt-BR');
+        }
+        
+        // Moedas
+        const coinsDisplay = document.getElementById('editUserCoinsDisplay');
+        if (coinsDisplay) {
+            coinsDisplay.textContent = userCoins.toLocaleString('pt-BR');
+        }
+        
+        // Fallback para elemento antigo de pontos
         const pointsDisplay = document.getElementById('editUserPointsDisplay');
         if (pointsDisplay) {
-            pointsDisplay.textContent = (user.totalPoints || 0).toLocaleString('pt-BR');
+            pointsDisplay.textContent = userXp.toLocaleString('pt-BR');
         }
         
         // Cor Favorita
@@ -377,10 +405,20 @@
         }
         
         // Limpar campos de grant points
-        const grantAmount = document.getElementById('grantPointsAmount');
+        const grantXp = document.getElementById('grantXpAmount');
+        const grantCoins = document.getElementById('grantCoinsAmount');
         const grantReason = document.getElementById('grantPointsReason');
-        if (grantAmount) grantAmount.value = '';
+        if (grantXp) grantXp.value = '';
+        if (grantCoins) grantCoins.value = '';
         if (grantReason) grantReason.value = '';
+        
+        // Limpar campos de penalização
+        const penaltyXp = document.getElementById('penaltyXpAmount');
+        const penaltyCoins = document.getElementById('penaltyCoinsAmount');
+        const penaltyReason = document.getElementById('penaltyReason');
+        if (penaltyXp) penaltyXp.value = '';
+        if (penaltyCoins) penaltyCoins.value = '';
+        if (penaltyReason) penaltyReason.value = '';
         
         document.getElementById('editUserModal').classList.add('active');
         
@@ -534,9 +572,17 @@
         // Aplicar filtro
         let filteredHistory = currentUserHistory;
         if (currentHistoryFilter === 'earned') {
-            filteredHistory = currentUserHistory.filter(item => item.points > 0);
+            filteredHistory = currentUserHistory.filter(item => {
+                const xp = item.xp !== undefined ? item.xp : item.points;
+                const coins = item.coins !== undefined ? item.coins : item.points;
+                return xp > 0 || coins > 0;
+            });
         } else if (currentHistoryFilter === 'spent') {
-            filteredHistory = currentUserHistory.filter(item => item.points < 0);
+            filteredHistory = currentUserHistory.filter(item => {
+                const xp = item.xp !== undefined ? item.xp : item.points;
+                const coins = item.coins !== undefined ? item.coins : item.points;
+                return xp < 0 || coins < 0;
+            });
         }
         
         if (filteredHistory.length === 0) {
@@ -554,10 +600,14 @@
         if (historyEmpty) historyEmpty.style.display = 'none';
         
         historyList.innerHTML = filteredHistory.map(item => {
-            const isEarned = item.points > 0;
-            const pointsClass = isEarned ? 'positive' : 'negative';
-            const pointsSign = isEarned ? '+' : '';
-            const iconClass = isEarned ? 'earned' : 'spent';
+            // XP e Moedas separados (com fallback para points antigo)
+            const xp = item.xp !== undefined ? item.xp : item.points;
+            const coins = item.coins !== undefined ? item.coins : item.points;
+            
+            const isEarned = xp > 0 || coins > 0;
+            const isPenalty = item.type === 'admin_penalty';
+            const pointsClass = isPenalty ? 'penalty' : (isEarned ? 'positive' : 'negative');
+            const iconClass = isPenalty ? 'penalty' : (isEarned ? 'earned' : 'spent');
             const icon = getHistoryIcon(item.type);
             
             // Formatar data
@@ -573,8 +623,24 @@
                 });
             }
             
+            // Montar string de pontos (XP e/ou Moedas)
+            let pointsDisplay = [];
+            if (xp !== 0) {
+                const xpSign = xp > 0 ? '+' : '';
+                pointsDisplay.push(`${xpSign}${xp} XP`);
+            }
+            if (coins !== 0 && coins !== xp) {
+                const coinsSign = coins > 0 ? '+' : '';
+                pointsDisplay.push(`${coinsSign}${coins} 🪙`);
+            }
+            // Se só tiver points antigo
+            if (pointsDisplay.length === 0 && item.points !== undefined) {
+                const sign = item.points > 0 ? '+' : '';
+                pointsDisplay.push(`${sign}${item.points} pts`);
+            }
+            
             return `
-                <div class="history-item">
+                <div class="history-item ${isPenalty ? 'penalty-item' : ''}">
                     <div class="history-item-icon ${iconClass}">
                         ${icon}
                     </div>
@@ -583,7 +649,7 @@
                         <div class="history-item-date">${dateStr}</div>
                     </div>
                     <div class="history-item-points ${pointsClass}">
-                        ${pointsSign}${item.points} pts
+                        ${pointsDisplay.join(' / ')}
                     </div>
                 </div>
             `;
@@ -595,6 +661,7 @@
             'goal_completed': '🎯',
             'mission_completed': '⭐',
             'admin_grant': '🎁',
+            'admin_penalty': '⚠️',
             'streak_bonus': '🔥',
             'profile_complete': '👤',
             'reward_redeemed': '🛍️',
@@ -618,18 +685,18 @@
         displayUserHistory();
     }
     
-    // Obter informações do nível baseado em pontos
-    function getLevelInfo(points) {
+    // Obter informações do nível baseado em XP (MESMA DEFINIÇÃO DO BACKEND)
+    function getLevelInfo(xp) {
         const levels = [
-            { level: 1, name: 'Plebeia', emoji: '🌱', minPoints: 0, maxPoints: 500 },
-            { level: 2, name: 'Princesa', emoji: '👑', minPoints: 500, maxPoints: 1500 },
-            { level: 3, name: 'Rainha', emoji: '💎', minPoints: 1500, maxPoints: 3000 },
-            { level: 4, name: 'Imperatriz', emoji: '✨', minPoints: 3000, maxPoints: 5000 },
-            { level: 5, name: 'Deusa Glow', emoji: '🌟', minPoints: 5000, maxPoints: Infinity }
+            { level: 1, name: 'Plebeia', emoji: '🌱', minXp: 0, maxXp: 499 },
+            { level: 2, name: 'Princesa', emoji: '👑', minXp: 500, maxXp: 1499 },
+            { level: 3, name: 'Rainha', emoji: '✨', minXp: 1500, maxXp: 2999 },
+            { level: 4, name: 'Imperatriz', emoji: '💎', minXp: 3000, maxXp: 4999 },
+            { level: 5, name: 'Deusa Glow', emoji: '🔥', minXp: 5000, maxXp: Infinity }
         ];
         
         for (let i = levels.length - 1; i >= 0; i--) {
-            if (points >= levels[i].minPoints) {
+            if (xp >= levels[i].minXp) {
                 return levels[i];
             }
         }
@@ -908,35 +975,157 @@
     
     async function grantPoints() {
         const userId = document.getElementById('editUserId').value;
-        const amount = parseInt(document.getElementById('grantPointsAmount').value);
-        const reason = document.getElementById('grantPointsReason').value;
         
-        if (!amount || amount <= 0) {
-            showToast('Digite uma quantidade válida', 'error');
+        // Pegar valores de XP e Moedas separadamente
+        const xpInput = document.getElementById('grantXpAmount');
+        const coinsInput = document.getElementById('grantCoinsAmount');
+        const reasonInput = document.getElementById('grantPointsReason');
+        
+        // Fallback para campo antigo se os novos não existirem
+        const oldAmountInput = document.getElementById('grantPointsAmount');
+        
+        let xpAmount = 0;
+        let coinsAmount = 0;
+        
+        if (xpInput && coinsInput) {
+            xpAmount = parseInt(xpInput.value) || 0;
+            coinsAmount = parseInt(coinsInput.value) || 0;
+        } else if (oldAmountInput) {
+            // Compatibilidade: se usar campo antigo, dar XP e moedas iguais
+            const amount = parseInt(oldAmountInput.value) || 0;
+            xpAmount = amount;
+            coinsAmount = amount;
+        }
+        
+        const reason = reasonInput ? reasonInput.value : '';
+        
+        if (xpAmount <= 0 && coinsAmount <= 0) {
+            showToast('Digite uma quantidade válida de XP ou moedas', 'error');
             return;
         }
         
         try {
             await window.api.post(`/admin/users/${userId}/grant-points`, {
-                points: amount,
+                xp: xpAmount,
+                coins: coinsAmount,
                 reason: reason || 'Pontos concedidos pelo admin'
             });
             
             const idx = allUsers.findIndex(u => u.uid === userId);
             if (idx !== -1) {
-                allUsers[idx].totalPoints = (allUsers[idx].totalPoints || 0) + amount;
-                document.getElementById('editPoints').value = allUsers[idx].totalPoints;
-                allUsers.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+                allUsers[idx].xp = (allUsers[idx].xp || allUsers[idx].totalPoints || 0) + xpAmount;
+                allUsers[idx].coins = (allUsers[idx].coins !== undefined ? allUsers[idx].coins : allUsers[idx].xp) + coinsAmount;
+                allUsers[idx].totalPoints = allUsers[idx].xp; // Compatibilidade
+                
+                // Atualizar displays
+                const xpDisplay = document.getElementById('editUserXpDisplay');
+                const coinsDisplay = document.getElementById('editUserCoinsDisplay');
+                if (xpDisplay) xpDisplay.textContent = allUsers[idx].xp.toLocaleString('pt-BR');
+                if (coinsDisplay) coinsDisplay.textContent = allUsers[idx].coins.toLocaleString('pt-BR');
+                
+                // Atualizar nível
+                const userLevel = document.getElementById('editUserLevel');
+                if (userLevel) {
+                    const levelInfo = getLevelInfo(allUsers[idx].xp);
+                    userLevel.textContent = `${levelInfo.emoji} ${levelInfo.name}`;
+                }
+                
+                allUsers.sort((a, b) => (b.xp || b.totalPoints || 0) - (a.xp || a.totalPoints || 0));
                 displayUsers(allUsers);
             }
             
-            document.getElementById('grantPointsAmount').value = '';
-            document.getElementById('grantPointsReason').value = '';
+            // Limpar campos
+            if (xpInput) xpInput.value = '';
+            if (coinsInput) coinsInput.value = '';
+            if (oldAmountInput) oldAmountInput.value = '';
+            if (reasonInput) reasonInput.value = '';
             
-            showToast(`${amount} pontos concedidos!`, 'success');
+            // Recarregar histórico
+            loadUserHistory(userId);
+            
+            const message = [];
+            if (xpAmount > 0) message.push(`${xpAmount} XP`);
+            if (coinsAmount > 0) message.push(`${coinsAmount} moedas`);
+            showToast(`${message.join(' e ')} concedidos!`, 'success');
         } catch (error) {
             log.error('Erro ao conceder pontos:', error);
             showToast('Erro ao conceder pontos', 'error');
+        }
+    }
+    
+    async function penalizeUser() {
+        const userId = document.getElementById('editUserId').value;
+        
+        const xpInput = document.getElementById('penaltyXpAmount');
+        const coinsInput = document.getElementById('penaltyCoinsAmount');
+        const reasonInput = document.getElementById('penaltyReason');
+        
+        const xpAmount = parseInt(xpInput?.value) || 0;
+        const coinsAmount = parseInt(coinsInput?.value) || 0;
+        const reason = reasonInput?.value || '';
+        
+        if (xpAmount <= 0 && coinsAmount <= 0) {
+            showToast('Digite uma quantidade válida de XP ou moedas a remover', 'error');
+            return;
+        }
+        
+        if (!reason.trim()) {
+            showToast('É obrigatório informar o motivo da penalização', 'error');
+            return;
+        }
+        
+        // Confirmar ação
+        const user = allUsers.find(u => u.uid === userId);
+        const userName = user?.name || 'Usuária';
+        const confirmMsg = `Tem certeza que deseja penalizar ${userName}?\n\nSerá removido:\n${xpAmount > 0 ? `- ${xpAmount} XP\n` : ''}${coinsAmount > 0 ? `- ${coinsAmount} Moedas\n` : ''}\nMotivo: ${reason}`;
+        
+        if (!confirm(confirmMsg)) return;
+        
+        try {
+            const response = await window.api.post(`/admin/users/${userId}/penalize`, {
+                xp: xpAmount,
+                coins: coinsAmount,
+                reason: reason
+            });
+            
+            const idx = allUsers.findIndex(u => u.uid === userId);
+            if (idx !== -1) {
+                allUsers[idx].xp = response.newXp;
+                allUsers[idx].coins = response.newCoins;
+                allUsers[idx].totalPoints = response.newXp; // Compatibilidade
+                
+                // Atualizar displays
+                const xpDisplay = document.getElementById('editUserXpDisplay');
+                const coinsDisplay = document.getElementById('editUserCoinsDisplay');
+                if (xpDisplay) xpDisplay.textContent = allUsers[idx].xp.toLocaleString('pt-BR');
+                if (coinsDisplay) coinsDisplay.textContent = allUsers[idx].coins.toLocaleString('pt-BR');
+                
+                // Atualizar nível
+                const userLevel = document.getElementById('editUserLevel');
+                if (userLevel) {
+                    const levelInfo = getLevelInfo(allUsers[idx].xp);
+                    userLevel.textContent = `${levelInfo.emoji} ${levelInfo.name}`;
+                }
+                
+                allUsers.sort((a, b) => (b.xp || b.totalPoints || 0) - (a.xp || a.totalPoints || 0));
+                displayUsers(allUsers);
+            }
+            
+            // Limpar campos
+            if (xpInput) xpInput.value = '';
+            if (coinsInput) coinsInput.value = '';
+            if (reasonInput) reasonInput.value = '';
+            
+            // Recarregar histórico
+            loadUserHistory(userId);
+            
+            const message = [];
+            if (xpAmount > 0) message.push(`${xpAmount} XP`);
+            if (coinsAmount > 0) message.push(`${coinsAmount} moedas`);
+            showToast(`Penalização aplicada: -${message.join(' e -')}`, 'success');
+        } catch (error) {
+            log.error('Erro ao penalizar usuário:', error);
+            showToast(error.message || 'Erro ao penalizar usuário', 'error');
         }
     }
     
@@ -959,6 +1148,7 @@
     window.adminDeleteReward = deleteReward;
     window.adminOpenAddReward = openAddRewardModal;
     window.adminFilterHistory = filterHistory;
+    window.adminPenalizeUser = penalizeUser;
     
     // ===== INICIALIZAÇÃO =====
     document.addEventListener('DOMContentLoaded', async () => {
@@ -1013,6 +1203,12 @@
         const grantBtn = document.getElementById('grantPointsBtn');
         if (grantBtn) {
             grantBtn.onclick = grantPoints;
+        }
+        
+        // Botão penalizar
+        const penalizeBtn = document.getElementById('penalizeBtn');
+        if (penalizeBtn) {
+            penalizeBtn.onclick = penalizeUser;
         }
         
         // Fechar modais

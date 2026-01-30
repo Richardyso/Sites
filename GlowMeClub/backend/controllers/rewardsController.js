@@ -71,6 +71,9 @@ exports.getReward = async (req, res) => {
 
 /**
  * Resgatar uma recompensa
+ * IMPORTANTE: Usa apenas MOEDAS (coins), não XP!
+ * XP nunca decresce - é o progresso/nível do usuário
+ * Moedas são a "moeda" gastável para recompensas
  */
 exports.redeemReward = async (req, res) => {
     try {
@@ -100,7 +103,7 @@ exports.redeemReward = async (req, res) => {
             });
         }
         
-        // Buscar pontos do usuário
+        // Buscar dados do usuário
         const userRef = firestore.collection('users').doc(userId);
         const userDoc = await userRef.get();
         
@@ -111,10 +114,13 @@ exports.redeemReward = async (req, res) => {
         }
         
         const userData = userDoc.data();
-        const currentPoints = userData.totalPoints || 0;
+        
+        // IMPORTANTE: Usar MOEDAS (coins), não XP!
+        // Se o campo coins não existir, usa totalPoints como fallback (migração)
+        const currentCoins = userData.coins !== undefined ? userData.coins : (userData.totalPoints || 0);
         
         // Usar points OU pointsCost (compatibilidade com recompensas antigas e novas)
-        const rewardCost = reward.points || reward.pointsCost || 0;
+        const rewardCost = reward.coinsCost || reward.points || reward.pointsCost || 0;
         
         // Validar que o custo é um número válido
         if (!rewardCost || isNaN(rewardCost) || rewardCost <= 0) {
@@ -124,33 +130,34 @@ exports.redeemReward = async (req, res) => {
             });
         }
         
-        // Verificar se tem pontos suficientes
-        if (currentPoints < rewardCost) {
+        // Verificar se tem MOEDAS suficientes
+        if (currentCoins < rewardCost) {
             return res.status(400).json({
-                error: 'Pontos insuficientes',
-                message: `Você precisa de ${rewardCost - currentPoints} pontos a mais`,
-                currentPoints,
+                error: 'Moedas insuficientes',
+                message: `Você precisa de ${rewardCost - currentCoins} moedas a mais`,
+                currentCoins,
                 required: rewardCost
             });
         }
         
-        // Calcular novos pontos
-        const newTotalPoints = currentPoints - rewardCost;
+        // Calcular novas moedas (NÃO altera XP!)
+        const newCoins = currentCoins - rewardCost;
         
         // Validar que o resultado é um número válido
-        if (isNaN(newTotalPoints) || newTotalPoints < 0) {
-            console.error('Erro no cálculo de pontos:', { currentPoints, rewardCost, newTotalPoints });
+        if (isNaN(newCoins) || newCoins < 0) {
+            console.error('Erro no cálculo de moedas:', { currentCoins, rewardCost, newCoins });
             return res.status(500).json({
-                error: 'Erro ao calcular pontos'
+                error: 'Erro ao calcular moedas'
             });
         }
         
         // Usar transação para garantir consistência
         const batch = firestore.batch();
         
-        // Descontar pontos
+        // Descontar MOEDAS apenas (XP permanece intacto!)
         batch.update(userRef, {
-            totalPoints: newTotalPoints
+            coins: newCoins
+            // NÃO alterar xp ou totalPoints!
         });
         
         // Adicionar recompensa resgatada
@@ -163,7 +170,8 @@ exports.redeemReward = async (req, res) => {
         batch.set(userRewardRef, {
             rewardId: reward.id,
             rewardTitle: reward.title,
-            pointsCost: rewardCost,
+            coinsCost: rewardCost,
+            pointsCost: rewardCost, // Compatibilidade
             redeemedAt: serverTimestamp(),
             status: 'pending',
             instructions: reward.instructions || null
@@ -179,7 +187,9 @@ exports.redeemReward = async (req, res) => {
         batch.set(historyRef, {
             reason: `Recompensa resgatada: ${reward.title}`,
             action: `Recompensa resgatada: ${reward.title}`,
-            points: -rewardCost,
+            coins: -rewardCost,
+            xp: 0, // Resgate NÃO afeta XP
+            points: 0, // Compatibilidade - não afeta mais totalPoints
             type: 'reward_redeemed',
             createdAt: serverTimestamp()
         });
@@ -187,7 +197,7 @@ exports.redeemReward = async (req, res) => {
         // Executar transação
         await batch.commit();
         
-        console.log(`✅ Recompensa resgatada: ${reward.title} por ${rewardCost} pts. Usuário ${userId} agora tem ${newTotalPoints} pts`);
+        console.log(`✅ Recompensa resgatada: ${reward.title} por ${rewardCost} moedas. Usuário ${userId} agora tem ${newCoins} moedas (XP inalterado)`);
         
         // Enviar email com instruções
         if (userData.email) {
@@ -209,9 +219,10 @@ exports.redeemReward = async (req, res) => {
             reward: {
                 id: reward.id,
                 title: reward.title,
-                pointsCost: rewardCost
+                coinsCost: rewardCost
             },
-            newTotalPoints: newTotalPoints,
+            newCoins,
+            newTotalPoints: userData.xp || userData.totalPoints || 0, // XP não muda
             userRewardId: userRewardRef.id
         });
         

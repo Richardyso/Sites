@@ -67,15 +67,19 @@ router.get('/users', verifyToken, isAdmin, async (req, res) => {
         
         usersSnapshot.forEach(doc => {
             const userData = doc.data();
+            const xp = userData.xp || userData.totalPoints || 0;
+            const coins = userData.coins !== undefined ? userData.coins : (userData.totalPoints || 0);
             users.push({
                 uid: doc.id,
                 ...userData,
-                totalPoints: userData.totalPoints || 0
+                xp,
+                coins,
+                totalPoints: xp // Compatibilidade
             });
         });
         
-        // Ordenar por pontos
-        users.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+        // Ordenar por XP (não moedas!)
+        users.sort((a, b) => (b.xp || 0) - (a.xp || 0));
         
         res.json({
             success: true,
@@ -127,26 +131,41 @@ router.put('/users/:id', verifyToken, isAdmin, async (req, res) => {
 
 /**
  * POST /api/admin/users/:id/grant-points
- * Conceder pontos a um usuário (admin only)
+ * Conceder XP e Moedas a um usuário (admin only)
  */
 router.post('/users/:id/grant-points', verifyToken, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
-        const { points, reason } = req.body;
+        const { points, xp, coins, reason } = req.body;
         
-        console.log('🎁 Admin concedendo pontos:', { userId: id, points, reason });
+        // Determinar valores de XP e Moedas
+        // Se apenas 'points' for fornecido, dar XP e moedas iguais (compatibilidade)
+        const xpToGrant = xp !== undefined ? xp : (points || 0);
+        const coinsToGrant = coins !== undefined ? coins : (points || 0);
         
-        if (!points || points <= 0) {
+        console.log('🎁 Admin concedendo XP/Moedas:', { userId: id, xp: xpToGrant, coins: coinsToGrant, reason });
+        
+        if (xpToGrant <= 0 && coinsToGrant <= 0) {
             return res.status(400).json({
-                error: 'Quantidade de pontos inválida'
+                error: 'Quantidade de XP ou moedas inválida'
             });
         }
         
-        // Atualizar pontos do usuário
-        await firestore.collection('users').doc(id).update({
-            totalPoints: admin.firestore.FieldValue.increment(points),
+        // Atualizar XP e Moedas do usuário
+        const updateData = {
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
+        };
+        
+        if (xpToGrant > 0) {
+            updateData.xp = admin.firestore.FieldValue.increment(xpToGrant);
+            updateData.totalPoints = admin.firestore.FieldValue.increment(xpToGrant); // Compatibilidade
+        }
+        
+        if (coinsToGrant > 0) {
+            updateData.coins = admin.firestore.FieldValue.increment(coinsToGrant);
+        }
+        
+        await firestore.collection('users').doc(id).update(updateData);
         
         // Registrar no histórico de pontos
         await firestore
@@ -154,7 +173,9 @@ router.post('/users/:id/grant-points', verifyToken, isAdmin, async (req, res) =>
             .doc(id)
             .collection('pointsHistory')
             .add({
-                points: points,
+                xp: xpToGrant,
+                coins: coinsToGrant,
+                points: xpToGrant, // Compatibilidade
                 reason: reason || 'Pontos concedidos pelo admin',
                 type: 'admin_grant',
                 createdAt: admin.firestore.FieldValue.serverTimestamp()
@@ -162,7 +183,7 @@ router.post('/users/:id/grant-points', verifyToken, isAdmin, async (req, res) =>
         
         res.json({
             success: true,
-            message: `${points} pontos concedidos com sucesso`
+            message: `${xpToGrant} XP e ${coinsToGrant} moedas concedidos com sucesso`
         });
         
     } catch (error) {
@@ -175,16 +196,126 @@ router.post('/users/:id/grant-points', verifyToken, isAdmin, async (req, res) =>
 });
 
 /**
+ * POST /api/admin/users/:id/penalize
+ * Penalizar um usuário removendo XP e/ou Moedas (admin only)
+ * Usado para casos de fraude ou violação de regras
+ */
+router.post('/users/:id/penalize', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { xp, coins, reason } = req.body;
+        
+        // Validar que pelo menos um valor foi fornecido
+        const xpToRemove = Math.abs(xp || 0);
+        const coinsToRemove = Math.abs(coins || 0);
+        
+        console.log('⚠️ Admin penalizando usuário:', { userId: id, xp: xpToRemove, coins: coinsToRemove, reason });
+        
+        if (xpToRemove <= 0 && coinsToRemove <= 0) {
+            return res.status(400).json({
+                error: 'Informe a quantidade de XP ou moedas a remover'
+            });
+        }
+        
+        if (!reason || reason.trim() === '') {
+            return res.status(400).json({
+                error: 'É obrigatório informar o motivo da penalização'
+            });
+        }
+        
+        // Buscar dados atuais do usuário para validar
+        const userDoc = await firestore.collection('users').doc(id).get();
+        
+        if (!userDoc.exists) {
+            return res.status(404).json({
+                error: 'Usuário não encontrado'
+            });
+        }
+        
+        const userData = userDoc.data();
+        const currentXp = userData.xp || userData.totalPoints || 0;
+        const currentCoins = userData.coins !== undefined ? userData.coins : (userData.totalPoints || 0);
+        
+        // Calcular novos valores (não permitir negativos)
+        const newXp = Math.max(0, currentXp - xpToRemove);
+        const newCoins = Math.max(0, currentCoins - coinsToRemove);
+        
+        // Atualizar usuário
+        const updateData = {
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        };
+        
+        if (xpToRemove > 0) {
+            updateData.xp = newXp;
+            updateData.totalPoints = newXp; // Compatibilidade
+        }
+        
+        if (coinsToRemove > 0) {
+            updateData.coins = newCoins;
+        }
+        
+        await firestore.collection('users').doc(id).update(updateData);
+        
+        // Registrar no histórico de pontos (valores negativos)
+        await firestore
+            .collection('users')
+            .doc(id)
+            .collection('pointsHistory')
+            .add({
+                xp: xpToRemove > 0 ? -xpToRemove : 0,
+                coins: coinsToRemove > 0 ? -coinsToRemove : 0,
+                points: xpToRemove > 0 ? -xpToRemove : 0, // Compatibilidade
+                reason: `⚠️ Penalização: ${reason}`,
+                type: 'admin_penalty',
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+        
+        console.log(`⚠️ Penalização aplicada: -${xpToRemove} XP, -${coinsToRemove} moedas. Usuário ${id} agora tem ${newXp} XP e ${newCoins} moedas`);
+        
+        res.json({
+            success: true,
+            message: `Penalização aplicada: -${xpToRemove} XP e -${coinsToRemove} moedas`,
+            newXp,
+            newCoins
+        });
+        
+    } catch (error) {
+        console.error('Erro ao penalizar usuário:', error);
+        res.status(500).json({
+            error: 'Erro ao penalizar usuário',
+            message: error.message
+        });
+    }
+});
+
+/**
  * POST /api/user/checkin
- * Fazer check-in diário e ganhar 10 pontos
+ * Fazer check-in diário e ganhar XP + Moedas
+ * 
+ * SISTEMA DE STREAK PROGRESSIVO (5 dias):
+ * - Dia 1: 10 XP, 10 moedas (base)
+ * - Dia 2: 12 XP, 12 moedas (+20%)
+ * - Dia 3: 15 XP, 15 moedas (+50%)
+ * - Dia 4: 18 XP, 18 moedas (+80%)
+ * - Dia 5+: 22 XP, 22 moedas (+120%) - máximo mantido enquanto continuar
+ * 
+ * Se perder um dia, volta para o Dia 1!
  */
 router.post('/checkin', verifyToken, async (req, res) => {
     try {
         const userId = req.user.uid;
-        const CHECKIN_POINTS = 10;
         const today = new Date().toISOString().split('T')[0];
         
         console.log('✅ Usuário fazendo check-in:', userId);
+        
+        // Tabela de recompensas progressivas por streak (ciclo de 5 dias)
+        const STREAK_REWARDS = {
+            1: { xp: 10, coins: 10, message: 'Primeiro passo! 🌱' },
+            2: { xp: 12, coins: 12, message: 'Segundo dia! Continue assim! 💪' },
+            3: { xp: 15, coins: 15, message: 'Três dias seguidos! Você está brilhando! ✨' },
+            4: { xp: 18, coins: 18, message: 'Quatro dias! Quase lá! 🔥' },
+            5: { xp: 22, coins: 22, message: 'CINCO DIAS! Bônus máximo desbloqueado! 🏆' }
+        };
         
         // Buscar dados do usuário
         const userRef = firestore.collection('users').doc(userId);
@@ -209,6 +340,8 @@ router.post('/checkin', verifyToken, async (req, res) => {
         
         // Calcular novo streak
         let newStreak = 1;
+        let streakBroken = false;
+        
         if (lastCheckinDate) {
             const lastDate = new Date(lastCheckinDate);
             const todayDate = new Date(today);
@@ -218,24 +351,48 @@ router.post('/checkin', verifyToken, async (req, res) => {
                 // Consecutivo - incrementa streak
                 newStreak = (userData.streak || 0) + 1;
             } else {
-                // Mais de 1 dia - reseta streak
+                // Mais de 1 dia - reseta streak (volta pro dia 1)
                 newStreak = 1;
+                streakBroken = userData.streak > 1; // Só marca como quebrado se tinha streak
             }
         }
         
-        const currentPoints = userData.totalPoints || 0;
-        const newTotalPoints = currentPoints + CHECKIN_POINTS;
+        // Determinar nível do streak (máximo 5)
+        const streakLevel = Math.min(newStreak, 5);
+        const rewards = STREAK_REWARDS[streakLevel];
+        
+        // XP e moedas a ganhar
+        const totalXpEarned = rewards.xp;
+        const totalCoinsEarned = rewards.coins;
+        const streakMessage = rewards.message;
+        
+        // Calcular novos totais
+        const currentXp = userData.xp || userData.totalPoints || 0;
+        const currentCoins = userData.coins !== undefined ? userData.coins : (userData.totalPoints || 0);
+        const newXp = currentXp + totalXpEarned;
+        const newCoins = currentCoins + totalCoinsEarned;
         
         // Usar batch para atualizar tudo de uma vez
         const batch = firestore.batch();
         
         // Atualizar usuário
         batch.update(userRef, {
-            totalPoints: newTotalPoints,
+            xp: newXp,
+            coins: newCoins,
+            totalPoints: newXp, // Manter compatibilidade
             streak: newStreak,
             lastCheckinDate: today,
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
+        
+        // Montar mensagem para o histórico
+        let historyReason = `Check-in diário - Dia ${streakLevel}/5`;
+        if (newStreak > 5) {
+            historyReason = `Check-in diário - ${newStreak} dias seguidos! 🏆`;
+        }
+        if (streakLevel >= 5) {
+            historyReason += ' (Bônus máximo!)';
+        }
         
         // Adicionar ao histórico de pontos
         const historyRef = firestore
@@ -245,24 +402,44 @@ router.post('/checkin', verifyToken, async (req, res) => {
             .doc();
         
         batch.set(historyRef, {
-            points: CHECKIN_POINTS,
-            reason: `Check-in diário (${newStreak} dias seguidos)`,
+            xp: totalXpEarned,
+            coins: totalCoinsEarned,
+            points: totalXpEarned, // Compatibilidade
+            reason: historyReason,
             action: `Check-in diário (${newStreak} dias seguidos)`,
             type: 'checkin',
+            streakLevel: streakLevel,
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
         
         // Executar batch
         await batch.commit();
         
-        console.log(`✅ Check-in realizado! Streak: ${newStreak}, Pontos: ${newTotalPoints}`);
+        console.log(`✅ Check-in realizado! Streak: ${newStreak} (nível ${streakLevel}), XP: +${totalXpEarned}, Moedas: +${totalCoinsEarned}`);
+        
+        // Calcular próximo nível de streak
+        const nextStreakLevel = Math.min(streakLevel + 1, 5);
+        const nextRewards = STREAK_REWARDS[nextStreakLevel];
         
         res.json({
             success: true,
-            message: 'Check-in realizado com sucesso!',
-            pointsEarned: CHECKIN_POINTS,
+            message: streakMessage,
+            xpEarned: totalXpEarned,
+            coinsEarned: totalCoinsEarned,
+            pointsEarned: totalXpEarned, // Compatibilidade
             newStreak: newStreak,
-            newTotalPoints: newTotalPoints
+            streakLevel: streakLevel,
+            streakBroken: streakBroken,
+            newXp: newXp,
+            newCoins: newCoins,
+            newTotalPoints: newXp, // Compatibilidade
+            // Info sobre o próximo nível
+            nextLevel: {
+                level: nextStreakLevel,
+                xp: nextRewards.xp,
+                coins: nextRewards.coins,
+                isMaxLevel: streakLevel >= 5
+            }
         });
         
     } catch (error) {
@@ -541,31 +718,65 @@ router.get('/users/:id/history', verifyToken, isAdmin, async (req, res) => {
 /**
  * GET /api/users/ranking
  * Obter ranking público de usuários
+ * IMPORTANTE: Ranking baseado em XP (não moedas!)
+ * XP representa o progresso/esforço total do usuário
  */
 router.get('/ranking', async (req, res) => {
     try {
-        // Buscar todos os usuários ordenados por pontos
+        // Buscar todos os usuários
+        // Nota: ordenamos por xp, mas se não existir, usamos totalPoints como fallback
         const usersSnapshot = await firestore
             .collection('users')
-            .orderBy('totalPoints', 'desc')
+            .orderBy('xp', 'desc')
             .limit(100)
             .get();
         
-        const users = [];
+        let users = [];
         usersSnapshot.forEach(doc => {
             const userData = doc.data();
             // Filtrar admins no código (evita necessidade de índice composto)
             if (userData.role !== 'admin') {
+                // XP determina posição no ranking (não moedas!)
+                const xp = userData.xp || userData.totalPoints || 0;
                 users.push({
                     uid: doc.id,
                     name: userData.name || 'Usuário',
-                    totalPoints: userData.totalPoints || 0,
+                    xp: xp,
+                    totalPoints: xp, // Compatibilidade com frontend antigo
                     level: userData.level || 1,
                     profileImage: userData.profileImage || null,
                     preferredColor: userData.preferredColor || '#8B5CF6'
                 });
             }
         });
+        
+        // Se não conseguiu ordenar por xp (campo não existe ainda), buscar por totalPoints
+        if (users.length === 0) {
+            const fallbackSnapshot = await firestore
+                .collection('users')
+                .orderBy('totalPoints', 'desc')
+                .limit(100)
+                .get();
+            
+            fallbackSnapshot.forEach(doc => {
+                const userData = doc.data();
+                if (userData.role !== 'admin') {
+                    const xp = userData.xp || userData.totalPoints || 0;
+                    users.push({
+                        uid: doc.id,
+                        name: userData.name || 'Usuário',
+                        xp: xp,
+                        totalPoints: xp,
+                        level: userData.level || 1,
+                        profileImage: userData.profileImage || null,
+                        preferredColor: userData.preferredColor || '#8B5CF6'
+                    });
+                }
+            });
+        }
+        
+        // Ordenar por XP (garante ordem correta mesmo após fallback)
+        users.sort((a, b) => b.xp - a.xp);
         
         // Limitar a 50 após filtrar
         const topUsers = users.slice(0, 50);
@@ -576,6 +787,44 @@ router.get('/ranking', async (req, res) => {
         });
         
     } catch (error) {
+        // Se falhar por falta de índice para 'xp', tentar com totalPoints
+        if (error.code === 9 || error.message?.includes('index')) {
+            try {
+                const fallbackSnapshot = await firestore
+                    .collection('users')
+                    .orderBy('totalPoints', 'desc')
+                    .limit(100)
+                    .get();
+                
+                const users = [];
+                fallbackSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    if (userData.role !== 'admin') {
+                        const xp = userData.xp || userData.totalPoints || 0;
+                        users.push({
+                            uid: doc.id,
+                            name: userData.name || 'Usuário',
+                            xp: xp,
+                            totalPoints: xp,
+                            level: userData.level || 1,
+                            profileImage: userData.profileImage || null,
+                            preferredColor: userData.preferredColor || '#8B5CF6'
+                        });
+                    }
+                });
+                
+                users.sort((a, b) => b.xp - a.xp);
+                const topUsers = users.slice(0, 50);
+                
+                return res.json({
+                    success: true,
+                    users: topUsers
+                });
+            } catch (fallbackError) {
+                console.error('Erro no fallback do ranking:', fallbackError);
+            }
+        }
+        
         console.error('Erro ao buscar ranking:', error);
         res.status(500).json({
             error: 'Erro ao buscar ranking',

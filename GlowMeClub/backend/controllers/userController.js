@@ -21,13 +21,21 @@ exports.getUserProfile = async (req, res) => {
         }
         
         const userData = userDoc.data();
-        const currentLevel = calculateLevel(userData.totalPoints || 0);
+        
+        // XP determina nível (não moedas!)
+        const xp = userData.xp || userData.totalPoints || 0;
+        const coins = userData.coins !== undefined ? userData.coins : (userData.totalPoints || 0);
+        const currentLevel = calculateLevel(xp);
         
         res.json({
             id: userDoc.id,
             ...userData,
+            xp,
+            coins,
+            totalPoints: xp, // Compatibilidade
             currentLevel,
-            nextLevelPoints: getPointsForNextLevel(currentLevel)
+            nextLevelXp: getPointsForNextLevel(currentLevel),
+            nextLevelPoints: getPointsForNextLevel(currentLevel) // Compatibilidade
         });
         
     } catch (error) {
@@ -97,7 +105,7 @@ exports.updateUserProfile = async (req, res) => {
 };
 
 /**
- * Obter pontos e nível do usuário
+ * Obter XP, moedas e nível do usuário
  */
 exports.getUserPoints = async (req, res) => {
     try {
@@ -114,28 +122,36 @@ exports.getUserPoints = async (req, res) => {
             });
         }
         
-        const { totalPoints = 0 } = userDoc.data();
-        const currentLevel = calculateLevel(totalPoints);
-        const nextLevelPoints = getPointsForNextLevel(currentLevel);
+        const userData = userDoc.data();
         
-        // Calcular progresso
+        // XP determina nível (não moedas!)
+        const xp = userData.xp || userData.totalPoints || 0;
+        const coins = userData.coins !== undefined ? userData.coins : (userData.totalPoints || 0);
+        const currentLevel = calculateLevel(xp);
+        const nextLevelXp = getPointsForNextLevel(currentLevel);
+        
+        // Calcular progresso baseado em XP
         let progress = 0;
         if (currentLevel < 5) {
             const levelThresholds = [0, 500, 1500, 3000, 5000];
             const currentLevelMin = levelThresholds[currentLevel - 1];
-            const pointsInLevel = totalPoints - currentLevelMin;
-            const pointsNeededForNext = nextLevelPoints - currentLevelMin;
-            progress = Math.round((pointsInLevel / pointsNeededForNext) * 100);
+            const xpInLevel = xp - currentLevelMin;
+            const xpNeededForNext = nextLevelXp - currentLevelMin;
+            progress = Math.round((xpInLevel / xpNeededForNext) * 100);
         } else {
             progress = 100;
         }
         
         res.json({
-            totalPoints,
+            xp,
+            coins,
+            totalPoints: xp, // Compatibilidade
             currentLevel,
-            nextLevelPoints,
+            nextLevelXp,
+            nextLevelPoints: nextLevelXp, // Compatibilidade
             progress,
-            pointsToNextLevel: Math.max(0, nextLevelPoints - totalPoints)
+            xpToNextLevel: Math.max(0, nextLevelXp - xp),
+            pointsToNextLevel: Math.max(0, nextLevelXp - xp) // Compatibilidade
         });
         
     } catch (error) {
@@ -166,6 +182,10 @@ exports.getUserStats = async (req, res) => {
         }
         
         const userData = userDoc.data();
+        
+        // XP e moedas
+        const xp = userData.xp || userData.totalPoints || 0;
+        const coins = userData.coins !== undefined ? userData.coins : (userData.totalPoints || 0);
         
         // Contar metas
         const goalsSnapshot = await firestore
@@ -201,8 +221,10 @@ exports.getUserStats = async (req, res) => {
         const redeemedRewards = rewardsSnapshot.size;
         
         res.json({
-            totalPoints: userData.totalPoints || 0,
-            currentLevel: calculateLevel(userData.totalPoints || 0),
+            xp,
+            coins,
+            totalPoints: xp, // Compatibilidade
+            currentLevel: calculateLevel(xp),
             totalGoals,
             completedGoals,
             goalsCompletionRate: totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0,

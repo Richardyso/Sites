@@ -132,12 +132,21 @@
                     <!-- User Info Cards -->
                     <div class="user-info-cards">
                         <div class="info-card">
+                            <div class="info-card-icon" style="background: #EDE9FE;">
+                                <i class="fas fa-star" style="color: #8B5CF6;"></i>
+                            </div>
+                            <div class="info-card-content">
+                                <span class="info-card-label">XP (Experiência)</span>
+                                <span class="info-card-value" id="editUserXpDisplay">0</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
                             <div class="info-card-icon" style="background: #FEF3C7;">
                                 <i class="fas fa-coins" style="color: #F59E0B;"></i>
                             </div>
                             <div class="info-card-content">
-                                <span class="info-card-label">Pontos</span>
-                                <span class="info-card-value" id="editUserPointsDisplay">0</span>
+                                <span class="info-card-label">Moedas</span>
+                                <span class="info-card-value" id="editUserCoinsDisplay">0</span>
                             </div>
                         </div>
                         <div class="info-card">
@@ -165,19 +174,53 @@
                     <!-- Grant Points Section -->
                     <div class="grant-points-section">
                         <h4 class="grant-points-title">
-                            <i class="fas fa-coins"></i> Conceder Pontos
+                            <i class="fas fa-gift"></i> Conceder XP e Moedas
                         </h4>
+                        <p class="grant-points-description" style="font-size: 0.75rem; color: #666; margin-bottom: 0.75rem;">
+                            XP aumenta o nível e ranking. Moedas são usadas para resgatar recompensas.
+                        </p>
                         <div class="grant-points-grid">
                             <div class="form-group">
-                                <label class="form-label">Quantidade de Pontos</label>
-                                <input type="number" class="form-input" id="grantPointsAmount" min="1" placeholder="Ex: 100">
+                                <label class="form-label">XP (Experiência)</label>
+                                <input type="number" class="form-input" id="grantXpAmount" min="0" placeholder="Ex: 50">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Motivo</label>
-                                <input type="text" class="form-input" id="grantPointsReason" placeholder="Ex: Missão relâmpago">
+                                <label class="form-label">Moedas</label>
+                                <input type="number" class="form-input" id="grantCoinsAmount" min="0" placeholder="Ex: 30">
+                            </div>
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label class="form-label">Motivo (aparece no histórico)</label>
+                                <input type="text" class="form-input" id="grantPointsReason" placeholder="Ex: Missão relâmpago, Bônus especial...">
                             </div>
                             <button type="button" class="btn btn-success btn-sm" id="grantPointsBtn">
-                                <i class="fas fa-plus"></i> Conceder Pontos
+                                <i class="fas fa-plus"></i> Conceder
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Penalize Section -->
+                    <div class="penalize-section" style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+                        <h4 class="penalize-title" style="display: flex; align-items: center; gap: 0.5rem; color: #DC2626; margin-bottom: 0.5rem;">
+                            <i class="fas fa-exclamation-triangle"></i> Penalização
+                        </h4>
+                        <p class="penalize-description" style="font-size: 0.75rem; color: #991B1B; margin-bottom: 0.75rem;">
+                            Use em casos de fraude ou violação de regras. A penalização aparecerá no histórico da usuária.
+                        </p>
+                        <div class="penalize-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <div class="form-group">
+                                <label class="form-label" style="color: #DC2626;">Remover XP</label>
+                                <input type="number" class="form-input" id="penaltyXpAmount" min="0" placeholder="Ex: 100" style="border-color: #FECACA;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" style="color: #DC2626;">Remover Moedas</label>
+                                <input type="number" class="form-input" id="penaltyCoinsAmount" min="0" placeholder="Ex: 50" style="border-color: #FECACA;">
+                            </div>
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label class="form-label" style="color: #DC2626;">Motivo da Penalização (obrigatório)</label>
+                                <input type="text" class="form-input" id="penaltyReason" placeholder="Ex: Fraude detectada, Comportamento inadequado..." style="border-color: #FECACA;" required>
+                            </div>
+                            <button type="button" class="btn btn-sm" id="penalizeBtn" style="background: #DC2626; color: white; grid-column: 1 / -1;">
+                                <i class="fas fa-minus-circle"></i> Aplicar Penalização
                             </button>
                         </div>
                     </div>

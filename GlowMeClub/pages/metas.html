@@ -31,9 +31,16 @@
     <!-- Header -->
     <header class="app-header">
         <nav class="app-nav">
-            <a href="/" class="logo-link">
-                <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img">
-            </a>
+            <div class="header-left">
+                <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a href="dashboard.html" class="logo-link">
+                    <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img">
+                </a>
+            </div>
             
             <!-- Desktop Navigation -->
             <div class="desktop-nav">
@@ -59,6 +66,56 @@
             </div>
         </nav>
     </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    
+    <!-- Mobile Menu Drawer -->
+    <nav class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img">
+            <button class="mobile-menu-close" id="mobileMenuClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-nav">
+            <a href="dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-th-large"></i>
+                Dashboard
+            </a>
+            <a href="metas.html" class="mobile-menu-link active">
+                <i class="fas fa-bullseye"></i>
+                Metas
+            </a>
+            <a href="missoes.html" class="mobile-menu-link">
+                <i class="fas fa-star"></i>
+                Missões
+            </a>
+            <a href="pontos.html" class="mobile-menu-link">
+                <i class="fas fa-coins"></i>
+                Pontos
+            </a>
+            <a href="recompensas.html" class="mobile-menu-link">
+                <i class="fas fa-gift"></i>
+                Recompensas
+            </a>
+            <div class="mobile-menu-divider"></div>
+            <a href="perfil.html" class="mobile-menu-link">
+                <i class="fas fa-user"></i>
+                Meu Perfil
+            </a>
+            <a href="sobre.html" class="mobile-menu-link">
+                <i class="fas fa-info-circle"></i>
+                Sobre
+            </a>
+        </div>
+        <div class="mobile-menu-footer">
+            <a href="#" class="mobile-menu-link" onclick="logout(); return false;">
+                <i class="fas fa-sign-out-alt"></i>
+                Sair
+            </a>
+        </div>
+    </nav>
 
     <!-- Main Content -->
     <main class="main-container">
@@ -286,6 +343,38 @@
                 window.deleteGoal(goalId);
             }
         });
+        
+        // Mobile Menu
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        
+        function openMobileMenu() {
+            mobileMenu.classList.add('active');
+            mobileMenuOverlay.classList.add('active');
+            hamburgerBtn.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+            hamburgerBtn.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        if (hamburgerBtn) {
+            hamburgerBtn.addEventListener('click', openMobileMenu);
+        }
+        
+        if (mobileMenuClose) {
+            mobileMenuClose.addEventListener('click', closeMobileMenu);
+        }
+        
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+        }
     </script>
 </body>
 </html>

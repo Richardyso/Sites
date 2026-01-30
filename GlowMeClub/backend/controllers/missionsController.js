@@ -1,6 +1,6 @@
 // ===== CONTROLADOR DE MISSÕES =====
 const { firestore, serverTimestamp, increment } = require('../config/firebase-admin');
-const { checkLevelUp } = require('../utils/calculateLevel');
+const { checkLevelUp, getActionReward } = require('../utils/calculateLevel');
 const { sendLevelUpEmail } = require('../utils/email');
 
 // Missões padrão diárias
@@ -215,6 +215,7 @@ exports.createDailyMissions = async (req, res) => {
 
 /**
  * Completar uma missão
+ * Dá XP (progresso/nível) e Moedas (para recompensas) separadamente
  */
 exports.completeMission = async (req, res) => {
     try {
@@ -253,17 +254,29 @@ exports.completeMission = async (req, res) => {
             completedAt: serverTimestamp()
         });
         
-        // Buscar pontos atuais do usuário
+        // Buscar dados atuais do usuário
         const userRef = firestore.collection('users').doc(userId);
         const userDoc = await userRef.get();
         const userData = userDoc.data();
-        const currentPoints = userData.totalPoints || 0;
-        const missionPoints = missionData.pointsEarned || 10;
-        const newPoints = currentPoints + missionPoints;
         
-        // Atualizar pontos do usuário
+        // Obter recompensa da ação (XP e Moedas)
+        const reward = getActionReward('mission_completed');
+        const xpEarned = missionData.xpEarned || reward.xp;
+        const coinsEarned = missionData.coinsEarned || reward.coins;
+        
+        // XP atual e novo (para cálculo de level up)
+        const currentXp = userData.xp || userData.totalPoints || 0;
+        const newXp = currentXp + xpEarned;
+        
+        // Moedas atuais e novas
+        const currentCoins = userData.coins !== undefined ? userData.coins : (userData.totalPoints || 0);
+        const newCoins = currentCoins + coinsEarned;
+        
+        // Atualizar XP e Moedas do usuário
         batch.update(userRef, {
-            totalPoints: increment(missionPoints)
+            xp: increment(xpEarned),
+            coins: increment(coinsEarned),
+            totalPoints: increment(xpEarned) // Manter totalPoints = xp para compatibilidade
         });
         
         // Adicionar ao histórico de pontos
@@ -276,7 +289,9 @@ exports.completeMission = async (req, res) => {
         batch.set(historyRef, {
             reason: `Missão concluída: ${missionData.description}`,
             action: `Missão concluída: ${missionData.description}`,
-            points: missionPoints,
+            xp: xpEarned,
+            coins: coinsEarned,
+            points: xpEarned, // Compatibilidade
             type: 'mission_completed',
             createdAt: serverTimestamp()
         });
@@ -284,8 +299,8 @@ exports.completeMission = async (req, res) => {
         // Executar transação
         await batch.commit();
         
-        // Verificar se subiu de nível
-        const levelUp = checkLevelUp(currentPoints, newPoints);
+        // Verificar se subiu de nível (baseado em XP)
+        const levelUp = checkLevelUp(currentXp, newXp);
         
         if (levelUp && userData.email) {
             // Enviar email de level up (não bloquear resposta)
@@ -301,8 +316,12 @@ exports.completeMission = async (req, res) => {
         res.json({
             success: true,
             message: 'Missão concluída com sucesso!',
-            pointsEarned: missionPoints,
-            newTotalPoints: newPoints,
+            xpEarned,
+            coinsEarned,
+            pointsEarned: xpEarned, // Compatibilidade
+            newXp,
+            newCoins,
+            newTotalPoints: newXp, // Compatibilidade
             levelUp: levelUp ? {
                 newLevel: levelUp.newLevel,
                 levelName: levelUp.levelInfo.name,

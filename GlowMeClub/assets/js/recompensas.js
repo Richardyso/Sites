@@ -16,7 +16,8 @@ const log = window.logger || {
 // Dados
 let currentUser = null;
 let availableRewards = [];
-let userPoints = 0;
+let userCoins = 0; // Moedas (gastáveis para recompensas)
+let userXp = 0;    // XP (para nível - não gastável)
 let currentCategory = 'all';
 
 // Expor globalmente para o script inline poder acessar
@@ -39,9 +40,12 @@ async function loadRewards() {
         // Buscar dados do usuário
         const authData = await window.api.get('/auth/me');
         currentUser = authData.user;
-        userPoints = currentUser.totalPoints || 0;
+        // Moedas são usadas para recompensas (gastável)
+        userCoins = currentUser.coins !== undefined ? currentUser.coins : (currentUser.totalPoints || 0);
+        // XP para referência (não gastável)
+        userXp = currentUser.xp || currentUser.totalPoints || 0;
         
-        // Atualizar header e pontos
+        // Atualizar header e moedas
         updateHeader();
         updatePointsDisplay();
         
@@ -56,7 +60,8 @@ async function loadRewards() {
         if (cachedData) {
             try {
                 currentUser = JSON.parse(cachedData);
-                userPoints = currentUser.totalPoints || 0;
+                userCoins = currentUser.coins !== undefined ? currentUser.coins : (currentUser.totalPoints || 0);
+                userXp = currentUser.xp || currentUser.totalPoints || 0;
                 updateHeader();
                 updatePointsDisplay();
                 await loadRewardsFromBackend();
@@ -102,11 +107,17 @@ function updateHeader() {
     }
 }
 
-// Atualizar display de pontos
+// Atualizar display de moedas (usadas para resgatar recompensas)
 function updatePointsDisplay() {
     const pointsElement = document.getElementById('userPoints');
     if (pointsElement) {
-        pointsElement.textContent = userPoints.toLocaleString('pt-BR');
+        pointsElement.textContent = userCoins.toLocaleString('pt-BR');
+    }
+    
+    // Se existir elemento separado para moedas
+    const coinsElement = document.getElementById('userCoins');
+    if (coinsElement) {
+        coinsElement.textContent = userCoins.toLocaleString('pt-BR');
     }
 }
 
@@ -174,8 +185,9 @@ function displayRewards() {
     if (emptyState) emptyState.style.display = 'none';
     
     container.innerHTML = filteredRewards.map(reward => {
-        const canRedeem = userPoints >= (reward.points || reward.pointsCost || 0);
-        const points = reward.points || reward.pointsCost || 0;
+        // Usar moedas para verificar se pode resgatar (não XP!)
+        const cost = reward.coinsCost || reward.points || reward.pointsCost || 0;
+        const canRedeem = userCoins >= cost;
         const icon = getCategoryIcon(reward.category);
         
         return `
@@ -195,13 +207,13 @@ function displayRewards() {
                     <div class="reward-footer">
                         <div class="reward-cost">
                             <i class="fas fa-coins"></i>
-                            <span>${points.toLocaleString('pt-BR')}</span>
+                            <span>${cost.toLocaleString('pt-BR')}</span>
                         </div>
                         ${canRedeem ? 
-                            `<button class="btn btn-redeem" onclick="openRedeemModal('${reward.id}', '${reward.title.replace(/'/g, "\\'")}', ${points})">
+                            `<button class="btn btn-redeem" onclick="openRedeemModal('${reward.id}', '${reward.title.replace(/'/g, "\\'")}', ${cost})">
                                 Resgatar
                             </button>` :
-                            `<span class="insufficient-points">Faltam ${(points - userPoints).toLocaleString('pt-BR')} pts</span>`
+                            `<span class="insufficient-points">Faltam ${(cost - userCoins).toLocaleString('pt-BR')} moedas</span>`
                         }
                     </div>
                 </div>

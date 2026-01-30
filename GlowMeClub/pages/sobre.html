@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missões Diárias - GlowMeClub</title>
+    <title>Sobre - GlowMeClub</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="../assets/images/favico.png">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Missões Diárias - GlowMeClub">
-    <meta property="og:description" content="Complete missões diárias no GlowMeClub">
+    <meta property="og:title" content="Sobre - GlowMeClub">
+    <meta property="og:description" content="Conheça o GlowMeClub e como apoiar o projeto">
     <meta property="og:image" content="../assets/images/og.png">
     
     <!-- Google Fonts -->
@@ -22,7 +22,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/layout.css">
-    <link rel="stylesheet" href="../assets/css/missoes.css">
+    <link rel="stylesheet" href="../assets/css/sobre.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -46,7 +46,7 @@
             <div class="desktop-nav">
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
                 <a href="metas.html" class="nav-link">Metas</a>
-                <a href="missoes.html" class="nav-link active">Missões</a>
+                <a href="missoes.html" class="nav-link">Missões</a>
                 <a href="pontos.html" class="nav-link">Pontos</a>
                 <a href="recompensas.html" class="nav-link">Recompensas</a>
             </div>
@@ -87,7 +87,7 @@
                 <i class="fas fa-bullseye"></i>
                 Metas
             </a>
-            <a href="missoes.html" class="mobile-menu-link active">
+            <a href="missoes.html" class="mobile-menu-link">
                 <i class="fas fa-star"></i>
                 Missões
             </a>
@@ -104,7 +104,7 @@
                 <i class="fas fa-user"></i>
                 Meu Perfil
             </a>
-            <a href="sobre.html" class="mobile-menu-link">
+            <a href="sobre.html" class="mobile-menu-link active">
                 <i class="fas fa-info-circle"></i>
                 Sobre
             </a>
@@ -119,38 +119,112 @@
 
     <!-- Main Content -->
     <main class="main-container">
-        <!-- Page Header -->
-        <div class="page-header">
-            <h1 class="page-title">Missões Diárias</h1>
-            <p class="page-subtitle">Complete suas missões e ganhe pontos para evoluir!</p>
-        </div>
-
-        <!-- Daily Progress Card -->
-        <div class="daily-progress" id="dailyProgress">
-            <div class="progress-header">
-                <h2 class="progress-title">Progresso Diário</h2>
-                <div class="progress-count" id="missionCounter">0/5</div>
-            </div>
-            <div class="progress-bar-wrapper">
-                <div class="progress-bar-fill" id="missionProgressBar" style="width: 0%"></div>
-            </div>
-            <p class="progress-message" id="progressMessage">
-                Complete suas missões diárias para ganhar pontos!
+        <!-- Hero Section -->
+        <section class="about-hero">
+            <span class="hero-emoji">✨</span>
+            <h1>Sobre o GlowMeClub</h1>
+            <p>Uma plataforma de autocuidado e evolução pessoal com gamificação</p>
+        </section>
+        
+        <!-- What is GlowMeClub -->
+        <section class="about-section">
+            <h2><i class="fas fa-sparkles"></i> O que é o GlowMeClub?</h2>
+            <p>
+                O GlowMeClub é uma plataforma criada para ajudar mulheres a desenvolverem hábitos saudáveis 
+                e alcançarem seus objetivos de forma divertida e motivadora.
             </p>
-        </div>
-
-        <!-- Missions Grid -->
-        <div class="missions-grid" id="missionsGrid">
-            <!-- Missões serão carregadas dinamicamente -->
-        </div>
-
-        <!-- Empty State -->
-        <div class="empty-missions" id="emptyState" style="display: none;">
-            <span class="empty-icon">
-                <i class="fas fa-star"></i>
-            </span>
-            <h3>Nenhuma missão disponível</h3>
-            <p>Volte amanhã para novas missões!</p>
+            <p>
+                Através de missões diárias, metas personalizadas e um sistema de recompensas, 
+                você evolui enquanto cuida de si mesma nas áreas: Mental, Física, Emocional, 
+                Espiritual, Financeira e Aparência.
+            </p>
+        </section>
+        
+        <!-- Contact / Bug Report -->
+        <section class="contact-section">
+            <h2><i class="fas fa-headset"></i> Contato e Suporte</h2>
+            <p style="color: var(--cor-texto-medio); margin-bottom: 1rem;">
+                Encontrou um bug? Tem alguma sugestão? Entre em contato!
+            </p>
+            
+            <div class="contact-items-grid">
+                <a href="https://wa.me/351910474651" target="_blank" class="contact-item">
+                    <div class="contact-icon whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <div class="contact-info">
+                        <strong>WhatsApp</strong>
+                        <span>+351 910 474 651</span>
+                    </div>
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+                
+                <a href="mailto:profissionalbarbaracosta@gmail.com" class="contact-item">
+                    <div class="contact-icon email">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-info">
+                        <strong>E-mail</strong>
+                        <span>profissionalbarbaracosta@gmail.com</span>
+                    </div>
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+        </section>
+        
+        <!-- Donations -->
+        <section class="donation-section">
+            <h2><i class="fas fa-heart"></i> Apoie o Projeto</h2>
+            
+            <div class="donation-notice">
+                <i class="fas fa-info-circle"></i>
+                <p>
+                    <strong>A doação é totalmente opcional!</strong> O GlowMeClub é um projeto feito com muito carinho 
+                    e você pode usar todas as funcionalidades gratuitamente. Se quiser contribuir para 
+                    manter e melhorar a plataforma, ficaremos muito gratas!
+                </p>
+            </div>
+            
+            <div class="pix-card">
+                <h3><i class="fas fa-qrcode"></i> Doação via PIX</h3>
+                
+                <div class="pix-key">
+                    <code id="pixKey">profissionalbarbaracosta@gmail.com</code>
+                </div>
+                
+                <button class="copy-btn" id="copyPixBtn" onclick="copyPixKey()">
+                    <i class="fas fa-copy"></i>
+                    Copiar chave PIX
+                </button>
+                
+                <p class="pix-note">
+                    Qualquer valor é bem-vindo e nos ajuda a continuar desenvolvendo novas funcionalidades!
+                </p>
+            </div>
+        </section>
+        
+        <!-- Creator -->
+        <section class="creator-section">
+            <h2><i class="fas fa-heart"></i> Criado com amor por</h2>
+            
+            <div class="creator-avatar">
+                <i class="fas fa-crown"></i>
+            </div>
+            
+            <div class="creator-name">Bárbara Costa</div>
+            <div class="creator-role">Fundadora do GlowMeClub</div>
+            
+            <p class="creator-message">
+                "Criei o GlowMeClub com o sonho de ajudar mulheres a se tornarem 
+                a melhor versão de si mesmas, um dia de cada vez. 
+                Que essa jornada te transforme! 💜"
+            </p>
+        </section>
+        
+        <!-- Version Info -->
+        <div class="version-info">
+            <span>GlowMeClub v1.0</span>
+            <span>© 2024 Todos os direitos reservados</span>
         </div>
     </main>
 
@@ -165,7 +239,7 @@
                 <i class="fas fa-bullseye"></i>
                 <span>Metas</span>
             </a>
-            <a href="missoes.html" class="nav-item active">
+            <a href="missoes.html" class="nav-item">
                 <i class="fas fa-star"></i>
                 <span>Missões</span>
             </a>
@@ -185,9 +259,40 @@
     <script src="../assets/js/api.js"></script>
     <script src="../assets/js/auth.js"></script>
     <script src="../assets/js/theme.js"></script>
-    <script src="../assets/js/missoes.js"></script>
     
     <script>
+        // Copy PIX key
+        function copyPixKey() {
+            const pixKey = document.getElementById('pixKey').textContent;
+            navigator.clipboard.writeText(pixKey).then(() => {
+                const btn = document.getElementById('copyPixBtn');
+                btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Copiar chave PIX';
+                    btn.classList.remove('copied');
+                }, 3000);
+            }).catch(err => {
+                // Fallback para navegadores que não suportam clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = pixKey;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const btn = document.getElementById('copyPixBtn');
+                btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Copiar chave PIX';
+                    btn.classList.remove('copied');
+                }, 3000);
+            });
+        }
+        
         // Mobile Menu
         const hamburgerBtn = document.getElementById('hamburgerBtn');
         const mobileMenu = document.getElementById('mobileMenu');
@@ -218,6 +323,13 @@
         
         if (mobileMenuOverlay) {
             mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            sessionStorage.removeItem('authToken');
+            window.location.href = 'login.html';
         }
     </script>
 </body>
