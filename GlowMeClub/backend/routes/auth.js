@@ -47,7 +47,7 @@ async function verifyPassword(plainPassword, storedHash) {
  */
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, preferredColor, focusArea } = req.body;
+        const { name, email, password, preferredColor, focusArea, phone, phoneDdi } = req.body;
         
         console.log('📝 Tentativa de registro:', email);
         
@@ -85,12 +85,32 @@ router.post('/register', async (req, res) => {
         // Hash da senha
         const hashedPassword = await hashPassword(password);
         
+        // Processar telefone
+        // O frontend pode enviar:
+        // 1. phone já com DDI incluído (ex: "+5511999999999")
+        // 2. phone + phoneDdi separados
+        let formattedPhone = null;
+        if (phone) {
+            if (phone.startsWith('+')) {
+                // Já tem DDI incluído
+                formattedPhone = phone;
+            } else {
+                // Combinar DDI + número
+                const ddi = phoneDdi || '+55';
+                const phoneDigits = phone.replace(/\D/g, '');
+                if (phoneDigits.length > 0) {
+                    formattedPhone = ddi.startsWith('+') ? ddi + phoneDigits : '+' + ddi + phoneDigits;
+                }
+            }
+        }
+        
         // Criar documento do usuário
         const userData = {
             uid,
             name: name.trim(),
             email: email.toLowerCase().trim(),
             password: hashedPassword,
+            phone: formattedPhone,
             preferredColor: preferredColor || '#8B5CF6',
             focusArea: focusArea || null,
             role: 'user',

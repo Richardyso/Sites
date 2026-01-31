@@ -53,7 +53,7 @@ exports.getUserProfile = async (req, res) => {
 exports.updateUserProfile = async (req, res) => {
     try {
         const userId = req.user.uid;
-        const { name, preferredColor, focusArea } = req.body;
+        const { name, preferredColor, focusArea, phone, profileImage, emailPreferences } = req.body;
         
         // Validações
         const updates = {};
@@ -77,6 +77,35 @@ exports.updateUserProfile = async (req, res) => {
             }
         }
         
+        // Processar telefone (pode ser null para remover, ou string com DDI+número)
+        if (phone !== undefined) {
+            if (phone === null || phone === '') {
+                updates.phone = null;
+            } else {
+                // Telefone já vem formatado do frontend (DDI + dígitos)
+                updates.phone = phone;
+            }
+        }
+        
+        // Processar imagem de perfil
+        if (profileImage !== undefined) {
+            if (profileImage === null) {
+                updates.profileImage = null;
+            } else if (typeof profileImage === 'string' && profileImage.startsWith('data:image')) {
+                updates.profileImage = profileImage;
+            }
+        }
+        
+        // Processar preferências de email
+        if (emailPreferences && typeof emailPreferences === 'object') {
+            updates.emailPreferences = {
+                weekly: emailPreferences.weekly !== false,
+                rewards: emailPreferences.rewards !== false,
+                levelUp: emailPreferences.levelUp !== false,
+                reminders: emailPreferences.reminders === true
+            };
+        }
+        
         if (Object.keys(updates).length === 0) {
             return res.status(400).json({
                 error: 'Nenhum campo válido para atualizar'
@@ -89,10 +118,19 @@ exports.updateUserProfile = async (req, res) => {
             .doc(userId)
             .update(updates);
         
+        // Buscar dados atualizados para retornar
+        const userDoc = await firestore
+            .collection('users')
+            .doc(userId)
+            .get();
+        
+        const userData = userDoc.data();
+        const { password: _, ...safeUserData } = userData;
+        
         res.json({
             success: true,
             message: 'Perfil atualizado com sucesso',
-            updates
+            user: safeUserData
         });
         
     } catch (error) {
