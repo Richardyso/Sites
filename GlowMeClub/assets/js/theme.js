@@ -525,12 +525,17 @@
 
             /* Sidebar menu active */
             .mobile-menu .nav-item.active,
-            .mobile-menu a.active {
+            .mobile-menu a.active,
+            .mobile-menu-link.active {
                 background: rgba(${rgbString}, 0.1) !important;
-                color: ${color} !important;
+                color: #1F2937 !important;
+                border-left-color: ${color} !important;
             }
 
-            .mobile-menu .nav-item.active i {
+            .mobile-menu .nav-item.active i,
+            .mobile-menu a.active i,
+            .mobile-menu-link.active i,
+            .mobile-menu-link i {
                 color: ${color} !important;
             }
         `;

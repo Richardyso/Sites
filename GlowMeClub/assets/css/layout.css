@@ -171,17 +171,21 @@ body {
     width: 24px;
     text-align: center;
     font-size: 1.1rem;
-    color: var(--cor-roxo-medio);
+    color: var(--user-color, var(--cor-roxo-medio));
 }
 
 .mobile-menu-link:hover,
 .mobile-menu-link.active {
-    background: var(--cor-lilas-suave);
-    color: var(--cor-roxo-medio);
+    background: var(--user-color-10, var(--cor-lilas-suave));
+    color: #1F2937;
 }
 
 .mobile-menu-link.active {
-    border-left: 3px solid var(--cor-roxo-medio);
+    border-left: 3px solid var(--user-color, var(--cor-roxo-medio));
+}
+
+.mobile-menu-link.active i {
+    color: var(--user-color, var(--cor-roxo-medio));
 }
 
 .mobile-menu-divider {
@@ -206,11 +210,11 @@ body {
 
 .mobile-menu-footer .mobile-menu-link:hover {
     background: transparent;
-    color: var(--cor-roxo-medio);
+    color: var(--user-color, var(--cor-roxo-medio));
 }
 
 .mobile-menu-footer .mobile-menu-link:hover i {
-    color: var(--cor-roxo-medio);
+    color: var(--user-color, var(--cor-roxo-medio));
 }
 
 /* Logo */

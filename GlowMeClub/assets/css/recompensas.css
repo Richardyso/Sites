@@ -48,9 +48,9 @@
 }
 
 .category-filter.active {
-    background: var(--cor-roxo-medio);
+    background: var(--user-color, var(--cor-roxo-medio));
     color: white;
-    border-color: var(--cor-roxo-medio);
+    border-color: var(--user-color, var(--cor-roxo-medio));
 }
 
 /* Grid de Recompensas */
