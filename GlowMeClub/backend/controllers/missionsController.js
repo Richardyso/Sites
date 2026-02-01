@@ -41,11 +41,11 @@ const MISSIONS_BY_FOCUS_AREA = {
         { description: 'Fazer 1 ação que aproxime de uma meta financeira', pointsEarned: 15, icon: '🎯' }
     ],
     Aparência: [
-        { description: 'Fazer skincare completo', pointsEarned: 10, icon: '🧴' },
+        { description: 'Skincare', pointsEarned: 10, icon: '🧴' },
         { description: 'Manter postura ereta ao caminhar e sentar', pointsEarned: 10, icon: '🚶‍♀️' },
         { description: 'Se arrumar bem até pra ficar em casa', pointsEarned: 10, icon: '👗' },
         { description: 'Cuidar do cabelo/unhas', pointsEarned: 10, icon: '💅' },
-        { description: 'Investir em você (descobrir o que mais te valoriza)', pointsEarned: 15, icon: '✨' }
+        { description: 'Investir em você (descobrir o que mais valoriza você, exemplo roupas, maquiagem etc)', pointsEarned: 15, icon: '✨' }
     ]
 };
 
