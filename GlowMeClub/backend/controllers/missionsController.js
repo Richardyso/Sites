@@ -3,39 +3,54 @@ const { firestore, serverTimestamp, increment } = require('../config/firebase-ad
 const { checkLevelUp, getActionReward } = require('../utils/calculateLevel');
 const { sendLevelUpEmail } = require('../utils/email');
 
-// Missões padrão diárias
-const DEFAULT_DAILY_MISSIONS = [
-    {
-        description: 'Beber 2L de água',
-        pointsEarned: 10,
-        category: 'Físico',
-        icon: '💧'
-    },
-    {
-        description: 'Fazer 10 min de alongamento',
-        pointsEarned: 15,
-        category: 'Físico',
-        icon: '🧘‍♀️'
-    },
-    {
-        description: 'Escrever 3 gratidões',
-        pointsEarned: 10,
-        category: 'Emocional',
-        icon: '🙏'
-    },
-    {
-        description: 'Meditar 5 minutos',
-        pointsEarned: 15,
-        category: 'Espiritual',
-        icon: '🧘'
-    },
-    {
-        description: 'Ler 15 minutos',
-        pointsEarned: 10,
-        category: 'Mental',
-        icon: '📚'
-    }
-];
+// Missões por área de foco
+const MISSIONS_BY_FOCUS_AREA = {
+    Mental: [
+        { description: 'Ler 10 páginas de algum livro', pointsEarned: 15, icon: '📚' },
+        { description: 'Resolver um problema lógico (xadrez, sudoku, etc.)', pointsEarned: 15, icon: '🧩' },
+        { description: 'Aprender algo novo por 15 minutos (vídeo/aula)', pointsEarned: 15, icon: '🎓' },
+        { description: 'Escrever 10 linhas organizando pensamentos ou ideias', pointsEarned: 10, icon: '✍️' },
+        { description: 'Ficar 10 minutos sem estímulos (sem celular, sem música, só pensar)', pointsEarned: 15, icon: '🧠' }
+    ],
+    Físico: [
+        { description: 'Fazer 30 minutos de exercício (caminhada, treino)', pointsEarned: 20, icon: '🏋️' },
+        { description: 'Beber 2 a 3 litros de água ao longo do dia', pointsEarned: 10, icon: '💧' },
+        { description: 'Comer pelo menos 2 refeições "limpas" (sem ultraprocessado)', pointsEarned: 15, icon: '🥗' },
+        { description: 'Dormir no mínimo 7 horas', pointsEarned: 15, icon: '😴' },
+        { description: 'Alongar por 5 minutos antes de dormir', pointsEarned: 10, icon: '🧘‍♀️' }
+    ],
+    Emocional: [
+        { description: 'Mandar mensagem para alguém importante', pointsEarned: 10, icon: '💬' },
+        { description: 'Fazer algo que você gosta por 20 minutos (sem culpa)', pointsEarned: 15, icon: '🎨' },
+        { description: 'Identificar e escrever 1 emoção sentida no dia', pointsEarned: 10, icon: '📝' },
+        { description: 'Praticar 5 minutos de respiração consciente', pointsEarned: 10, icon: '🌬️' },
+        { description: 'Evitar uma reclamação desnecessária', pointsEarned: 15, icon: '🙊' }
+    ],
+    Espiritual: [
+        { description: '10 minutos de silêncio/reflexão/oração/meditação', pointsEarned: 15, icon: '🧘' },
+        { description: 'Praticar um ato de bondade anônimo', pointsEarned: 20, icon: '💝' },
+        { description: 'Ler um trecho de algo que eleve seu espírito (Bíblia, filosofia, etc.)', pointsEarned: 15, icon: '📖' },
+        { description: 'Agradecer por 3 coisas do dia', pointsEarned: 10, icon: '🙏' },
+        { description: 'Observar o céu/natureza por 10 minutos com presença total', pointsEarned: 15, icon: '🌅' }
+    ],
+    Financeiro: [
+        { description: 'Anotar todos os gastos do dia', pointsEarned: 10, icon: '📊' },
+        { description: 'Pensar em 1 forma de gerar mais renda (ideia ou ação)', pointsEarned: 15, icon: '💡' },
+        { description: 'Estudar 30 minutos sobre finanças/investimentos', pointsEarned: 20, icon: '📈' },
+        { description: 'Cortar 1 gasto desnecessário', pointsEarned: 15, icon: '✂️' },
+        { description: 'Fazer 1 ação que aproxime de uma meta financeira', pointsEarned: 15, icon: '🎯' }
+    ],
+    Aparência: [
+        { description: 'Fazer skincare completo', pointsEarned: 10, icon: '🧴' },
+        { description: 'Manter postura ereta ao caminhar e sentar', pointsEarned: 10, icon: '🚶‍♀️' },
+        { description: 'Se arrumar bem até pra ficar em casa', pointsEarned: 10, icon: '👗' },
+        { description: 'Cuidar do cabelo/unhas', pointsEarned: 10, icon: '💅' },
+        { description: 'Investir em você (descobrir o que mais te valoriza)', pointsEarned: 15, icon: '✨' }
+    ]
+};
+
+// Fallback para área não especificada
+const DEFAULT_DAILY_MISSIONS = MISSIONS_BY_FOCUS_AREA.Mental;
 
 /**
  * Obter data atual no formato YYYY-MM-DD
@@ -151,12 +166,22 @@ exports.getTodayMissions = async (req, res) => {
 
 /**
  * Criar missões diárias para um usuário
+ * As missões são baseadas na área de foco do usuário
  */
 async function createUserDailyMissions(userId) {
     const today = getTodayDate();
+    
+    // Buscar área de foco do usuário
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    const userData = userDoc.data();
+    const focusArea = userData?.focusArea || 'Mental';
+    
+    // Obter missões para a área de foco
+    const missions = MISSIONS_BY_FOCUS_AREA[focusArea] || DEFAULT_DAILY_MISSIONS;
+    
     const batch = firestore.batch();
     
-    for (const mission of DEFAULT_DAILY_MISSIONS) {
+    for (const mission of missions) {
         const missionRef = firestore
             .collection('users')
             .doc(userId)
@@ -165,13 +190,17 @@ async function createUserDailyMissions(userId) {
         
         batch.set(missionRef, {
             ...mission,
+            category: focusArea,
             completed: false,
             date: today,
+            observation: null, // Campo de observação
             createdAt: serverTimestamp()
         });
     }
     
     await batch.commit();
+    
+    console.log(`✅ Missões de ${focusArea} criadas para usuário ${userId}`);
 }
 
 /**
@@ -221,6 +250,7 @@ exports.completeMission = async (req, res) => {
     try {
         const userId = req.user.uid;
         const { id } = req.params;
+        const { observation } = req.body; // Campo de observação opcional
         
         // Buscar a missão
         const missionRef = firestore
@@ -248,11 +278,18 @@ exports.completeMission = async (req, res) => {
         // Usar transação para garantir consistência
         const batch = firestore.batch();
         
-        // Marcar missão como concluída
-        batch.update(missionRef, {
+        // Marcar missão como concluída (com observação se fornecida)
+        const updateData = {
             completed: true,
             completedAt: serverTimestamp()
-        });
+        };
+        
+        // Adicionar observação se fornecida
+        if (observation !== undefined && observation !== null) {
+            updateData.observation = observation.trim();
+        }
+        
+        batch.update(missionRef, updateData);
         
         // Buscar dados atuais do usuário
         const userRef = firestore.collection('users').doc(userId);
@@ -397,6 +434,140 @@ exports.getMissionStats = async (req, res) => {
         console.error('Erro ao buscar estatísticas de missões:', error);
         res.status(500).json({
             error: 'Erro ao buscar estatísticas'
+        });
+    }
+};
+
+/**
+ * Obter histórico de missões (rastreio de hábitos)
+ * Retorna missões completadas organizadas por data
+ */
+exports.getMissionHistory = async (req, res) => {
+    try {
+        const userId = req.user.uid;
+        const { days = 30 } = req.query; // Padrão: últimos 30 dias
+        
+        // Calcular data de início
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - parseInt(days));
+        const startDateStr = startDate.toISOString().split('T')[0];
+        
+        // Buscar todas as missões do período
+        const missionsSnapshot = await firestore
+            .collection('users')
+            .doc(userId)
+            .collection('missions')
+            .where('date', '>=', startDateStr)
+            .orderBy('date', 'desc')
+            .get();
+        
+        // Organizar por data
+        const historyByDate = {};
+        
+        missionsSnapshot.forEach(doc => {
+            const data = doc.data();
+            const date = data.date;
+            
+            if (!historyByDate[date]) {
+                historyByDate[date] = {
+                    date: date,
+                    missions: [],
+                    totalCompleted: 0,
+                    totalMissions: 0
+                };
+            }
+            
+            historyByDate[date].missions.push({
+                id: doc.id,
+                description: data.description,
+                category: data.category,
+                icon: data.icon,
+                completed: data.completed || false,
+                observation: data.observation || null,
+                pointsEarned: data.pointsEarned || 0,
+                completedAt: data.completedAt ? data.completedAt.toDate() : null
+            });
+            
+            historyByDate[date].totalMissions++;
+            if (data.completed) {
+                historyByDate[date].totalCompleted++;
+            }
+        });
+        
+        // Converter para array ordenado
+        const history = Object.values(historyByDate)
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        // Calcular estatísticas gerais
+        let totalCompleted = 0;
+        let totalMissions = 0;
+        let daysWithFullCompletion = 0;
+        
+        history.forEach(day => {
+            totalCompleted += day.totalCompleted;
+            totalMissions += day.totalMissions;
+            if (day.totalCompleted === day.totalMissions && day.totalMissions > 0) {
+                daysWithFullCompletion++;
+            }
+        });
+        
+        res.json({
+            success: true,
+            history: history,
+            stats: {
+                totalDays: history.length,
+                totalMissions: totalMissions,
+                totalCompleted: totalCompleted,
+                completionRate: totalMissions > 0 ? Math.round((totalCompleted / totalMissions) * 100) : 0,
+                daysWithFullCompletion: daysWithFullCompletion,
+                perfectDayRate: history.length > 0 ? Math.round((daysWithFullCompletion / history.length) * 100) : 0
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erro ao buscar histórico de missões:', error);
+        res.status(500).json({
+            error: 'Erro ao buscar histórico de missões'
+        });
+    }
+};
+
+/**
+ * Atualizar observação de uma missão
+ */
+exports.updateMissionObservation = async (req, res) => {
+    try {
+        const userId = req.user.uid;
+        const { id } = req.params;
+        const { observation } = req.body;
+        
+        const missionRef = firestore
+            .collection('users')
+            .doc(userId)
+            .collection('missions')
+            .doc(id);
+        
+        const missionDoc = await missionRef.get();
+        
+        if (!missionDoc.exists) {
+            return res.status(404).json({
+                error: 'Missão não encontrada'
+            });
+        }
+        
+        await missionRef.update({
+            observation: observation ? observation.trim() : null
+        });
+        
+        res.json({
+            success: true,
+            message: 'Observação atualizada com sucesso'
+        });
+        
+    } catch (error) {
+        console.error('Erro ao atualizar observação:', error);
+        res.status(500).json({
+            error: 'Erro ao atualizar observação'
         });
     }
 };

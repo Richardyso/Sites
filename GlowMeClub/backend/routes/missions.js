@@ -35,4 +35,17 @@ router.post('/create-daily', verifyToken, missionsController.createDailyMissions
  */
 router.get('/stats', verifyToken, missionsController.getMissionStats);
 
+/**
+ * GET /api/missions/history
+ * Obter histórico de missões (rastreio de hábitos)
+ * Query params: days (padrão: 30)
+ */
+router.get('/history', verifyToken, missionsController.getMissionHistory);
+
+/**
+ * PUT /api/missions/:id/observation
+ * Atualizar observação de uma missão
+ */
+router.put('/:id/observation', verifyToken, missionsController.updateMissionObservation);
+
 module.exports = router;

@@ -126,6 +126,18 @@
             <p class="page-subtitle">Complete suas missões e ganhe pontos para evoluir!</p>
         </div>
 
+        <!-- Focus Area Badge -->
+        <div class="focus-area-badge" id="focusAreaBadge">
+            <span class="focus-icon" id="focusIcon">🧠</span>
+            <div class="focus-info">
+                <span class="focus-label">Área de Foco</span>
+                <span class="focus-name" id="focusName">Mental</span>
+            </div>
+            <a href="perfil.html" class="focus-change-btn" title="Alterar área de foco">
+                <i class="fas fa-edit"></i>
+            </a>
+        </div>
+
         <!-- Daily Progress Card -->
         <div class="daily-progress" id="dailyProgress">
             <div class="progress-header">
@@ -153,6 +165,48 @@
             <h3>Nenhuma missão disponível</h3>
             <p>Volte amanhã para novas missões!</p>
         </div>
+
+        <!-- Mission History Section -->
+        <section class="mission-history-section" id="missionHistorySection">
+            <div class="history-header">
+                <h2 class="history-title">
+                    <i class="fas fa-history"></i>
+                    Histórico de Hábitos
+                </h2>
+                <p class="history-subtitle">Acompanhe sua evolução nos últimos dias</p>
+            </div>
+
+            <!-- History Stats -->
+            <div class="history-stats" id="historyStats">
+                <div class="history-stat">
+                    <span class="stat-value" id="historyCompletionRate">0%</span>
+                    <span class="stat-label">Taxa de Conclusão</span>
+                </div>
+                <div class="history-stat">
+                    <span class="stat-value" id="historyPerfectDays">0</span>
+                    <span class="stat-label">Dias Perfeitos</span>
+                </div>
+                <div class="history-stat">
+                    <span class="stat-value" id="historyTotalCompleted">0</span>
+                    <span class="stat-label">Missões Concluídas</span>
+                </div>
+            </div>
+
+            <!-- History Timeline -->
+            <div class="history-timeline" id="historyTimeline">
+                <!-- Histórico carregado dinamicamente -->
+                <div class="history-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Carregando histórico...</span>
+                </div>
+            </div>
+
+            <!-- Load More Button -->
+            <button class="btn-load-more" id="loadMoreHistory" style="display: none;">
+                <i class="fas fa-chevron-down"></i>
+                Carregar mais
+            </button>
+        </section>
     </main>
 
     <!-- Bottom Navigation (Mobile) -->

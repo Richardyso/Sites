@@ -1,13 +1,32 @@
-// ===== MISSÕES UNIFICADO =====
+// ===== MISSÕES DIÁRIAS =====
 
-// Verificar se as dependências estão carregadas
+// Verificar dependências
 if (!window.appConfig || !window.api) {
-    console.error('❌ Dependências não encontradas. Certifique-se de carregar config.js e api.js primeiro.');
+    console.error('❌ Dependências não encontradas.');
 }
 
-// Dados do usuário atual
+// Dados
 let currentUser = null;
 let dailyMissions = [];
+let missionHistory = [];
+let historyDays = 30;
+
+// Ícones por área de foco
+const FOCUS_ICONS = {
+    Mental: '🧠',
+    Físico: '🏋️',
+    Emocional: '❤️',
+    Espiritual: '✨',
+    Financeiro: '💰',
+    Aparência: '🧴'
+};
+
+// ===== INICIALIZAÇÃO =====
+document.addEventListener('DOMContentLoaded', () => {
+    logger.info('⭐ Carregando missões do dia...');
+    loadDailyMissions();
+    setupEventListeners();
+});
 
 // Carregar missões do dia
 async function loadDailyMissions() {
@@ -24,59 +43,75 @@ async function loadDailyMissions() {
         const authData = await window.api.get('/auth/me');
         currentUser = authData.user;
         
-        // Atualizar header
+        // Atualizar header e área de foco
         updateHeader();
+        updateFocusAreaBadge();
         
         // Carregar missões do backend
         await loadMissionsFromBackend();
         
+        // Carregar histórico
+        await loadMissionHistory();
+        
     } catch (error) {
         logger.error('Erro ao carregar missões:', error);
         
-        // Tentar usar dados do cache primeiro
+        // Tentar usar dados do cache
         const cachedData = localStorage.getItem('cachedUserData');
         if (cachedData) {
             try {
                 currentUser = JSON.parse(cachedData);
                 updateHeader();
+                updateFocusAreaBadge();
                 await loadMissionsFromBackend();
-                logger.warn('⚠️ Usando dados do cache');
+                await loadMissionHistory();
                 return;
             } catch (e) {
                 logger.error('Erro ao parsear cache');
             }
         }
         
-        // Se não conseguir usar cache e for erro de autenticação explícito (401)
-        if (error.status === 401 || (error.message && error.message.includes('401'))) {
+        if (error.status === 401) {
             window.api.removeToken();
             window.location.href = 'login.html';
         } else {
-            // Para outros erros, mostrar lista vazia
             dailyMissions = [];
             displayMissions();
         }
     }
 }
 
-// Atualizar header com dados do usuário
+// Atualizar header
 function updateHeader() {
     if (!currentUser) return;
-    
-    // Usa função compartilhada que suporta imagem de perfil
     if (window.updateHeaderAvatar) {
         window.updateHeaderAvatar(currentUser);
+    }
+}
+
+// Atualizar badge de área de foco
+function updateFocusAreaBadge() {
+    if (!currentUser) return;
+    
+    const focusArea = currentUser.focusArea || 'Mental';
+    const focusIcon = document.getElementById('focusIcon');
+    const focusName = document.getElementById('focusName');
+    
+    if (focusIcon) {
+        focusIcon.textContent = FOCUS_ICONS[focusArea] || '🧠';
+    }
+    
+    if (focusName) {
+        focusName.textContent = focusArea;
     }
 }
 
 // Carregar missões do backend
 async function loadMissionsFromBackend() {
     try {
-        // Buscar missões de hoje do servidor
         const data = await window.api.get('/missions/today');
         
         if (data.missions && data.missions.length > 0) {
-            // Mapear missões do backend para o formato do frontend
             dailyMissions = data.missions.map(mission => ({
                 id: mission.id,
                 title: mission.description,
@@ -84,19 +119,19 @@ async function loadMissionsFromBackend() {
                 category: mission.category,
                 icon: mission.icon || '⭐',
                 points: mission.pointsEarned || 10,
-                completed: mission.completed || false
+                completed: mission.completed || false,
+                observation: mission.observation || ''
             }));
             
-            logger.info(`${dailyMissions.length} missões carregadas do servidor`);
+            logger.info(`${dailyMissions.length} missões carregadas`);
         } else {
             dailyMissions = [];
-            logger.info('Nenhuma missão disponível hoje');
         }
         
         displayMissions();
         
     } catch (error) {
-        logger.error('Erro ao carregar missões do servidor:', error);
+        logger.error('Erro ao carregar missões:', error);
         dailyMissions = [];
         displayMissions();
     }
@@ -118,10 +153,8 @@ function displayMissions() {
     missionsGrid.style.display = 'grid';
     if (emptyState) emptyState.style.display = 'none';
     
-    // Limpar grid
     missionsGrid.innerHTML = '';
     
-    // Adicionar cada missão
     dailyMissions.forEach(mission => {
         const card = document.createElement('div');
         card.className = `mission-card ${mission.completed ? 'completed' : ''}`;
@@ -135,10 +168,23 @@ function displayMissions() {
                         ${mission.category}
                     </span>
                     <h3 class="mission-title">${mission.title}</h3>
-                    <p class="mission-description">${mission.description}</p>
                     <div class="mission-reward">
                         <i class="fas fa-coins"></i>
                         +${mission.points} pontos
+                    </div>
+                    
+                    <!-- Campo de Observação -->
+                    <div class="mission-observation">
+                        <label class="observation-label">
+                            <i class="fas fa-sticky-note"></i>
+                            Observação
+                        </label>
+                        <textarea 
+                            class="observation-input" 
+                            data-mission-id="${mission.id}"
+                            placeholder="Anote algo sobre esta missão..."
+                            ${mission.completed ? 'readonly' : ''}
+                        >${mission.observation || ''}</textarea>
                     </div>
                 </div>
                 <div class="mission-action">
@@ -146,7 +192,7 @@ function displayMissions() {
                             data-mission-id="${mission.id}"
                             data-points="${mission.points}"
                             ${mission.completed ? 'disabled' : ''}>
-                        ${mission.completed ? 'Completa' : 'Completar'}
+                        ${mission.completed ? '<i class="fas fa-check"></i> Completa' : 'Completar'}
                     </button>
                 </div>
             </div>
@@ -162,48 +208,46 @@ function displayMissions() {
 async function completeMission(missionId, points) {
     const missionIndex = dailyMissions.findIndex(m => m.id === missionId);
     
-    if (missionIndex !== -1 && !dailyMissions[missionIndex].completed) {
-        try {
-            // Completar missão no servidor
-            const response = await window.api.post(`/missions/${missionId}/complete`);
+    if (missionIndex === -1 || dailyMissions[missionIndex].completed) return;
+    
+    // Pegar observação do textarea
+    const observationInput = document.querySelector(`.observation-input[data-mission-id="${missionId}"]`);
+    const observation = observationInput ? observationInput.value.trim() : '';
+    
+    try {
+        const response = await window.api.post(`/missions/${missionId}/complete`, {
+            observation: observation
+        });
+        
+        if (response.success) {
+            dailyMissions[missionIndex].completed = true;
+            dailyMissions[missionIndex].observation = observation;
             
-            if (response.success) {
-                // Marcar como completada localmente
-                dailyMissions[missionIndex].completed = true;
-                
-                // Atualizar interface
-                displayMissions();
-                
-                // Mostrar toast de sucesso
-                const earnedPoints = response.pointsEarned || points;
-                showSuccessToast(`+${earnedPoints} pontos ganhos!`);
-                
-                logger.info('✅ Missão completada no servidor');
-                
-                // Buscar dados atualizados do usuário
-                try {
-                    const userData = await window.api.get('/auth/me');
-                    if (userData.user) {
-                        currentUser = userData.user;
-                        localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
-                        updateHeader();
-                        logger.info(`💎 Total de pontos: ${currentUser.totalPoints}`);
-                    }
-                } catch (e) {
-                    logger.warn('Não foi possível atualizar dados do usuário');
+            displayMissions();
+            
+            const earnedPoints = response.pointsEarned || points;
+            showSuccessToast(`+${earnedPoints} pontos ganhos!`);
+            
+            // Atualizar dados do usuário
+            try {
+                const userData = await window.api.get('/auth/me');
+                if (userData.user) {
+                    currentUser = userData.user;
+                    localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+                    updateHeader();
                 }
-                
-                // Verificar level up
-                if (response.levelUp) {
-                    setTimeout(() => {
-                        showSuccessToast(`🎉 Parabéns! Você subiu para o nível ${response.levelUp.newLevel}: ${response.levelUp.levelName}!`);
-                    }, 1500);
-                }
+            } catch (e) {}
+            
+            // Level up
+            if (response.levelUp) {
+                setTimeout(() => {
+                    showSuccessToast(`🎉 Você subiu para o nível ${response.levelUp.newLevel}: ${response.levelUp.levelName}!`);
+                }, 1500);
             }
-        } catch (error) {
-            logger.error('❌ Erro ao completar missão:', error);
-            showSuccessToast(`❌ Erro ao completar missão`);
         }
+    } catch (error) {
+        logger.error('Erro ao completar missão:', error);
+        showSuccessToast(`❌ Erro ao completar missão`);
     }
 }
 
@@ -212,16 +256,13 @@ function updateProgress() {
     const completed = dailyMissions.filter(m => m.completed).length;
     const total = dailyMissions.length;
     
-    // Atualizar contador
     const counter = document.getElementById('missionCounter');
     if (counter) counter.textContent = `${completed}/${total}`;
     
-    // Atualizar barra de progresso
     const percentage = total > 0 ? (completed / total) * 100 : 0;
     const progressBar = document.getElementById('missionProgressBar');
     if (progressBar) progressBar.style.width = `${percentage}%`;
     
-    // Atualizar mensagem
     const progressMessage = document.getElementById('progressMessage');
     if (progressMessage) {
         if (completed === 0) {
@@ -234,7 +275,140 @@ function updateProgress() {
     }
 }
 
-// Mostrar toast de sucesso
+// ===== HISTÓRICO DE MISSÕES =====
+async function loadMissionHistory() {
+    const historyTimeline = document.getElementById('historyTimeline');
+    
+    try {
+        const data = await window.api.get(`/missions/history?days=${historyDays}`);
+        
+        if (data.success) {
+            missionHistory = data.history;
+            displayMissionHistory();
+            updateHistoryStats(data.stats);
+        }
+        
+    } catch (error) {
+        logger.error('Erro ao carregar histórico:', error);
+        if (historyTimeline) {
+            historyTimeline.innerHTML = '<p class="history-empty">Não foi possível carregar o histórico.</p>';
+        }
+    }
+}
+
+function displayMissionHistory() {
+    const historyTimeline = document.getElementById('historyTimeline');
+    
+    if (!historyTimeline) return;
+    
+    if (missionHistory.length === 0) {
+        historyTimeline.innerHTML = '<p class="history-empty">Nenhum histórico disponível ainda.</p>';
+        return;
+    }
+    
+    historyTimeline.innerHTML = missionHistory.map(day => {
+        const date = new Date(day.date + 'T12:00:00');
+        const dateStr = formatDate(date);
+        const isPerfect = day.totalCompleted === day.totalMissions;
+        
+        return `
+            <div class="history-day ${isPerfect ? 'perfect-day' : ''}">
+                <div class="history-day-header">
+                    <div class="history-date">
+                        <span class="date-day">${dateStr}</span>
+                        ${isPerfect ? '<span class="perfect-badge">🏆 Dia Perfeito!</span>' : ''}
+                    </div>
+                    <div class="history-count">
+                        ${day.totalCompleted}/${day.totalMissions}
+                    </div>
+                </div>
+                <div class="history-missions">
+                    ${day.missions.map(m => `
+                        <div class="history-mission ${m.completed ? 'completed' : 'missed'}">
+                            <span class="history-mission-icon">${m.icon}</span>
+                            <div class="history-mission-info">
+                                <span class="history-mission-title">${m.description}</span>
+                                ${m.observation ? `<span class="history-mission-obs"><i class="fas fa-sticky-note"></i> ${m.observation}</span>` : ''}
+                            </div>
+                            <span class="history-mission-status">
+                                ${m.completed ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>'}
+                            </span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateHistoryStats(stats) {
+    const completionRate = document.getElementById('historyCompletionRate');
+    const perfectDays = document.getElementById('historyPerfectDays');
+    const totalCompleted = document.getElementById('historyTotalCompleted');
+    
+    if (completionRate) completionRate.textContent = `${stats.completionRate}%`;
+    if (perfectDays) perfectDays.textContent = stats.daysWithFullCompletion;
+    if (totalCompleted) totalCompleted.textContent = stats.totalCompleted;
+}
+
+function formatDate(date) {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+        return 'Hoje';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+        return 'Ontem';
+    } else {
+        return date.toLocaleDateString('pt-BR', { 
+            weekday: 'short', 
+            day: 'numeric', 
+            month: 'short' 
+        });
+    }
+}
+
+// ===== EVENT LISTENERS =====
+function setupEventListeners() {
+    // Botões de completar missão
+    document.addEventListener('click', function(e) {
+        const completeBtn = e.target.closest('.btn-complete');
+        if (completeBtn && !completeBtn.disabled) {
+            const missionId = completeBtn.dataset.missionId;
+            const points = parseInt(completeBtn.dataset.points);
+            completeMission(missionId, points);
+        }
+    });
+    
+    // Auto-save observação ao sair do campo
+    document.addEventListener('blur', async function(e) {
+        if (e.target.classList.contains('observation-input') && !e.target.readOnly) {
+            const missionId = e.target.dataset.missionId;
+            const observation = e.target.value.trim();
+            
+            // Atualizar localmente
+            const mission = dailyMissions.find(m => m.id === missionId);
+            if (mission) {
+                mission.observation = observation;
+            }
+            
+            // Não salvar no servidor se a missão não foi completada ainda
+            // A observação será salva quando completar a missão
+        }
+    }, true);
+    
+    // Carregar mais histórico
+    const loadMoreBtn = document.getElementById('loadMoreHistory');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', () => {
+            historyDays += 30;
+            loadMissionHistory();
+        });
+    }
+}
+
+// Toast de sucesso
 function showSuccessToast(message) {
     const toast = document.createElement('div');
     toast.className = 'success-toast';
@@ -250,27 +424,314 @@ function showSuccessToast(message) {
     }, 3000);
 }
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    logger.info('⭐ Carregando missões do dia...');
-    
-    // Carregar missões
-    loadDailyMissions();
-    
-    // Event delegation para botões de completar missão
-    document.addEventListener('click', function(e) {
-        const completeBtn = e.target.closest('.btn-complete');
-        if (completeBtn && !completeBtn.disabled) {
-            const missionId = completeBtn.dataset.missionId;
-            const points = parseInt(completeBtn.dataset.points);
-            completeMission(missionId, points);
-        }
-    });
-});
-
-// CSS para toast - responsivo para mobile e desktop
+// CSS para toast e componentes novos
 const style = document.createElement('style');
 style.textContent = `
+/* Focus Area Badge */
+.focus-area-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: white;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.focus-icon {
+    font-size: 1.5rem;
+}
+
+.focus-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.focus-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #9CA3AF;
+}
+
+.focus-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1F2937;
+}
+
+.focus-change-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #F3F4F6;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.focus-change-btn:hover {
+    background: #8B5CF6;
+    color: white;
+}
+
+/* Mission Observation */
+.mission-observation {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #F3F4F6;
+}
+
+.observation-label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.7rem;
+    color: #9CA3AF;
+    margin-bottom: 0.35rem;
+}
+
+.observation-input {
+    width: 100%;
+    min-height: 50px;
+    padding: 0.5rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.observation-input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+}
+
+.observation-input[readonly] {
+    background: #F9FAFB;
+    cursor: default;
+}
+
+/* Mission History Section */
+.mission-history-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #F3F4F6;
+}
+
+.history-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.history-title {
+    font-size: 1.1rem;
+    color: #1F2937;
+    margin: 0 0 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.history-title i {
+    color: #8B5CF6;
+}
+
+.history-subtitle {
+    font-size: 0.8rem;
+    color: #9CA3AF;
+    margin: 0;
+}
+
+/* History Stats */
+.history-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.history-stat {
+    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+    color: white;
+    padding: 0.75rem 0.5rem;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.history-stat .stat-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.history-stat .stat-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    opacity: 0.9;
+}
+
+/* History Timeline */
+.history-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.history-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    color: #9CA3AF;
+}
+
+.history-empty {
+    text-align: center;
+    color: #9CA3AF;
+    padding: 2rem;
+}
+
+.history-day {
+    background: white;
+    border-radius: 12px;
+    padding: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.history-day.perfect-day {
+    border: 2px solid #10B981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, white 100%);
+}
+
+.history-day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.history-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.date-day {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.85rem;
+}
+
+.perfect-badge {
+    font-size: 0.65rem;
+    background: #10B981;
+    color: white;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+}
+
+.history-count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #8B5CF6;
+}
+
+.history-missions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.history-mission {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.4rem;
+    border-radius: 8px;
+    background: #F9FAFB;
+}
+
+.history-mission.completed {
+    background: rgba(16, 185, 129, 0.08);
+}
+
+.history-mission.missed {
+    background: rgba(239, 68, 68, 0.05);
+    opacity: 0.7;
+}
+
+.history-mission-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.history-mission-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.history-mission-title {
+    font-size: 0.75rem;
+    color: #374151;
+    display: block;
+}
+
+.history-mission-obs {
+    font-size: 0.65rem;
+    color: #9CA3AF;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.15rem;
+}
+
+.history-mission-status {
+    flex-shrink: 0;
+}
+
+.history-mission.completed .history-mission-status {
+    color: #10B981;
+}
+
+.history-mission.missed .history-mission-status {
+    color: #EF4444;
+}
+
+.btn-load-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    background: #F3F4F6;
+    border: none;
+    border-radius: 10px;
+    color: #6B7280;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    transition: all 0.2s;
+}
+
+.btn-load-more:hover {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+/* Toast */
 .success-toast {
     position: fixed;
     bottom: 100px;
@@ -289,36 +750,31 @@ style.textContent = `
     font-weight: 500;
     font-size: 0.875rem;
     max-width: calc(100vw - 2rem);
-    width: auto;
-    text-align: center;
-    word-break: break-word;
-}
-
-.success-toast i {
-    font-size: 1rem;
-    flex-shrink: 0;
 }
 
 @keyframes toastSlideUp {
-    from {
-        transform: translateX(-50%) translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(-50%) translateY(0);
-        opacity: 1;
-    }
+    from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
 
 @keyframes toastFadeOut {
-    to {
-        opacity: 0;
-        transform: translateX(-50%) translateY(20px);
-    }
+    to { opacity: 0; transform: translateX(-50%) translateY(20px); }
 }
 
-/* Desktop - toast no canto superior direito */
+/* Desktop */
 @media (min-width: 768px) {
+    .history-stats {
+        gap: 1rem;
+    }
+    
+    .history-stat {
+        padding: 1rem;
+    }
+    
+    .history-stat .stat-value {
+        font-size: 1.5rem;
+    }
+    
     .success-toast {
         top: 20px;
         bottom: auto;
@@ -329,21 +785,12 @@ style.textContent = `
     }
     
     @keyframes desktopSlideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
     
     @keyframes desktopFadeOut {
-        to {
-            opacity: 0;
-            transform: translateX(20px);
-        }
+        to { opacity: 0; transform: translateX(20px); }
     }
 }
 `;
