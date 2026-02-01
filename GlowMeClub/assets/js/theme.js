@@ -499,9 +499,7 @@
                 box-shadow: 0 0 10px rgba(${rgbString}, 0.5) !important;
             }
 
-            .roadmap-item.current .status-badge {
-                background: ${color} !important;
-            }
+            /* Status badge - remover coloração para manter fundo branco */
 
             /* Level progress in dashboard */
             .level-progress-bar {
