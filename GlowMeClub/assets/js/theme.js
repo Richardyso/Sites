@@ -109,14 +109,22 @@
             }
 
             /* Links e textos destacados */
-            a:hover,
-            .nav-link.active,
+            a:hover {
+                color: ${color} !important;
+            }
+            
+            /* Remover coloração do nav-link.active pois já está definido como preto no CSS */
+            
             .nav-item.active i,
             .nav-item.active span,
-            .page-title,
             .points-number,
             .card-value {
                 color: ${color} !important;
+            }
+            
+            /* Page title deve permanecer preto */
+            .page-title {
+                color: #333 !important;
             }
 
             /* Cards e elementos destacados */

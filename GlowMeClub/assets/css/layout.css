@@ -531,9 +531,12 @@ body {
         padding: 0.5rem 0;
     }
     
-    .nav-link:hover,
+    .nav-link:hover {
+        color: var(--user-color, var(--cor-roxo-medio));
+    }
+    
     .nav-link.active {
-        color: var(--cor-roxo-medio);
+        color: var(--cor-texto-escuro);
     }
     
     .nav-link.active::after {
@@ -543,7 +546,7 @@ body {
         left: 0;
         right: 0;
         height: 2px;
-        background: var(--cor-roxo-medio);
+        background: var(--user-color, var(--cor-roxo-medio));
     }
     
     /* Ocultar bottom nav no desktop */
