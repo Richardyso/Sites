@@ -16,9 +16,11 @@
     let currentUser = null;
     let allUsers = [];
     let allRewards = [];
+    let allFlashMissions = [];
     let currentUserHistory = [];
     let currentHistoryFilter = 'all';
     let rewardImageBase64 = null; // Imagem da recompensa em base64
+    let editingFlashMissionId = null; // ID da missão relâmpago sendo editada
     
     // ===== AUTENTICAÇÃO E ACESSO =====
     
@@ -1164,6 +1166,226 @@
     window.adminFilterHistory = filterHistory;
     window.adminPenalizeUser = penalizeUser;
     
+    // ===== MISSÕES RELÂMPAGO =====
+    
+    async function loadFlashMissions() {
+        try {
+            const data = await window.api.get('/missions/flash/admin');
+            
+            if (data.success && data.flashMissions) {
+                allFlashMissions = data.flashMissions;
+                displayFlashMissions();
+            } else {
+                allFlashMissions = [];
+                displayFlashMissions();
+            }
+        } catch (error) {
+            log.error('Erro ao carregar missões relâmpago:', error);
+            allFlashMissions = [];
+            displayFlashMissions();
+        }
+    }
+    
+    function displayFlashMissions() {
+        const flashList = document.getElementById('flashMissionsAdminList');
+        const emptyState = document.getElementById('emptyFlashMissions');
+        
+        if (!flashList) return;
+        
+        if (allFlashMissions.length === 0) {
+            flashList.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'flex';
+            return;
+        }
+        
+        flashList.style.display = 'grid';
+        if (emptyState) emptyState.style.display = 'none';
+        
+        flashList.innerHTML = allFlashMissions.map(mission => {
+            const expiresAt = new Date(mission.expiresAt);
+            const now = new Date();
+            const isExpired = expiresAt < now;
+            const isActive = mission.active && !isExpired;
+            
+            const timeLeft = isExpired ? 'Expirada' : getFlashTimeLeft(expiresAt);
+            
+            return `
+                <div class="flash-mission-admin-card ${isActive ? 'active' : 'expired'}">
+                    <div class="flash-admin-header">
+                        <span class="flash-status ${isActive ? 'active' : 'expired'}">
+                            ${isActive ? '<i class="fas fa-bolt"></i> Ativa' : '<i class="fas fa-times"></i> Expirada'}
+                        </span>
+                        <span class="flash-timer-admin">${timeLeft}</span>
+                    </div>
+                    <h4 class="flash-admin-title">${mission.title}</h4>
+                    ${mission.description ? `<p class="flash-admin-desc">${mission.description}</p>` : ''}
+                    <div class="flash-admin-rewards">
+                        <span><i class="fas fa-star"></i> ${mission.xp || 0} XP</span>
+                        <span><i class="fas fa-coins"></i> ${mission.coins || 0} Moedas</span>
+                        <span><i class="fas fa-users"></i> ${mission.totalClaims || 0} resgates</span>
+                    </div>
+                    <div class="flash-admin-link">
+                        <a href="${mission.link}" target="_blank" title="Abrir link">
+                            <i class="fas fa-external-link-alt"></i> ${mission.link.substring(0, 40)}...
+                        </a>
+                    </div>
+                    <div class="flash-admin-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="editFlashMission('${mission.id}')">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteFlashMission('${mission.id}')">
+                            <i class="fas fa-trash"></i> Deletar
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function getFlashTimeLeft(expiresAt) {
+        const now = new Date();
+        const diff = expiresAt - now;
+        
+        if (diff <= 0) return 'Expirada';
+        
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        
+        if (hours > 24) {
+            const days = Math.floor(hours / 24);
+            return `${days}d ${hours % 24}h restantes`;
+        } else if (hours > 0) {
+            return `${hours}h ${minutes}m restantes`;
+        } else {
+            return `${minutes}m restantes`;
+        }
+    }
+    
+    function openFlashMissionModal(flashMission = null) {
+        editingFlashMissionId = flashMission ? flashMission.id : null;
+        
+        const modal = document.getElementById('flashMissionModal');
+        const modalTitle = document.getElementById('flashModalTitle');
+        const saveBtn = document.getElementById('saveFlashBtn');
+        
+        // Limpar formulário
+        document.getElementById('flashMissionId').value = '';
+        document.getElementById('flashTitle').value = '';
+        document.getElementById('flashDescription').value = '';
+        document.getElementById('flashXp').value = '20';
+        document.getElementById('flashCoins').value = '20';
+        document.getElementById('flashLink').value = '';
+        document.getElementById('flashExpiresIn').value = '24';
+        
+        if (flashMission) {
+            // Modo edição
+            modalTitle.textContent = 'Editar Missão Relâmpago';
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Alterações';
+            
+            document.getElementById('flashMissionId').value = flashMission.id;
+            document.getElementById('flashTitle').value = flashMission.title || '';
+            document.getElementById('flashDescription').value = flashMission.description || '';
+            document.getElementById('flashXp').value = flashMission.xp || 0;
+            document.getElementById('flashCoins').value = flashMission.coins || 0;
+            document.getElementById('flashLink').value = flashMission.link || '';
+        } else {
+            // Modo criação
+            modalTitle.textContent = 'Nova Missão Relâmpago';
+            saveBtn.innerHTML = '<i class="fas fa-bolt"></i> Criar Missão';
+        }
+        
+        modal.classList.add('active');
+    }
+    
+    async function saveFlashMission(e) {
+        e.preventDefault();
+        
+        const id = document.getElementById('flashMissionId').value;
+        const title = document.getElementById('flashTitle').value.trim();
+        const description = document.getElementById('flashDescription').value.trim();
+        const xp = parseInt(document.getElementById('flashXp').value) || 0;
+        const coins = parseInt(document.getElementById('flashCoins').value) || 0;
+        const link = document.getElementById('flashLink').value.trim();
+        const expiresInHours = document.getElementById('flashExpiresIn').value;
+        
+        if (!title || !link) {
+            alert('Título e Link são obrigatórios!');
+            return;
+        }
+        
+        const saveBtn = document.getElementById('saveFlashBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+        
+        try {
+            let response;
+            
+            if (id) {
+                // Atualizar
+                response = await window.api.put(`/missions/flash/${id}`, {
+                    title, description, xp, coins, link, expiresInHours
+                });
+            } else {
+                // Criar
+                response = await window.api.post('/missions/flash', {
+                    title, description, xp, coins, link, expiresInHours
+                });
+            }
+            
+            if (response.success) {
+                closeModal('flashMissionModal');
+                await loadFlashMissions();
+                showToast(id ? 'Missão relâmpago atualizada!' : 'Missão relâmpago criada!', 'success');
+            }
+        } catch (error) {
+            log.error('Erro ao salvar missão relâmpago:', error);
+            alert('Erro ao salvar missão relâmpago: ' + (error.message || 'Erro desconhecido'));
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = id ? '<i class="fas fa-save"></i> Salvar Alterações' : '<i class="fas fa-bolt"></i> Criar Missão';
+        }
+    }
+    
+    window.editFlashMission = function(id) {
+        const mission = allFlashMissions.find(m => m.id === id);
+        if (mission) {
+            openFlashMissionModal(mission);
+        }
+    };
+    
+    window.deleteFlashMission = async function(id) {
+        if (!confirm('Tem certeza que deseja deletar esta missão relâmpago? Esta ação não pode ser desfeita.')) {
+            return;
+        }
+        
+        try {
+            const response = await window.api.delete(`/missions/flash/${id}`);
+            
+            if (response.success) {
+                await loadFlashMissions();
+                showToast('Missão relâmpago deletada!', 'success');
+            }
+        } catch (error) {
+            log.error('Erro ao deletar missão relâmpago:', error);
+            alert('Erro ao deletar missão relâmpago');
+        }
+    };
+    
+    function showToast(message, type = 'info') {
+        const existingToast = document.querySelector('.admin-toast');
+        if (existingToast) existingToast.remove();
+        
+        const toast = document.createElement('div');
+        toast.className = `admin-toast ${type}`;
+        toast.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
     // ===== INICIALIZAÇÃO =====
     document.addEventListener('DOMContentLoaded', async () => {
         log.info('Carregando painel administrativo...');
@@ -1178,6 +1400,7 @@
         
         await loadAllUsers();
         await loadRewards();
+        await loadFlashMissions();
         
         // Event listeners
         const focusFilter = document.getElementById('focusFilter');
@@ -1242,6 +1465,33 @@
         const toggle = document.getElementById('rewardAvailableToggle');
         if (toggle) {
             toggle.onclick = function() { this.classList.toggle('active'); };
+        }
+        
+        // Botão Nova Missão Relâmpago
+        const addFlashBtn = document.getElementById('addFlashMissionBtn');
+        if (addFlashBtn) {
+            addFlashBtn.onclick = () => openFlashMissionModal();
+        }
+        
+        // Formulário de missão relâmpago
+        const flashForm = document.getElementById('flashMissionForm');
+        if (flashForm) {
+            flashForm.onsubmit = saveFlashMission;
+        }
+        
+        // Fechar modal de missão relâmpago
+        const closeFlashModal = document.getElementById('closeFlashModal');
+        if (closeFlashModal) closeFlashModal.onclick = () => closeModal('flashMissionModal');
+        
+        const cancelFlashBtn = document.getElementById('cancelFlashBtn');
+        if (cancelFlashBtn) cancelFlashBtn.onclick = () => closeModal('flashMissionModal');
+        
+        // Fechar modal ao clicar fora
+        const flashMissionModal = document.getElementById('flashMissionModal');
+        if (flashMissionModal) {
+            flashMissionModal.onclick = (e) => {
+                if (e.target === flashMissionModal) closeModal('flashMissionModal');
+            };
         }
         
         // Fechar modal ao clicar fora

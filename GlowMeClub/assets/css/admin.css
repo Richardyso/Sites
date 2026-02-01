@@ -1218,3 +1218,197 @@
     margin: 0;
     font-size: 0.875rem;
 }
+
+/* ===== FLASH MISSIONS ADMIN ===== */
+
+.flash-section {
+    border: 2px solid var(--admin-warning);
+    background: linear-gradient(135deg, #FFFBEB 0%, white 100%);
+}
+
+.flash-section .section-title i {
+    color: var(--admin-warning);
+}
+
+.section-description {
+    font-size: 0.8rem;
+    color: var(--admin-gray-500);
+    margin-bottom: 1rem;
+}
+
+.flash-missions-admin-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.flash-mission-admin-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 2px solid var(--admin-gray-200);
+    transition: all 0.2s;
+}
+
+.flash-mission-admin-card.active {
+    border-color: var(--admin-warning);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.flash-mission-admin-card.expired {
+    opacity: 0.6;
+    border-color: var(--admin-gray-300);
+}
+
+.flash-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.flash-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.flash-status.active {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.flash-status.expired {
+    background: var(--admin-gray-100);
+    color: var(--admin-gray-500);
+}
+
+.flash-timer-admin {
+    font-size: 0.75rem;
+    color: var(--admin-gray-500);
+}
+
+.flash-admin-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--admin-gray-800);
+    margin: 0 0 0.25rem;
+}
+
+.flash-admin-desc {
+    font-size: 0.8rem;
+    color: var(--admin-gray-600);
+    margin: 0 0 0.5rem;
+}
+
+.flash-admin-rewards {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.flash-admin-rewards span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--admin-gray-600);
+}
+
+.flash-admin-rewards i {
+    color: var(--admin-warning);
+}
+
+.flash-admin-link {
+    margin-bottom: 0.75rem;
+}
+
+.flash-admin-link a {
+    font-size: 0.75rem;
+    color: var(--admin-primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.flash-admin-link a:hover {
+    text-decoration: underline;
+}
+
+.flash-admin-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Button Warning */
+.btn-warning {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: white;
+    border: none;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #D97706, #B45309);
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #DC2626, #B91C1C);
+}
+
+/* Form Row */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Admin Toast */
+.admin-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--admin-success);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 3000;
+    animation: toastIn 0.3s ease;
+}
+
+.admin-toast.error {
+    background: var(--admin-danger);
+}
+
+@keyframes toastIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Desktop Flash Missions Grid */
+@media (min-width: 768px) {
+    .flash-missions-admin-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

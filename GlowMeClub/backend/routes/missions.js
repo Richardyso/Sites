@@ -48,4 +48,42 @@ router.get('/history', verifyToken, missionsController.getMissionHistory);
  */
 router.put('/:id/observation', verifyToken, missionsController.updateMissionObservation);
 
+// ===== MISSÕES RELÂMPAGO =====
+
+/**
+ * GET /api/missions/flash
+ * Listar missões relâmpago ativas (para usuários)
+ */
+router.get('/flash', verifyToken, missionsController.getFlashMissions);
+
+/**
+ * POST /api/missions/flash/:id/claim
+ * Resgatar recompensa de missão relâmpago (usuário clicou no link)
+ */
+router.post('/flash/:id/claim', verifyToken, missionsController.claimFlashMission);
+
+/**
+ * GET /api/missions/flash/admin
+ * Listar todas as missões relâmpago (admin)
+ */
+router.get('/flash/admin', verifyToken, missionsController.getFlashMissionsAdmin);
+
+/**
+ * POST /api/missions/flash
+ * Criar missão relâmpago (admin only)
+ */
+router.post('/flash', verifyToken, missionsController.createFlashMission);
+
+/**
+ * PUT /api/missions/flash/:id
+ * Atualizar missão relâmpago (admin only)
+ */
+router.put('/flash/:id', verifyToken, missionsController.updateFlashMission);
+
+/**
+ * DELETE /api/missions/flash/:id
+ * Deletar missão relâmpago (admin only)
+ */
+router.delete('/flash/:id', verifyToken, missionsController.deleteFlashMission);
+
 module.exports = router;

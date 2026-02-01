@@ -571,3 +571,399 @@ exports.updateMissionObservation = async (req, res) => {
         });
     }
 };
+
+// ===== MISSÕES RELÂMPAGO =====
+
+/**
+ * Obter missões relâmpago ativas (para usuários)
+ */
+exports.getFlashMissions = async (req, res) => {
+    try {
+        const userId = req.user.uid;
+        const now = new Date();
+        
+        // Buscar missões relâmpago ativas
+        const flashMissionsSnapshot = await firestore
+            .collection('flashMissions')
+            .where('active', '==', true)
+            .where('expiresAt', '>', now)
+            .orderBy('expiresAt', 'asc')
+            .get();
+        
+        const flashMissions = [];
+        
+        for (const doc of flashMissionsSnapshot.docs) {
+            const missionData = doc.data();
+            
+            // Verificar se o usuário já resgatou esta missão
+            const claimDoc = await firestore
+                .collection('flashMissions')
+                .doc(doc.id)
+                .collection('claims')
+                .doc(userId)
+                .get();
+            
+            const alreadyClaimed = claimDoc.exists;
+            
+            flashMissions.push({
+                id: doc.id,
+                ...missionData,
+                expiresAt: missionData.expiresAt.toDate(),
+                createdAt: missionData.createdAt?.toDate() || null,
+                alreadyClaimed
+            });
+        }
+        
+        res.json({
+            success: true,
+            flashMissions
+        });
+        
+    } catch (error) {
+        console.error('Erro ao buscar missões relâmpago:', error);
+        res.status(500).json({
+            error: 'Erro ao buscar missões relâmpago'
+        });
+    }
+};
+
+/**
+ * Resgatar recompensa de missão relâmpago
+ */
+exports.claimFlashMission = async (req, res) => {
+    try {
+        const userId = req.user.uid;
+        const { id } = req.params;
+        
+        // Buscar a missão relâmpago
+        const flashMissionRef = firestore.collection('flashMissions').doc(id);
+        const flashMissionDoc = await flashMissionRef.get();
+        
+        if (!flashMissionDoc.exists) {
+            return res.status(404).json({
+                error: 'Missão relâmpago não encontrada'
+            });
+        }
+        
+        const missionData = flashMissionDoc.data();
+        const now = new Date();
+        
+        // Verificar se ainda está ativa
+        if (!missionData.active || missionData.expiresAt.toDate() < now) {
+            return res.status(400).json({
+                error: 'Esta missão relâmpago expirou'
+            });
+        }
+        
+        // Verificar se já foi resgatada
+        const claimRef = flashMissionRef.collection('claims').doc(userId);
+        const claimDoc = await claimRef.get();
+        
+        if (claimDoc.exists) {
+            return res.status(400).json({
+                error: 'Você já resgatou esta missão relâmpago'
+            });
+        }
+        
+        // Buscar dados do usuário
+        const userRef = firestore.collection('users').doc(userId);
+        const userDoc = await userRef.get();
+        const userData = userDoc.data();
+        
+        const xpEarned = missionData.xp || 0;
+        const coinsEarned = missionData.coins || 0;
+        
+        // Usar batch para operações atômicas
+        const batch = firestore.batch();
+        
+        // Registrar claim
+        batch.set(claimRef, {
+            claimedAt: serverTimestamp(),
+            xpEarned,
+            coinsEarned
+        });
+        
+        // Atualizar XP e moedas do usuário
+        if (xpEarned > 0 || coinsEarned > 0) {
+            const updates = {};
+            if (xpEarned > 0) {
+                updates.xp = increment(xpEarned);
+                updates.totalPoints = increment(xpEarned);
+            }
+            if (coinsEarned > 0) {
+                updates.coins = increment(coinsEarned);
+            }
+            batch.update(userRef, updates);
+        }
+        
+        // Adicionar ao histórico de pontos
+        const historyRef = firestore
+            .collection('users')
+            .doc(userId)
+            .collection('pointsHistory')
+            .doc();
+        
+        batch.set(historyRef, {
+            reason: `⚡ Missão Relâmpago: ${missionData.title}`,
+            action: `Missão Relâmpago: ${missionData.title}`,
+            xp: xpEarned,
+            coins: coinsEarned,
+            points: xpEarned,
+            type: 'flash_mission',
+            flashMissionId: id,
+            createdAt: serverTimestamp()
+        });
+        
+        // Incrementar contador de claims na missão
+        batch.update(flashMissionRef, {
+            totalClaims: increment(1)
+        });
+        
+        await batch.commit();
+        
+        // Calcular novos totais
+        const currentXp = userData.xp || userData.totalPoints || 0;
+        const currentCoins = userData.coins !== undefined ? userData.coins : currentXp;
+        const newXp = currentXp + xpEarned;
+        const newCoins = currentCoins + coinsEarned;
+        
+        // Verificar level up
+        const levelUp = checkLevelUp(currentXp, newXp);
+        
+        console.log(`⚡ Missão relâmpago resgatada: ${missionData.title} por usuário ${userId}`);
+        
+        res.json({
+            success: true,
+            message: 'Recompensa resgatada com sucesso!',
+            xpEarned,
+            coinsEarned,
+            newXp,
+            newCoins,
+            levelUp: levelUp ? {
+                newLevel: levelUp.newLevel,
+                levelName: levelUp.levelInfo.name
+            } : null
+        });
+        
+    } catch (error) {
+        console.error('Erro ao resgatar missão relâmpago:', error);
+        res.status(500).json({
+            error: 'Erro ao resgatar missão relâmpago'
+        });
+    }
+};
+
+/**
+ * Listar todas as missões relâmpago (admin)
+ */
+exports.getFlashMissionsAdmin = async (req, res) => {
+    try {
+        // Verificar se é admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
+                error: 'Acesso negado'
+            });
+        }
+        
+        const flashMissionsSnapshot = await firestore
+            .collection('flashMissions')
+            .orderBy('createdAt', 'desc')
+            .limit(50)
+            .get();
+        
+        const flashMissions = [];
+        
+        flashMissionsSnapshot.forEach(doc => {
+            const data = doc.data();
+            flashMissions.push({
+                id: doc.id,
+                ...data,
+                expiresAt: data.expiresAt?.toDate() || null,
+                createdAt: data.createdAt?.toDate() || null
+            });
+        });
+        
+        res.json({
+            success: true,
+            flashMissions
+        });
+        
+    } catch (error) {
+        console.error('Erro ao buscar missões relâmpago (admin):', error);
+        res.status(500).json({
+            error: 'Erro ao buscar missões relâmpago'
+        });
+    }
+};
+
+/**
+ * Criar missão relâmpago (admin only)
+ */
+exports.createFlashMission = async (req, res) => {
+    try {
+        // Verificar se é admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
+                error: 'Acesso negado'
+            });
+        }
+        
+        const { title, description, xp, coins, link, expiresInHours } = req.body;
+        
+        // Validações
+        if (!title || !title.trim()) {
+            return res.status(400).json({
+                error: 'Título é obrigatório'
+            });
+        }
+        
+        if (!link || !link.trim()) {
+            return res.status(400).json({
+                error: 'Link é obrigatório'
+            });
+        }
+        
+        // Calcular data de expiração
+        const hours = parseInt(expiresInHours) || 24;
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + hours);
+        
+        const flashMissionData = {
+            title: title.trim(),
+            description: description?.trim() || '',
+            xp: parseInt(xp) || 0,
+            coins: parseInt(coins) || 0,
+            link: link.trim(),
+            active: true,
+            totalClaims: 0,
+            expiresAt: expiresAt,
+            createdBy: req.user.uid,
+            createdAt: serverTimestamp()
+        };
+        
+        const docRef = await firestore.collection('flashMissions').add(flashMissionData);
+        
+        console.log(`⚡ Missão relâmpago criada: ${title} (ID: ${docRef.id})`);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Missão relâmpago criada com sucesso!',
+            flashMission: {
+                id: docRef.id,
+                ...flashMissionData,
+                expiresAt: expiresAt
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erro ao criar missão relâmpago:', error);
+        res.status(500).json({
+            error: 'Erro ao criar missão relâmpago'
+        });
+    }
+};
+
+/**
+ * Atualizar missão relâmpago (admin only)
+ */
+exports.updateFlashMission = async (req, res) => {
+    try {
+        // Verificar se é admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
+                error: 'Acesso negado'
+            });
+        }
+        
+        const { id } = req.params;
+        const { title, description, xp, coins, link, active, expiresInHours } = req.body;
+        
+        const flashMissionRef = firestore.collection('flashMissions').doc(id);
+        const flashMissionDoc = await flashMissionRef.get();
+        
+        if (!flashMissionDoc.exists) {
+            return res.status(404).json({
+                error: 'Missão relâmpago não encontrada'
+            });
+        }
+        
+        const updates = {};
+        
+        if (title !== undefined) updates.title = title.trim();
+        if (description !== undefined) updates.description = description.trim();
+        if (xp !== undefined) updates.xp = parseInt(xp) || 0;
+        if (coins !== undefined) updates.coins = parseInt(coins) || 0;
+        if (link !== undefined) updates.link = link.trim();
+        if (active !== undefined) updates.active = active;
+        
+        if (expiresInHours !== undefined) {
+            const hours = parseInt(expiresInHours) || 24;
+            const expiresAt = new Date();
+            expiresAt.setHours(expiresAt.getHours() + hours);
+            updates.expiresAt = expiresAt;
+        }
+        
+        await flashMissionRef.update(updates);
+        
+        res.json({
+            success: true,
+            message: 'Missão relâmpago atualizada com sucesso'
+        });
+        
+    } catch (error) {
+        console.error('Erro ao atualizar missão relâmpago:', error);
+        res.status(500).json({
+            error: 'Erro ao atualizar missão relâmpago'
+        });
+    }
+};
+
+/**
+ * Deletar missão relâmpago (admin only)
+ */
+exports.deleteFlashMission = async (req, res) => {
+    try {
+        // Verificar se é admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
+                error: 'Acesso negado'
+            });
+        }
+        
+        const { id } = req.params;
+        
+        const flashMissionRef = firestore.collection('flashMissions').doc(id);
+        const flashMissionDoc = await flashMissionRef.get();
+        
+        if (!flashMissionDoc.exists) {
+            return res.status(404).json({
+                error: 'Missão relâmpago não encontrada'
+            });
+        }
+        
+        // Deletar subcoleção de claims
+        const claimsSnapshot = await flashMissionRef.collection('claims').get();
+        const batch = firestore.batch();
+        
+        claimsSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        batch.delete(flashMissionRef);
+        
+        await batch.commit();
+        
+        console.log(`⚡ Missão relâmpago deletada: ${id}`);
+        
+        res.json({
+            success: true,
+            message: 'Missão relâmpago deletada com sucesso'
+        });
+        
+    } catch (error) {
+        console.error('Erro ao deletar missão relâmpago:', error);
+        res.status(500).json({
+            error: 'Erro ao deletar missão relâmpago'
+        });
+    }
+};

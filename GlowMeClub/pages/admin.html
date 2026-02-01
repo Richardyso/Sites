@@ -84,6 +84,32 @@
             </div>
         </div>
         
+        <!-- Flash Missions Section -->
+        <div class="admin-section flash-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-bolt"></i> Missões Relâmpago
+                </h3>
+                <button class="btn btn-warning btn-sm" id="addFlashMissionBtn">
+                    <i class="fas fa-plus"></i> Nova Missão Relâmpago
+                </button>
+            </div>
+            
+            <p class="section-description">
+                Crie missões com tempo limitado. Quando a usuária clicar no link e resgatar, ganha XP e Moedas automaticamente.
+            </p>
+            
+            <div class="flash-missions-admin-list" id="flashMissionsAdminList">
+                <!-- Flash missions will be loaded here -->
+            </div>
+            
+            <div class="empty-state" id="emptyFlashMissions" style="display: none;">
+                <i class="fas fa-bolt empty-icon"></i>
+                <h4>Nenhuma missão relâmpago ativa</h4>
+                <p>Crie missões relâmpago para engajar suas usuárias!</p>
+            </div>
+        </div>
+        
         <!-- Rewards Section -->
         <div class="admin-section">
             <div class="section-header">
@@ -106,6 +132,70 @@
             </div>
         </div>
     </main>
+    
+    <!-- Flash Mission Modal -->
+    <div class="modal" id="flashMissionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-bolt"></i> 
+                    <span id="flashModalTitle">Nova Missão Relâmpago</span>
+                </h3>
+                <button class="modal-close" id="closeFlashModal">&times;</button>
+            </div>
+            <form id="flashMissionForm">
+                <input type="hidden" id="flashMissionId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Título *</label>
+                        <input type="text" id="flashTitle" class="form-input" placeholder="Ex: Assistir o vídeo do Instagram" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Descrição (opcional)</label>
+                        <textarea id="flashDescription" class="form-input" rows="2" placeholder="Descrição da missão..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">XP (Experiência)</label>
+                            <input type="number" id="flashXp" class="form-input" value="20" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Moedas</label>
+                            <input type="number" id="flashCoins" class="form-input" value="20" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Link da Missão *</label>
+                        <input type="url" id="flashLink" class="form-input" placeholder="https://instagram.com/p/..." required>
+                        <span class="form-hint">URL que a usuária deve acessar para completar a missão</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Expira em (horas)</label>
+                        <select id="flashExpiresIn" class="form-input">
+                            <option value="1">1 hora</option>
+                            <option value="2">2 horas</option>
+                            <option value="6">6 horas</option>
+                            <option value="12">12 horas</option>
+                            <option value="24" selected>24 horas</option>
+                            <option value="48">48 horas</option>
+                            <option value="72">72 horas (3 dias)</option>
+                            <option value="168">168 horas (1 semana)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelFlashBtn">Cancelar</button>
+                    <button type="submit" class="btn btn-warning" id="saveFlashBtn">
+                        <i class="fas fa-bolt"></i> Criar Missão
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <!-- Edit User Modal -->
     <div class="modal" id="editUserModal">

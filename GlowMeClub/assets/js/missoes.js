@@ -8,6 +8,7 @@ if (!window.appConfig || !window.api) {
 // Dados
 let currentUser = null;
 let dailyMissions = [];
+let flashMissions = [];
 let missionHistory = [];
 let historyDays = 30;
 
@@ -46,6 +47,9 @@ async function loadDailyMissions() {
         // Atualizar header e área de foco
         updateHeader();
         updateFocusAreaBadge();
+        
+        // Carregar missões relâmpago primeiro (destaque)
+        await loadFlashMissions();
         
         // Carregar missões do backend
         await loadMissionsFromBackend();
@@ -275,6 +279,140 @@ function updateProgress() {
     }
 }
 
+// ===== MISSÕES RELÂMPAGO =====
+async function loadFlashMissions() {
+    const flashSection = document.getElementById('flashMissionsSection');
+    const flashList = document.getElementById('flashMissionsList');
+    
+    try {
+        const data = await window.api.get('/missions/flash');
+        
+        if (data.success && data.flashMissions && data.flashMissions.length > 0) {
+            // Filtrar missões não resgatadas
+            flashMissions = data.flashMissions.filter(m => !m.alreadyClaimed);
+            
+            if (flashMissions.length > 0) {
+                displayFlashMissions();
+                if (flashSection) flashSection.style.display = 'block';
+            } else {
+                if (flashSection) flashSection.style.display = 'none';
+            }
+        } else {
+            flashMissions = [];
+            if (flashSection) flashSection.style.display = 'none';
+        }
+        
+    } catch (error) {
+        logger.error('Erro ao carregar missões relâmpago:', error);
+        flashMissions = [];
+        if (flashSection) flashSection.style.display = 'none';
+    }
+}
+
+function displayFlashMissions() {
+    const flashList = document.getElementById('flashMissionsList');
+    
+    if (!flashList || flashMissions.length === 0) return;
+    
+    flashList.innerHTML = flashMissions.map(mission => {
+        const expiresAt = new Date(mission.expiresAt);
+        const timeLeft = getTimeLeft(expiresAt);
+        
+        return `
+            <div class="flash-mission-card" data-flash-id="${mission.id}">
+                <div class="flash-mission-content">
+                    <div class="flash-timer">
+                        <i class="fas fa-clock"></i>
+                        <span>${timeLeft}</span>
+                    </div>
+                    <h3 class="flash-mission-title">${mission.title}</h3>
+                    ${mission.description ? `<p class="flash-mission-desc">${mission.description}</p>` : ''}
+                    <div class="flash-rewards">
+                        ${mission.xp > 0 ? `<span class="flash-reward"><i class="fas fa-star"></i> +${mission.xp} XP</span>` : ''}
+                        ${mission.coins > 0 ? `<span class="flash-reward"><i class="fas fa-coins"></i> +${mission.coins} Moedas</span>` : ''}
+                    </div>
+                </div>
+                <div class="flash-mission-action">
+                    <a href="${mission.link}" target="_blank" class="btn-flash-link" data-flash-id="${mission.id}">
+                        <i class="fas fa-external-link-alt"></i>
+                        Acessar
+                    </a>
+                    <button class="btn-flash-claim" data-flash-id="${mission.id}">
+                        <i class="fas fa-gift"></i>
+                        Resgatar
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function getTimeLeft(expiresAt) {
+    const now = new Date();
+    const diff = expiresAt - now;
+    
+    if (diff <= 0) return 'Expirado';
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 24) {
+        const days = Math.floor(hours / 24);
+        return `${days}d ${hours % 24}h`;
+    } else if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+    } else {
+        return `${minutes}m`;
+    }
+}
+
+async function claimFlashMission(missionId) {
+    try {
+        const response = await window.api.post(`/missions/flash/${missionId}/claim`);
+        
+        if (response.success) {
+            // Remover da lista local
+            flashMissions = flashMissions.filter(m => m.id !== missionId);
+            
+            // Atualizar display
+            if (flashMissions.length === 0) {
+                const flashSection = document.getElementById('flashMissionsSection');
+                if (flashSection) flashSection.style.display = 'none';
+            } else {
+                displayFlashMissions();
+            }
+            
+            // Mostrar toast de sucesso
+            let message = '⚡ Missão Relâmpago resgatada!';
+            if (response.xpEarned > 0) message += ` +${response.xpEarned} XP`;
+            if (response.coinsEarned > 0) message += ` +${response.coinsEarned} Moedas`;
+            
+            showSuccessToast(message);
+            
+            // Level up
+            if (response.levelUp) {
+                setTimeout(() => {
+                    showSuccessToast(`🎉 Você subiu para o nível ${response.levelUp.newLevel}: ${response.levelUp.levelName}!`);
+                }, 1500);
+            }
+            
+            // Atualizar dados do usuário
+            try {
+                const userData = await window.api.get('/auth/me');
+                if (userData.user) {
+                    currentUser = userData.user;
+                    localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
+                    updateHeader();
+                }
+            } catch (e) {}
+        }
+        
+    } catch (error) {
+        logger.error('Erro ao resgatar missão relâmpago:', error);
+        showSuccessToast(`❌ ${error.message || 'Erro ao resgatar'}`);
+    }
+}
+
 // ===== HISTÓRICO DE MISSÕES =====
 async function loadMissionHistory() {
     const historyTimeline = document.getElementById('historyTimeline');
@@ -379,6 +517,13 @@ function setupEventListeners() {
             const points = parseInt(completeBtn.dataset.points);
             completeMission(missionId, points);
         }
+        
+        // Botão de resgatar missão relâmpago
+        const claimBtn = e.target.closest('.btn-flash-claim');
+        if (claimBtn) {
+            const flashId = claimBtn.dataset.flashId;
+            claimFlashMission(flashId);
+        }
     });
     
     // Auto-save observação ao sair do campo
@@ -427,6 +572,193 @@ function showSuccessToast(message) {
 // CSS para toast e componentes novos
 const style = document.createElement('style');
 style.textContent = `
+/* Flash Missions Section */
+.flash-missions-section {
+    margin-bottom: 1rem;
+    animation: flashPulse 2s infinite;
+}
+
+@keyframes flashPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.95; }
+}
+
+.flash-header {
+    text-align: center;
+    margin-bottom: 0.75rem;
+}
+
+.flash-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: linear-gradient(135deg, #F59E0B, #EF4444);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.35rem;
+    animation: flashBadge 1.5s infinite;
+}
+
+@keyframes flashBadge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.flash-badge i {
+    font-size: 0.7rem;
+}
+
+.flash-title {
+    font-size: 1.1rem;
+    color: #1F2937;
+    margin: 0.25rem 0 0.15rem;
+    font-weight: 700;
+}
+
+.flash-subtitle {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    margin: 0;
+}
+
+.flash-missions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.flash-mission-card {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    border: 2px solid #F59E0B;
+    border-radius: 14px;
+    padding: 1rem;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.flash-mission-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: flashShine 3s infinite;
+}
+
+@keyframes flashShine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+.flash-mission-content {
+    position: relative;
+    z-index: 1;
+}
+
+.flash-timer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #EF4444;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.flash-mission-title {
+    font-size: 1rem;
+    color: #92400E;
+    margin: 0 0 0.25rem;
+    font-weight: 700;
+}
+
+.flash-mission-desc {
+    font-size: 0.8rem;
+    color: #B45309;
+    margin: 0 0 0.5rem;
+}
+
+.flash-rewards {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.flash-reward {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #92400E;
+}
+
+.flash-reward i {
+    color: #F59E0B;
+}
+
+.flash-mission-action {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    position: relative;
+    z-index: 1;
+}
+
+.btn-flash-link {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.6rem 1rem;
+    background: white;
+    color: #92400E;
+    border: 2px solid #F59E0B;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-flash-link:hover {
+    background: #FEF3C7;
+}
+
+.btn-flash-claim {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.6rem 1rem;
+    background: linear-gradient(135deg, #F59E0B, #EF4444);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-flash-claim:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
 /* Focus Area Badge */
 .focus-area-badge {
     display: flex;
