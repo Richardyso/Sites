@@ -154,6 +154,142 @@ router.post('/register', async (req, res) => {
 });
 
 /**
+ * POST /api/auth/google
+ * Login/Registro via Google OAuth (Firebase)
+ * Recebe um idToken do Firebase Auth e cria/atualiza o usuário no banco
+ */
+router.post('/google', async (req, res) => {
+    try {
+        const { idToken } = req.body;
+        
+        if (!idToken) {
+            return res.status(400).json({
+                error: 'Token não fornecido',
+                message: 'É necessário fornecer o token de autenticação do Google'
+            });
+        }
+        
+        console.log('🔐 Tentativa de login via Google OAuth');
+        
+        // Verificar o token do Firebase
+        let decodedToken;
+        try {
+            decodedToken = await auth.verifyIdToken(idToken);
+        } catch (error) {
+            console.error('❌ Token inválido:', error.message);
+            return res.status(401).json({
+                error: 'Token inválido',
+                message: 'O token de autenticação é inválido ou expirou'
+            });
+        }
+        
+        const { uid, email, name, picture, email_verified } = decodedToken;
+        
+        console.log('✅ Token verificado para:', email);
+        
+        // Verificar se o usuário já existe no Firestore
+        let userDoc = await firestore.collection('users').doc(uid).get();
+        let isNewUser = false;
+        let userData;
+        
+        if (!userDoc.exists) {
+            // Novo usuário - criar documento
+            isNewUser = true;
+            
+            userData = {
+                uid,
+                email: email.toLowerCase(),
+                name: name || email.split('@')[0],
+                profileImage: picture || null,
+                preferredColor: '#8B5CF6',
+                focusArea: null,
+                role: 'user',
+                xp: 0,
+                coins: 0,
+                totalPoints: 0,
+                level: 1,
+                streak: 0,
+                authProvider: 'google',
+                emailVerified: email_verified || false,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            };
+            
+            await firestore.collection('users').doc(uid).set(userData);
+            
+            console.log('📝 Novo usuário criado via Google:', email);
+            
+            // Enviar email de boas-vindas para novos usuários
+            try {
+                await sendWelcomeEmail(email, name || email.split('@')[0]);
+            } catch (emailError) {
+                console.error('⚠️ Erro ao enviar email de boas-vindas:', emailError.message);
+            }
+            
+        } else {
+            // Usuário existente - atualizar dados do Google se necessário
+            userData = userDoc.data();
+            
+            const updates = {
+                lastLogin: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            };
+            
+            // Atualizar foto do Google se o usuário não tiver uma personalizada
+            if (picture && !userData.profileImage) {
+                updates.profileImage = picture;
+            }
+            
+            // Atualizar nome se não tiver
+            if (name && !userData.name) {
+                updates.name = name;
+            }
+            
+            // Marcar que usou Google auth
+            if (userData.authProvider !== 'google' && userData.authProvider !== 'both') {
+                updates.authProvider = userData.authProvider ? 'both' : 'google';
+            }
+            
+            await firestore.collection('users').doc(uid).update(updates);
+            
+            // Mesclar updates com userData para retornar dados atualizados
+            userData = { ...userData, ...updates };
+            
+            console.log('✅ Login via Google bem-sucedido:', email);
+        }
+        
+        // Gerar token de sessão
+        const sessionToken = generateSessionToken();
+        
+        // Salvar sessão
+        await firestore.collection('sessions').doc(sessionToken).set({
+            userId: uid,
+            authProvider: 'google',
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 dias
+        });
+        
+        // Remover senha dos dados retornados (se existir de um registro anterior)
+        const { password: _, ...safeUserData } = userData;
+        
+        res.json({
+            success: true,
+            message: isNewUser ? 'Conta criada com sucesso!' : 'Login realizado com sucesso!',
+            token: sessionToken,
+            user: safeUserData,
+            isNewUser
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro no login via Google:', error);
+        res.status(500).json({
+            error: 'Erro ao autenticar',
+            message: 'Não foi possível fazer login com o Google. Tente novamente.'
+        });
+    }
+});
+
+/**
  * POST /api/auth/login
  * Login de usuário
  */

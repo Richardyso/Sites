@@ -196,11 +196,85 @@ async function handleLogin(e) {
 
 // Login com Google
 async function handleGoogleLogin() {
-    if (window.appConfig.authMode === 'firebase') {
-        // TODO: Implementar login com Google/Firebase
-        showError('Login com Google será implementado em breve');
-    } else {
-        showError('Login com Google não disponível no modo local. Use email e senha.');
+    _log('info', '🔐 === INICIANDO LOGIN COM GOOGLE ===');
+    
+    const googleBtn = document.getElementById('googleLoginBtn');
+    const originalText = googleBtn ? googleBtn.innerHTML : '';
+    
+    // Verificar se Firebase Auth está disponível
+    if (!window.FirebaseAuth || !window.FirebaseAuth.isInitialized()) {
+        if (window.FirebaseAuth && window.FirebaseAuth.initialize) {
+            window.FirebaseAuth.initialize();
+        } else {
+            showError('Sistema de login com Google não está disponível no momento.');
+            _log('error', '❌ FirebaseAuth não está disponível');
+            return;
+        }
+    }
+    
+    // Mostrar loading
+    if (googleBtn) {
+        googleBtn.disabled = true;
+        googleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
+    }
+    
+    try {
+        // Fazer login com Google via Firebase
+        const googleResult = await window.FirebaseAuth.signInWithGoogle();
+        
+        if (!googleResult.success) {
+            throw new Error('Falha no login com Google');
+        }
+        
+        _log('info', '✅ Login com Google no Firebase bem-sucedido:', googleResult.user.email);
+        
+        // Enviar token para o backend para criar/atualizar usuário no banco
+        const data = await window.api.post('/auth/google', {
+            idToken: googleResult.idToken
+        });
+        
+        if (data.success) {
+            // Salvar token de sessão
+            window.api.saveToken(data.token);
+            
+            // Salvar dados do usuário em cache
+            if (data.user) {
+                localStorage.setItem('cachedUserData', JSON.stringify(data.user));
+            }
+            
+            _log('info', '✅ Login via Google concluído!', data.isNewUser ? '(Novo usuário)' : '');
+            
+            // Redirecionar
+            if (data.user && data.user.role === 'admin') {
+                window.location.href = 'admin.html';
+            } else {
+                // Se for novo usuário, redirecionar para perfil para completar cadastro
+                if (data.isNewUser) {
+                    window.location.href = 'perfil.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            }
+        } else {
+            throw new Error(data.message || 'Erro ao autenticar no servidor');
+        }
+        
+    } catch (error) {
+        _log('error', '❌ Erro no login com Google:', error.message);
+        
+        // Fazer logout do Firebase em caso de erro
+        if (window.FirebaseAuth && window.FirebaseAuth.signOut) {
+            await window.FirebaseAuth.signOut();
+        }
+        
+        showError(error.message || 'Erro ao fazer login com o Google');
+        
+    } finally {
+        // Restaurar botão
+        if (googleBtn) {
+            googleBtn.disabled = false;
+            googleBtn.innerHTML = originalText || '<i class="fab fa-google"></i> Google';
+        }
     }
 }
 
@@ -232,6 +306,16 @@ window.logout = async function() {
     } catch (error) {
         console.error('Erro ao fazer logout no servidor:', error);
         // Continua mesmo com erro - limpa dados locais
+    }
+    
+    // Fazer logout do Firebase também (se estiver autenticado via Google)
+    try {
+        if (window.FirebaseAuth && window.FirebaseAuth.signOut) {
+            await window.FirebaseAuth.signOut();
+            console.log('✅ Logout do Firebase realizado');
+        }
+    } catch (error) {
+        console.error('Erro ao fazer logout do Firebase:', error);
     }
     
     // Limpar dados locais

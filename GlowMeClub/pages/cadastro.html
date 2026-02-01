@@ -181,6 +181,17 @@
                         </button>
                     </div>
                 </form>
+                
+                <!-- Divider -->
+                <div class="divider">
+                    <span>ou cadastre-se com</span>
+                </div>
+
+                <!-- Login com Google -->
+                <button id="googleLoginBtn" class="btn-google">
+                    <i class="fab fa-google"></i>
+                    Continuar com Google
+                </button>
             </div>
             
             <div class="auth-footer">
@@ -190,10 +201,14 @@
         </div>
     </div>
     
-    <!-- Autenticação Local (sem Firebase) -->
+    <!-- Firebase SDK (para OAuth com Google) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
     <!-- Scripts -->
     <script src="../assets/js/config.js"></script>
     <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/firebase-config.js"></script>
     <script src="../assets/js/auth.js"></script>
     
     <script>
