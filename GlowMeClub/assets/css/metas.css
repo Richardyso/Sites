@@ -72,7 +72,7 @@
 }
 
 .goal-card.completed .progress-fill {
-    background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+    background: linear-gradient(90deg, var(--user-color, #8B5CF6) 0%, var(--user-color-light, #A78BFA) 100%);
 }
 
 .goal-header {
@@ -466,7 +466,7 @@
 }
 
 .goal-card.completed .progress-fill {
-    background: #10B981;
+    background: var(--user-color, #8B5CF6);
 }
 
 /* Category Icons - Estilo melhorado */
@@ -750,9 +750,9 @@ input:checked + .toggle-slider:before {
 
 .checkins-reward {
     font-size: 0.75rem;
-    color: #059669;
+    color: var(--user-color, #8B5CF6);
     font-weight: 600;
-    background: rgba(16, 185, 129, 0.15);
+    background: var(--user-color-10, rgba(139, 92, 246, 0.1));
     padding: 4px 8px;
     border-radius: 12px;
 }
@@ -829,7 +829,7 @@ input:checked + .toggle-slider:before {
     width: 100%;
     padding: 1rem;
     margin-top: 1rem;
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    background: linear-gradient(135deg, var(--user-color, #8B5CF6) 0%, var(--user-color-dark, #7C3AED) 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -837,12 +837,12 @@ input:checked + .toggle-slider:before {
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px var(--user-color-30, rgba(139, 92, 246, 0.3));
 }
 
 .btn-complete-goal:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 6px 20px var(--user-color-30, rgba(139, 92, 246, 0.4));
 }
 
 .btn-complete-goal:active {
@@ -862,9 +862,9 @@ input:checked + .toggle-slider:before {
     width: 100%;
     padding: 1rem;
     margin-top: 1rem;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
-    color: #059669;
-    border: 2px solid rgba(16, 185, 129, 0.3);
+    background: var(--user-color-20, rgba(139, 92, 246, 0.2));
+    color: var(--user-color, #8B5CF6);
+    border: 2px solid var(--user-color-30, rgba(139, 92, 246, 0.3));
     border-radius: 12px;
     font-weight: 600;
     font-size: 1rem;
@@ -872,7 +872,11 @@ input:checked + .toggle-slider:before {
 
 .goal-completed-badge i {
     font-size: 1.25rem;
-    color: #10B981;
+    color: var(--user-color, #8B5CF6);
+}
+
+.goal-completed-badge span {
+    color: var(--user-color, #8B5CF6);
 }
 
 /* Detalhes da Meta - Novo estilo */

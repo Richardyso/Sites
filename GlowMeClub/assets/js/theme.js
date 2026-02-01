@@ -373,6 +373,166 @@
             .profile-color-selector .color-option.selected {
                 box-shadow: 0 0 0 3px ${color} !important;
             }
+
+            /* Section titles and icons */
+            .section-title i,
+            .form-section .section-title i,
+            .email-prefs-section .section-title i,
+            h3.section-title i {
+                color: ${color} !important;
+            }
+
+            /* Form sections borders */
+            .form-section,
+            .email-prefs-section {
+                border-color: rgba(${rgbString}, 0.2) !important;
+            }
+
+            /* Focus Area Badge */
+            .focus-area-badge {
+                background: rgba(${rgbString}, 0.1) !important;
+                border-color: rgba(${rgbString}, 0.2) !important;
+            }
+
+            .focus-area-badge .focus-change-btn {
+                background: ${color} !important;
+            }
+
+            /* Mission cards */
+            .mission-card {
+                border-color: rgba(${rgbString}, 0.15) !important;
+            }
+
+            .mission-category {
+                background: rgba(${rgbString}, 0.1) !important;
+                color: ${color} !important;
+            }
+
+            .btn-complete {
+                background: linear-gradient(135deg, ${color}, ${darkColor}) !important;
+            }
+
+            .btn-complete:hover {
+                box-shadow: 0 4px 12px rgba(${rgbString}, 0.4) !important;
+            }
+
+            /* Mission History */
+            .mission-history-section {
+                border-top-color: rgba(${rgbString}, 0.2) !important;
+            }
+
+            .history-stat {
+                background: rgba(${rgbString}, 0.1) !important;
+            }
+
+            .history-stat .stat-value {
+                color: ${color} !important;
+            }
+
+            /* Goals page */
+            .goal-category-badge {
+                background: rgba(${rgbString}, 0.15) !important;
+                color: ${color} !important;
+            }
+
+            .goal-card {
+                border-color: rgba(${rgbString}, 0.15) !important;
+            }
+
+            .goal-card.completed .goal-completed-badge {
+                background: linear-gradient(135deg, ${color}, ${lightColor}) !important;
+                color: white !important;
+            }
+
+            .goal-card.completed .goal-completed-badge span {
+                color: white !important;
+            }
+
+            .add-goal-btn {
+                background: linear-gradient(135deg, ${color}, ${darkColor}) !important;
+            }
+
+            /* Points History */
+            .history-item .item-action {
+                color: ${color} !important;
+            }
+
+            .history-item .item-icon {
+                background: rgba(${rgbString}, 0.15) !important;
+                color: ${color} !important;
+            }
+
+            /* Profile form icons */
+            .form-group .input-icon,
+            .form-input-with-icon i {
+                color: ${color} !important;
+            }
+
+            /* Select dropdowns */
+            .form-select:focus,
+            .form-input:focus {
+                border-color: ${color} !important;
+            }
+
+            /* Tab buttons active */
+            .tab-btn.active {
+                background: ${color} !important;
+            }
+
+            /* Dropdown selected items */
+            .color-dropdown-header .selected-color-info,
+            .dropdown-header .selected-info {
+                color: #1F2937 !important;
+            }
+
+            /* Level Roadmap */
+            .roadmap-item.current .connector-dot {
+                background: ${color} !important;
+                box-shadow: 0 0 10px rgba(${rgbString}, 0.5) !important;
+            }
+
+            .roadmap-item.current .status-badge {
+                background: ${color} !important;
+            }
+
+            /* Level progress in dashboard */
+            .level-progress-bar {
+                background: rgba(${rgbString}, 0.2) !important;
+            }
+
+            .level-progress-fill {
+                background: linear-gradient(90deg, ${color}, ${lightColor}) !important;
+            }
+
+            /* Rewards page */
+            .reward-card {
+                border-color: rgba(${rgbString}, 0.15) !important;
+            }
+
+            .reward-cost {
+                color: ${color} !important;
+            }
+
+            .btn-redeem:not(:disabled) {
+                background: linear-gradient(135deg, ${color}, ${darkColor}) !important;
+            }
+
+            /* Bottom nav icons */
+            .bottom-nav .nav-item.active i,
+            .bottom-nav .nav-item.active span {
+                color: ${color} !important;
+            }
+
+            /* Sidebar menu active */
+            .mobile-menu .nav-item.active,
+            .mobile-menu a.active {
+                background: rgba(${rgbString}, 0.1) !important;
+                color: ${color} !important;
+            }
+
+            .mobile-menu .nav-item.active i {
+                color: ${color} !important;
+            }
         `;
 
         console.log('🎨 Tema aplicado:', color);

@@ -4,7 +4,7 @@
 .profile-form-card {
     background: white;
     border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 4px 20px var(--user-color-10, rgba(139, 92, 246, 0.1));
     padding: 1.5rem;
     max-width: 600px;
     margin: 0 auto;
@@ -41,7 +41,7 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: var(--cor-roxo-medio, #8B5CF6);
+    background: var(--user-color, #8B5CF6);
     color: white;
     display: flex;
     align-items: center;
@@ -49,7 +49,7 @@
     font-size: 3rem;
     font-weight: 700;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 20px var(--user-color-30, rgba(139, 92, 246, 0.3));
     transition: all 0.3s ease;
 }
 
@@ -174,7 +174,7 @@
 .form-select:focus {
     outline: none;
     border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 4px var(--user-color-10, rgba(139, 92, 246, 0.1));
 }
 
 .form-input:disabled {
@@ -214,7 +214,7 @@
 .color-selector-btn:focus {
     outline: none;
     border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 4px var(--user-color-10, rgba(139, 92, 246, 0.1));
 }
 
 .selected-color-preview {
@@ -281,7 +281,7 @@
 
 .phone-input-container:focus-within {
     border-color: #8B5CF6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 0 4px var(--user-color-10, rgba(139, 92, 246, 0.1));
 }
 
 .phone-ddi-input {
