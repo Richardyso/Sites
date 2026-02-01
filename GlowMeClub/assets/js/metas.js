@@ -100,6 +100,9 @@ function loadGoalsFromLocalStorage() {
     displayGoals();
 }
 
+// Filtro de período atual
+let currentPeriodFilter = 'all';
+
 // Exibir metas
 function displayGoals() {
     const goalsGrid = document.getElementById('goalsGrid');
@@ -107,25 +110,93 @@ function displayGoals() {
     
     if (!goalsGrid) return;
     
-    if (userGoals.length === 0) {
+    // Filtrar metas por período
+    let filteredGoals = userGoals;
+    if (currentPeriodFilter !== 'all') {
+        filteredGoals = userGoals.filter(goal => goal.period === currentPeriodFilter);
+    }
+    
+    if (filteredGoals.length === 0) {
         goalsGrid.style.display = 'none';
         if (emptyState) {
             emptyState.style.display = 'flex';
         }
-        return;
-    }
-    
-    goalsGrid.style.display = 'grid';
-    if (emptyState) {
-        emptyState.style.display = 'none';
-    }
-    
-    // Usar a função createGoalCard que já está definida na página
-    goalsGrid.innerHTML = '';
-    userGoals.forEach(goal => {
-        if (window.createGoalCard) {
-            goalsGrid.appendChild(window.createGoalCard(goal));
+    } else {
+        goalsGrid.style.display = 'grid';
+        if (emptyState) {
+            emptyState.style.display = 'none';
         }
+        
+        // Usar a função createGoalCard que já está definida na página
+        goalsGrid.innerHTML = '';
+        filteredGoals.forEach(goal => {
+            if (window.createGoalCard) {
+                goalsGrid.appendChild(window.createGoalCard(goal));
+            }
+        });
+    }
+    
+    // Atualizar progresso
+    updateProgressOverview();
+}
+
+// Atualizar visão geral do progresso
+function updateProgressOverview() {
+    // Contar metas por período
+    const weeklyGoals = userGoals.filter(g => g.period === 'weekly');
+    const monthlyGoals = userGoals.filter(g => g.period === 'monthly');
+    const yearlyGoals = userGoals.filter(g => g.period === 'yearly');
+    
+    const weeklyCompleted = weeklyGoals.filter(g => g.completed).length;
+    const monthlyCompleted = monthlyGoals.filter(g => g.completed).length;
+    const yearlyCompleted = yearlyGoals.filter(g => g.completed).length;
+    
+    const totalGoals = userGoals.length;
+    const totalCompleted = userGoals.filter(g => g.completed).length;
+    
+    // Atualizar barras de progresso
+    updateProgressBar('weekly', weeklyCompleted, weeklyGoals.length);
+    updateProgressBar('monthly', monthlyCompleted, monthlyGoals.length);
+    updateProgressBar('yearly', yearlyCompleted, yearlyGoals.length);
+    
+    // Atualizar progresso total
+    const totalPercent = totalGoals > 0 ? Math.round((totalCompleted / totalGoals) * 100) : 0;
+    const totalFill = document.getElementById('totalProgressFill');
+    const totalPercentEl = document.getElementById('totalProgressPercent');
+    
+    if (totalFill) totalFill.style.width = `${totalPercent}%`;
+    if (totalPercentEl) totalPercentEl.textContent = `${totalPercent}%`;
+}
+
+function updateProgressBar(period, completed, total) {
+    const fill = document.getElementById(`${period}ProgressFill`);
+    const text = document.getElementById(`${period}ProgressText`);
+    
+    if (fill && text) {
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+        fill.style.width = `${percent}%`;
+        text.textContent = `${completed}/${total}`;
+    }
+}
+
+// Filtrar metas por período
+function filterGoalsByPeriod(period) {
+    currentPeriodFilter = period;
+    
+    // Atualizar tabs
+    document.querySelectorAll('.goals-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.period === period);
+    });
+    
+    displayGoals();
+}
+
+// Setup event listeners para tabs
+function setupGoalsTabs() {
+    document.querySelectorAll('.goals-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            filterGoalsByPeriod(tab.dataset.period);
+        });
     });
 }
 
@@ -148,6 +219,10 @@ async function handleCreateGoal(e) {
     const saveBtn = form.querySelector('[type="submit"]');
     const originalText = saveBtn.innerHTML;
     
+    // Pegar período do select
+    const periodSelect = form.goalPeriod || form.querySelector('#goalPeriod');
+    const period = periodSelect ? periodSelect.value : 'monthly';
+    
     // Pegar categoria do select
     const categorySelect = form.goalCategory || form.querySelector('#goalCategory');
     const category = categorySelect ? categorySelect.value : 'Mental';
@@ -162,11 +237,17 @@ async function handleCreateGoal(e) {
     const descriptionField = form.goalDescription || form.querySelector('#goalDescription');
     const description = descriptionField ? descriptionField.value.trim() : '';
     
+    // Pegar anotações
+    const notesField = form.goalNotes || form.querySelector('#goalNotes');
+    const notes = notesField ? notesField.value.trim() : '';
+    
     const newGoal = {
         title: form.goalTitle.value.trim(),
+        period: period,
         category: category,
         deadline: form.goalDeadline.value || null,
-        description: description || null
+        description: description || null,
+        notes: notes || null
     };
     
     // Mostrar loading
@@ -509,6 +590,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carregar metas
     loadUserGoals();
     
+    // Setup tabs de período
+    setupGoalsTabs();
+    
     // Botão de adicionar meta
     const addGoalBtn = document.getElementById('addGoalBtn');
     if (addGoalBtn) {
@@ -542,7 +626,47 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    // Event delegation para editar anotações
+    document.addEventListener('click', function(e) {
+        const editBtn = e.target.closest('[data-action="edit"]');
+        if (editBtn) {
+            const goalId = editBtn.dataset.id;
+            openEditNotesModal(goalId);
+        }
+    });
 });
+
+// Abrir modal para editar anotações
+function openEditNotesModal(goalId) {
+    const goal = userGoals.find(g => g.id === goalId);
+    if (!goal) return;
+    
+    const notes = prompt('Anotações para esta meta:', goal.notes || '');
+    if (notes !== null) {
+        updateGoalNotes(goalId, notes);
+    }
+}
+
+// Atualizar anotações de uma meta
+async function updateGoalNotes(goalId, notes) {
+    try {
+        await window.api.put(`/goals/${goalId}`, { notes: notes.trim() || null });
+        
+        // Atualizar localmente
+        const goalIndex = userGoals.findIndex(g => g.id === goalId);
+        if (goalIndex !== -1) {
+            userGoals[goalIndex].notes = notes.trim() || null;
+            localStorage.setItem('userGoals', JSON.stringify(userGoals));
+            displayGoals();
+        }
+        
+        showSuccessToast('Anotações atualizadas!');
+    } catch (error) {
+        logger.error('Erro ao atualizar anotações:', error);
+        showError('Erro ao salvar anotações');
+    }
+}
 
 // CSS para toast e celebration - responsivo
 const style = document.createElement('style');

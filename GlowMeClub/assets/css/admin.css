@@ -1412,3 +1412,76 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* ===== GOAL ITEMS ENHANCED ===== */
+
+.goal-item-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.35rem;
+}
+
+.goal-period-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+.goal-period-badge.weekly {
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+}
+
+.goal-period-badge.monthly {
+    background: rgba(139, 92, 246, 0.1);
+    color: #8B5CF6;
+}
+
+.goal-period-badge.yearly {
+    background: rgba(245, 158, 11, 0.15);
+    color: #D97706;
+}
+
+.goal-category-badge {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--admin-gray-600);
+    background: var(--admin-gray-100);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.goal-item-notes {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: var(--admin-gray-50);
+    border-radius: 6px;
+    border: 1px solid var(--admin-gray-200);
+}
+
+.goal-item-notes .notes-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--admin-gray-500);
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.goal-item-notes .notes-label i {
+    color: var(--admin-warning);
+}
+
+.goal-item-notes p {
+    font-size: 0.8rem;
+    color: var(--admin-gray-700);
+    margin: 0;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}

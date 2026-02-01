@@ -126,6 +126,74 @@
             <p class="page-subtitle">Defina objetivos claros e acompanhe seu progresso</p>
         </div>
 
+        <!-- Progress Overview -->
+        <div class="goals-overview" id="goalsOverview">
+            <h2 class="overview-title"><i class="fas fa-chart-line"></i> Rastreio de Hábitos</h2>
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <div class="overview-icon weekly"><i class="fas fa-calendar-week"></i></div>
+                    <div class="overview-info">
+                        <span class="overview-label">Semanais</span>
+                        <div class="overview-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="weeklyProgressFill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="weeklyProgressText">0/0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-icon monthly"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="overview-info">
+                        <span class="overview-label">Mensais</span>
+                        <div class="overview-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="monthlyProgressFill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="monthlyProgressText">0/0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-icon yearly"><i class="fas fa-calendar"></i></div>
+                    <div class="overview-info">
+                        <span class="overview-label">Anuais</span>
+                        <div class="overview-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="yearlyProgressFill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="yearlyProgressText">0/0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="overview-total">
+                <span class="total-label">Progresso Geral</span>
+                <div class="total-progress">
+                    <div class="progress-bar large">
+                        <div class="progress-fill" id="totalProgressFill" style="width: 0%"></div>
+                    </div>
+                    <span class="progress-percentage" id="totalProgressPercent">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goals Filter Tabs -->
+        <div class="goals-tabs">
+            <button class="goals-tab active" data-period="all">
+                <i class="fas fa-th-large"></i> Todas
+            </button>
+            <button class="goals-tab" data-period="weekly">
+                <i class="fas fa-calendar-week"></i> Semanais
+            </button>
+            <button class="goals-tab" data-period="monthly">
+                <i class="fas fa-calendar-alt"></i> Mensais
+            </button>
+            <button class="goals-tab" data-period="yearly">
+                <i class="fas fa-calendar"></i> Anuais
+            </button>
+        </div>
+
         <!-- Goals Grid -->
         <div class="goals-grid" id="goalsGrid">
             <!-- Metas serão carregadas dinamicamente -->
@@ -196,6 +264,16 @@
                         >
                     </div>
 
+                    <!-- Período -->
+                    <div class="form-group">
+                        <label for="goalPeriod" class="form-label">Período</label>
+                        <select id="goalPeriod" class="form-input" required>
+                            <option value="weekly">📅 Semanal</option>
+                            <option value="monthly" selected>📆 Mensal</option>
+                            <option value="yearly">🗓️ Anual</option>
+                        </select>
+                    </div>
+
                     <!-- Categoria -->
                     <div class="form-group">
                         <label for="goalCategory" class="form-label">Área de foco</label>
@@ -212,19 +290,30 @@
 
                     <!-- Descrição -->
                     <div class="form-group">
-                        <label for="goalDescription" class="form-label">Observações (opcional)</label>
+                        <label for="goalDescription" class="form-label">Descrição (opcional)</label>
                         <textarea 
                             id="goalDescription"
                             class="form-textarea"
                             placeholder="Detalhes sobre sua meta, como você pretende alcançá-la..."
+                            rows="2"
+                        ></textarea>
+                    </div>
+
+                    <!-- Anotações -->
+                    <div class="form-group">
+                        <label for="goalNotes" class="form-label">Anotações pessoais (opcional)</label>
+                        <textarea 
+                            id="goalNotes"
+                            class="form-textarea"
+                            placeholder="Reflexões, aprendizados, observações importantes..."
                             rows="3"
                         ></textarea>
+                        <p class="form-hint"><i class="fas fa-lock"></i> Suas anotações são privadas</p>
                     </div>
 
                     <!-- Prazo -->
                     <div class="form-group">
                         <label for="goalDeadline" class="form-label">Prazo (opcional)</label>
-                        <p class="form-hint">Quando você pretende terminar</p>
                         <input 
                             type="date" 
                             id="goalDeadline" 
@@ -257,6 +346,7 @@
             const card = document.createElement('div');
             card.className = 'goal-card';
             card.dataset.goalId = goal.id;
+            card.dataset.period = goal.period || 'monthly';
             if (goal.completed) {
                 card.classList.add('completed');
             }
@@ -271,6 +361,14 @@
                 'Aparência': '💅'
             };
             const categoryIcon = categoryIcons[goal.category] || '🎯';
+            
+            // Ícones e labels por período
+            const periodLabels = {
+                'weekly': { icon: 'calendar-week', label: 'Semanal' },
+                'monthly': { icon: 'calendar-alt', label: 'Mensal' },
+                'yearly': { icon: 'calendar', label: 'Anual' }
+            };
+            const periodInfo = periodLabels[goal.period] || periodLabels['monthly'];
 
             // Formatar prazo
             const deadlineText = formatDate(goal.deadline);
@@ -278,26 +376,45 @@
             card.innerHTML = `
                 <div class="goal-header">
                     <div class="goal-info">
-                        <div class="goal-category-badge">
-                            <span class="category-icon">${categoryIcon}</span>
-                            <span class="category-name">${goal.category || 'Geral'}</span>
+                        <div class="goal-badges">
+                            <div class="goal-period-badge ${goal.period || 'monthly'}">
+                                <i class="fas fa-${periodInfo.icon}"></i>
+                                <span>${periodInfo.label}</span>
+                            </div>
+                            <div class="goal-category-badge">
+                                <span class="category-icon">${categoryIcon}</span>
+                                <span class="category-name">${goal.category || 'Geral'}</span>
+                            </div>
                         </div>
                         <h3>${goal.title}</h3>
                         ${goal.description ? `<p class="goal-description">${goal.description}</p>` : ''}
                     </div>
                     <div class="goal-actions">
+                        <button class="goal-action" data-action="edit" data-id="${goal.id}" title="Editar anotações">
+                            <i class="fas fa-edit"></i>
+                        </button>
                         <button class="goal-action" data-action="delete" data-id="${goal.id}" title="Excluir">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>
                 
-                ${deadlineText ? `
                 <div class="goal-details">
+                    ${deadlineText ? `
                     <div class="goal-detail">
-                        <i class="fas fa-calendar"></i>
+                        <i class="fas fa-clock"></i>
                         <span>Prazo: ${deadlineText}</span>
                     </div>
+                    ` : ''}
+                </div>
+                
+                ${goal.notes ? `
+                <div class="goal-notes">
+                    <div class="notes-header">
+                        <i class="fas fa-sticky-note"></i>
+                        <span>Anotações</span>
+                    </div>
+                    <p class="notes-content">${goal.notes}</p>
                 </div>
                 ` : ''}
                 

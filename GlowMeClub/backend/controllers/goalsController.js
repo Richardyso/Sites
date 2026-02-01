@@ -86,7 +86,7 @@ exports.getGoal = async (req, res) => {
 exports.createGoal = async (req, res) => {
     try {
         const userId = req.user.uid;
-        const { title, category, deadline, description } = req.body;
+        const { title, category, deadline, description, period, notes } = req.body;
         
         // Validações
         if (!title || !title.trim()) {
@@ -102,12 +102,18 @@ exports.createGoal = async (req, res) => {
             });
         }
         
+        // Validar período
+        const validPeriods = ['weekly', 'monthly', 'yearly'];
+        const goalPeriod = period && validPeriods.includes(period) ? period : 'monthly';
+        
         // Criar dados da meta
         const goalData = {
             title: title.trim(),
             category,
+            period: goalPeriod,
             progress: 0,
             completed: false,
+            notes: notes && notes.trim() ? notes.trim() : null,
             createdAt: serverTimestamp()
         };
         
@@ -155,7 +161,7 @@ exports.updateGoal = async (req, res) => {
     try {
         const userId = req.user.uid;
         const { id } = req.params;
-        const { title, category, deadline, progress } = req.body;
+        const { title, category, deadline, progress, notes, period, description } = req.body;
         
         // Verificar se a meta existe
         const goalRef = firestore
@@ -182,6 +188,22 @@ exports.updateGoal = async (req, res) => {
         const validCategories = ['Mental', 'Físico', 'Emocional', 'Espiritual', 'Financeiro', 'Aparência'];
         if (category && validCategories.includes(category)) {
             updates.category = category;
+        }
+        
+        // Atualizar período se fornecido
+        const validPeriods = ['weekly', 'monthly', 'yearly'];
+        if (period && validPeriods.includes(period)) {
+            updates.period = period;
+        }
+        
+        // Atualizar descrição
+        if (description !== undefined) {
+            updates.description = description && description.trim() ? description.trim() : null;
+        }
+        
+        // Atualizar anotações
+        if (notes !== undefined) {
+            updates.notes = notes && notes.trim() ? notes.trim() : null;
         }
         
         if (deadline !== undefined) {

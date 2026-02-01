@@ -21,6 +21,254 @@
     font-weight: 400;
 }
 
+/* Goals Overview - Rastreio de Hábitos */
+.goals-overview {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--user-color-10, rgba(139, 92, 246, 0.1));
+}
+
+.overview-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.overview-title i {
+    color: var(--user-color, #8B5CF6);
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.overview-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+}
+
+.overview-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.overview-icon.weekly {
+    background: linear-gradient(135deg, #10B981, #34D399);
+}
+
+.overview-icon.monthly {
+    background: linear-gradient(135deg, var(--user-color, #8B5CF6), var(--user-color-light, #A78BFA));
+}
+
+.overview-icon.yearly {
+    background: linear-gradient(135deg, #F59E0B, #FBBF24);
+}
+
+.overview-info {
+    flex: 1;
+}
+
+.overview-label {
+    font-size: 0.8rem;
+    color: #6B7280;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.35rem;
+}
+
+.overview-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background: #E5E7EB;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar.large {
+    height: 12px;
+    border-radius: 6px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--user-color, #8B5CF6), var(--user-color-light, #A78BFA));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+    min-width: 40px;
+    text-align: right;
+}
+
+.overview-total {
+    padding-top: 1rem;
+    border-top: 1px solid #E5E7EB;
+}
+
+.total-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.total-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.progress-percentage {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--user-color, #8B5CF6);
+    min-width: 50px;
+    text-align: right;
+}
+
+/* Goals Tabs */
+.goals-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+.goals-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.6rem 1rem;
+    background: white;
+    border: 2px solid #E5E7EB;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6B7280;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.goals-tab:hover {
+    border-color: var(--user-color, #8B5CF6);
+    color: var(--user-color, #8B5CF6);
+}
+
+.goals-tab.active {
+    background: var(--user-color, #8B5CF6);
+    border-color: var(--user-color, #8B5CF6);
+    color: white;
+}
+
+.goals-tab i {
+    font-size: 0.75rem;
+}
+
+/* Goal Period Badge */
+.goal-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.goal-period-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.goal-period-badge.weekly {
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+}
+
+.goal-period-badge.monthly {
+    background: var(--user-color-10, rgba(139, 92, 246, 0.1));
+    color: var(--user-color, #8B5CF6);
+}
+
+.goal-period-badge.yearly {
+    background: rgba(245, 158, 11, 0.15);
+    color: #D97706;
+}
+
+/* Goal Notes */
+.goal-notes {
+    background: #F9FAFB;
+    border-radius: 10px;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+    border: 1px solid #E5E7EB;
+}
+
+.notes-header {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6B7280;
+    margin-bottom: 0.35rem;
+}
+
+.notes-header i {
+    color: var(--user-color, #8B5CF6);
+}
+
+.notes-content {
+    font-size: 0.85rem;
+    color: #374151;
+    line-height: 1.5;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+/* Responsive */
+@media (min-width: 600px) {
+    .overview-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 /* Goals Grid Mobile */
 .goals-grid {
     display: grid;

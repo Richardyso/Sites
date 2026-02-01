@@ -500,6 +500,13 @@
             'Aparência': '💅'
         };
         
+        // Labels por período
+        const periodLabels = {
+            'weekly': { icon: 'calendar-week', label: 'Semanal', class: 'weekly' },
+            'monthly': { icon: 'calendar-alt', label: 'Mensal', class: 'monthly' },
+            'yearly': { icon: 'calendar', label: 'Anual', class: 'yearly' }
+        };
+        
         goalsList.innerHTML = goals.map(goal => {
             const icon = categoryIcons[goal.category] || '🎯';
             const isCompleted = goal.completed;
@@ -507,15 +514,31 @@
             const statusText = isCompleted ? 'Concluída' : 'Em andamento';
             const description = goal.description ? `<div class="goal-item-description">${goal.description}</div>` : '';
             
+            // Período
+            const periodInfo = periodLabels[goal.period] || periodLabels['monthly'];
+            const periodBadge = `<span class="goal-period-badge ${periodInfo.class}"><i class="fas fa-${periodInfo.icon}"></i> ${periodInfo.label}</span>`;
+            
+            // Anotações
+            const notes = goal.notes ? `
+                <div class="goal-item-notes">
+                    <div class="notes-label"><i class="fas fa-sticky-note"></i> Anotações:</div>
+                    <p>${goal.notes}</p>
+                </div>
+            ` : '';
+            
             return `
                 <div class="goal-item ${isCompleted ? 'completed' : ''}">
                     <div class="goal-item-icon">
                         ${icon}
                     </div>
                     <div class="goal-item-info">
+                        <div class="goal-item-badges">
+                            ${periodBadge}
+                            <span class="goal-category-badge">${goal.category || 'Geral'}</span>
+                        </div>
                         <div class="goal-item-title">${goal.title}</div>
-                        <div class="goal-item-category">${goal.category || 'Geral'}</div>
                         ${description}
+                        ${notes}
                     </div>
                     <div class="goal-item-status ${statusClass}">
                         ${statusText}
