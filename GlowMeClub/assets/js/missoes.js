@@ -168,8 +168,8 @@ function displayMissions() {
             <div class="mission-item">
                 <div class="mission-content">
                     <span class="mission-category">
-                        <span class="mission-category-icon">${mission.icon}</span>
-                        ${mission.category}
+                        <span class="mission-category-icon">${FOCUS_ICONS[currentUser?.focusArea] || mission.icon}</span>
+                        ${currentUser?.focusArea || mission.category}
                     </span>
                     <h3 class="mission-title">${mission.title}</h3>
                     <div class="mission-reward">

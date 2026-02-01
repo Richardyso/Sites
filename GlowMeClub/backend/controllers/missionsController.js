@@ -114,6 +114,11 @@ exports.getTodayMissions = async (req, res) => {
         const userId = req.user.uid;
         const today = getTodayDate();
         
+        // Buscar área de foco atual do usuário
+        const userDoc = await firestore.collection('users').doc(userId).get();
+        const userData = userDoc.data();
+        const currentFocusArea = userData?.focusArea || 'Mental';
+        
         // Verificar se já existem missões para hoje
         const todayMissions = await firestore
             .collection('users')
@@ -142,19 +147,67 @@ exports.getTodayMissions = async (req, res) => {
                 });
             });
             
-            return res.json({ missions, created: true });
+            return res.json({ missions, created: true, focusArea: currentFocusArea });
         }
         
-        // Retornar missões existentes
-        const missions = [];
+        // Verificar se a área de foco mudou desde que as missões foram criadas
+        // Se sim, verificar se há missões não completadas de outra categoria
+        const existingMissions = [];
+        let needsReset = false;
+        let hasIncompleteMissionsFromOtherCategory = false;
+        
         todayMissions.forEach(doc => {
-            missions.push({
-                id: doc.id,
-                ...doc.data()
-            });
+            const mission = { id: doc.id, ...doc.data() };
+            existingMissions.push(mission);
+            
+            // Se a missão é de uma categoria diferente da área de foco atual e não está completa
+            if (mission.category && mission.category !== currentFocusArea && !mission.completed) {
+                hasIncompleteMissionsFromOtherCategory = true;
+            }
         });
         
-        res.json({ missions, created: false });
+        // Se há missões incompletas de outra categoria, recriar as missões do dia
+        if (hasIncompleteMissionsFromOtherCategory) {
+            console.log(`🔄 Área de foco mudou para ${currentFocusArea}. Recriando missões do dia...`);
+            
+            // Deletar missões incompletas de outras categorias
+            const batch = firestore.batch();
+            for (const mission of existingMissions) {
+                if (mission.category !== currentFocusArea && !mission.completed) {
+                    const missionRef = firestore
+                        .collection('users')
+                        .doc(userId)
+                        .collection('missions')
+                        .doc(mission.id);
+                    batch.delete(missionRef);
+                }
+            }
+            await batch.commit();
+            
+            // Criar novas missões para a área de foco atual
+            await createUserDailyMissions(userId);
+            
+            // Buscar missões atualizadas
+            const updatedMissions = await firestore
+                .collection('users')
+                .doc(userId)
+                .collection('missions')
+                .where('date', '==', today)
+                .get();
+            
+            const missions = [];
+            updatedMissions.forEach(doc => {
+                missions.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            
+            return res.json({ missions, created: false, focusAreaChanged: true, focusArea: currentFocusArea });
+        }
+        
+        // Retornar missões existentes (todas são da área de foco correta ou já completadas)
+        res.json({ missions: existingMissions, created: false, focusArea: currentFocusArea });
         
     } catch (error) {
         console.error('Erro ao buscar missões de hoje:', error);
@@ -582,18 +635,33 @@ exports.getFlashMissions = async (req, res) => {
         const userId = req.user.uid;
         const now = new Date();
         
-        // Buscar missões relâmpago ativas
-        const flashMissionsSnapshot = await firestore
-            .collection('flashMissions')
-            .where('active', '==', true)
-            .where('expiresAt', '>', now)
-            .orderBy('expiresAt', 'asc')
-            .get();
+        // Buscar missões relâmpago ativas (sem índice composto)
+        // Filtrar apenas por active primeiro, depois filtrar expiresAt no código
+        let flashMissionsSnapshot;
+        try {
+            flashMissionsSnapshot = await firestore
+                .collection('flashMissions')
+                .where('active', '==', true)
+                .get();
+        } catch (collectionError) {
+            // Coleção pode não existir ainda
+            console.log('Coleção flashMissions não existe ou está vazia');
+            return res.json({
+                success: true,
+                flashMissions: []
+            });
+        }
         
         const flashMissions = [];
         
         for (const doc of flashMissionsSnapshot.docs) {
             const missionData = doc.data();
+            
+            // Verificar se não expirou (filtro manual para evitar índice composto)
+            const expiresAt = missionData.expiresAt?.toDate ? missionData.expiresAt.toDate() : new Date(missionData.expiresAt);
+            if (expiresAt <= now) {
+                continue; // Pular missões expiradas
+            }
             
             // Verificar se o usuário já resgatou esta missão
             const claimDoc = await firestore
@@ -608,11 +676,14 @@ exports.getFlashMissions = async (req, res) => {
             flashMissions.push({
                 id: doc.id,
                 ...missionData,
-                expiresAt: missionData.expiresAt.toDate(),
-                createdAt: missionData.createdAt?.toDate() || null,
+                expiresAt: expiresAt,
+                createdAt: missionData.createdAt?.toDate ? missionData.createdAt.toDate() : null,
                 alreadyClaimed
             });
         }
+        
+        // Ordenar por expiresAt (mais próximo de expirar primeiro)
+        flashMissions.sort((a, b) => a.expiresAt - b.expiresAt);
         
         res.json({
             success: true,
@@ -765,11 +836,29 @@ exports.getFlashMissionsAdmin = async (req, res) => {
             });
         }
         
-        const flashMissionsSnapshot = await firestore
-            .collection('flashMissions')
-            .orderBy('createdAt', 'desc')
-            .limit(50)
-            .get();
+        let flashMissionsSnapshot;
+        try {
+            flashMissionsSnapshot = await firestore
+                .collection('flashMissions')
+                .orderBy('createdAt', 'desc')
+                .limit(50)
+                .get();
+        } catch (collectionError) {
+            // Coleção pode não existir ainda ou precisa de índice
+            // Tentar sem orderBy
+            try {
+                flashMissionsSnapshot = await firestore
+                    .collection('flashMissions')
+                    .limit(50)
+                    .get();
+            } catch (e) {
+                console.log('Coleção flashMissions não existe');
+                return res.json({
+                    success: true,
+                    flashMissions: []
+                });
+            }
+        }
         
         const flashMissions = [];
         
@@ -778,9 +867,16 @@ exports.getFlashMissionsAdmin = async (req, res) => {
             flashMissions.push({
                 id: doc.id,
                 ...data,
-                expiresAt: data.expiresAt?.toDate() || null,
-                createdAt: data.createdAt?.toDate() || null
+                expiresAt: data.expiresAt?.toDate ? data.expiresAt.toDate() : data.expiresAt,
+                createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt
             });
+        });
+        
+        // Ordenar manualmente por createdAt
+        flashMissions.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+            const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+            return dateB - dateA;
         });
         
         res.json({
