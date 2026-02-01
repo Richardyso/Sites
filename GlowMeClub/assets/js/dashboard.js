@@ -235,6 +235,100 @@ function updateDashboard() {
     if (currentUser.role === 'admin') {
         showAdminLink();
     }
+    
+    // Atualizar roadmap de níveis
+    updateLevelRoadmap(totalXp, currentLevel);
+}
+
+// Atualizar roadmap de níveis
+function updateLevelRoadmap(totalXp, currentLevel) {
+    const roadmapItems = document.querySelectorAll('.roadmap-item');
+    if (!roadmapItems.length) return;
+    
+    // Thresholds de XP para cada nível
+    const levelThresholds = [
+        { level: 1, min: 0, max: 499, nextName: 'Princesa' },
+        { level: 2, min: 500, max: 1499, nextName: 'Rainha' },
+        { level: 3, min: 1500, max: 2999, nextName: 'Imperatriz' },
+        { level: 4, min: 3000, max: 4999, nextName: 'Deusa Glow' },
+        { level: 5, min: 5000, max: Infinity, nextName: null }
+    ];
+    
+    roadmapItems.forEach(item => {
+        const itemLevel = parseInt(item.dataset.level);
+        const statusContainer = item.querySelector('.roadmap-status');
+        
+        // Remover classes anteriores
+        item.classList.remove('completed', 'current', 'locked');
+        
+        if (itemLevel < currentLevel) {
+            // Nível já completado
+            item.classList.add('completed');
+            if (statusContainer) {
+                statusContainer.innerHTML = `
+                    <span class="status-badge completed-badge">
+                        <i class="fas fa-check"></i> Conquistado
+                    </span>
+                `;
+            }
+        } else if (itemLevel === currentLevel) {
+            // Nível atual
+            item.classList.add('current');
+            
+            const currentThreshold = levelThresholds[currentLevel - 1];
+            const xpInLevel = totalXp - currentThreshold.min;
+            const xpNeeded = currentThreshold.max - currentThreshold.min + 1;
+            const xpRemaining = Math.max(0, currentThreshold.max + 1 - totalXp);
+            
+            if (statusContainer) {
+                if (currentLevel < 5) {
+                    statusContainer.innerHTML = `
+                        <span class="status-badge current-badge">
+                            <i class="fas fa-star"></i> Você está aqui! Faltam ${xpRemaining.toLocaleString('pt-BR')} XP
+                        </span>
+                    `;
+                } else {
+                    statusContainer.innerHTML = `
+                        <span class="status-badge current-badge">
+                            <i class="fas fa-crown"></i> Nível Máximo Alcançado!
+                        </span>
+                    `;
+                }
+            }
+        } else {
+            // Nível bloqueado
+            item.classList.add('locked');
+            
+            const threshold = levelThresholds[itemLevel - 1];
+            const xpNeeded = threshold.min - totalXp;
+            
+            if (statusContainer) {
+                statusContainer.innerHTML = `
+                    <span class="status-badge locked-badge">
+                        <i class="fas fa-lock"></i> Faltam ${xpNeeded.toLocaleString('pt-BR')} XP
+                    </span>
+                `;
+            }
+        }
+    });
+    
+    // Atualizar resumo
+    const summaryCurrentXp = document.getElementById('summaryCurrentXp');
+    const summaryXpNeeded = document.getElementById('summaryXpNeeded');
+    
+    if (summaryCurrentXp) {
+        summaryCurrentXp.textContent = `${totalXp.toLocaleString('pt-BR')} XP`;
+    }
+    
+    if (summaryXpNeeded) {
+        if (currentLevel < 5) {
+            const nextThreshold = levelThresholds[currentLevel];
+            const xpToNext = nextThreshold.min - totalXp;
+            summaryXpNeeded.textContent = `${xpToNext.toLocaleString('pt-BR')} XP`;
+        } else {
+            summaryXpNeeded.textContent = 'Máximo! ✨';
+        }
+    }
 }
 
 // Atualizar mensagem motivacional (uma por dia baseada na data)
