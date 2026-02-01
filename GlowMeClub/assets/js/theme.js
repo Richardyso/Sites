@@ -32,6 +32,15 @@
             b: parseInt(result[3], 16)
         } : null;
     }
+    
+    // Verificar se a cor é clara (para ajustar contraste)
+    function isLightColor(hex) {
+        const rgb = hexToRgb(hex);
+        if (!rgb) return false;
+        // Calcular luminância relativa
+        const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+        return luminance > 0.6; // Cores com luminância > 0.6 são consideradas claras
+    }
 
     // Clarear cor
     function lightenColor(hex, percent) {
@@ -82,6 +91,9 @@
             document.head.appendChild(styleEl);
         }
 
+        // Detectar se é uma cor azul clara
+        const isBlueish = (rgb.b > 200 && rgb.r < 150 && rgb.g < 200) || color.toLowerCase() === '#3b82f6';
+        
         // Aplicar variáveis CSS personalizadas
         styleEl.textContent = `
             :root {
@@ -92,6 +104,7 @@
                 --user-color-10: rgba(${rgbString}, 0.1);
                 --user-color-20: rgba(${rgbString}, 0.2);
                 --user-color-30: rgba(${rgbString}, 0.3);
+                --is-light-color: ${isLightColor(color) ? '1' : '0'};
             }
 
             /* Aplicar cor nos elementos principais */
@@ -416,9 +429,29 @@
                 color: ${color} !important;
             }
 
+            /* Button complete com ajuste de contraste para cores claras */
             .btn-complete {
                 background: linear-gradient(135deg, ${color}, ${darkColor}) !important;
             }
+            
+            /* Para cores muito claras, adicionar borda escura ao texto e fundo semi-transparente */
+            ${isLightColor(color) ? `
+            .btn-complete {
+                border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            }
+            
+            .btn-complete::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.15);
+                pointer-events: none;
+                border-radius: 12px;
+            }
+            ` : ''}
 
             .btn-complete:hover {
                 box-shadow: 0 4px 12px rgba(${rgbString}, 0.4) !important;
