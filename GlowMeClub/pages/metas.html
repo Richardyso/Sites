@@ -122,12 +122,122 @@
     <main class="main-container">
         <!-- Page Header -->
         <div class="page-header">
-            <h1 class="page-title">Minhas Metas</h1>
-            <p class="page-subtitle">Defina objetivos claros e acompanhe seu progresso</p>
+            <h1 class="page-title">Metas</h1>
+            <p class="page-subtitle">Acompanhe as metas compartilhadas e defina suas metas pessoais</p>
         </div>
+        
+        <!-- Nossas Metas Section -->
+        <section class="shared-goals-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-users"></i>
+                    Nossas Metas
+                </h2>
+                <p class="section-subtitle">Metas compartilhadas com toda a comunidade</p>
+            </div>
+            
+            <!-- Shared Goals Overview -->
+            <div class="shared-goals-overview">
+                <div class="overview-grid">
+                    <div class="overview-card weekly">
+                        <div class="overview-icon">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                        <div class="overview-info">
+                            <div class="overview-label">Semanais</div>
+                            <div class="overview-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="sharedWeeklyProgress"></div>
+                                </div>
+                                <span class="progress-text" id="sharedWeeklyText">0/0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overview-card monthly">
+                        <div class="overview-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="overview-info">
+                            <div class="overview-label">Mensais</div>
+                            <div class="overview-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="sharedMonthlyProgress"></div>
+                                </div>
+                                <span class="progress-text" id="sharedMonthlyText">0/0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overview-card yearly">
+                        <div class="overview-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="overview-info">
+                            <div class="overview-label">Anuais</div>
+                            <div class="overview-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="sharedYearlyProgress"></div>
+                                </div>
+                                <span class="progress-text" id="sharedYearlyText">0/0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overview-card overview-total">
+                        <div class="overview-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="overview-info">
+                            <div class="overview-label">Progresso Geral</div>
+                            <div class="total-progress">
+                                <span class="progress-percentage" id="sharedTotalProgress">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shared Goals Tabs -->
+            <div class="goals-tabs shared-tabs">
+                <button class="goals-tab active" data-period="all" data-type="shared">
+                    <i class="fas fa-th"></i>
+                    Todas
+                </button>
+                <button class="goals-tab" data-period="weekly" data-type="shared">
+                    <i class="fas fa-calendar-week"></i>
+                    Semanais
+                </button>
+                <button class="goals-tab" data-period="monthly" data-type="shared">
+                    <i class="fas fa-calendar-alt"></i>
+                    Mensais
+                </button>
+                <button class="goals-tab" data-period="yearly" data-type="shared">
+                    <i class="fas fa-calendar"></i>
+                    Anuais
+                </button>
+            </div>
+            
+            <!-- Shared Goals Grid -->
+            <div class="goals-grid" id="sharedGoalsGrid">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Divider -->
+        <div class="section-divider"></div>
+        
+        <!-- Minhas Metas Section -->
+        <section class="personal-goals-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-user"></i>
+                    Minhas Metas
+                </h2>
+                <p class="section-subtitle">Defina objetivos pessoais e acompanhe seu progresso</p>
+            </div>
 
-        <!-- Progress Overview -->
-        <div class="goals-overview" id="goalsOverview">
+            <!-- Progress Overview -->
+            <div class="goals-overview" id="goalsOverview">
             <h2 class="overview-title"><i class="fas fa-chart-line"></i> Rastreio de Hábitos</h2>
             <div class="overview-grid">
                 <div class="overview-card">
@@ -341,6 +451,112 @@
     <script src="../assets/js/theme.js"></script>
     <script src="../assets/js/metas.js"></script>
     <script>
+        // Template para criar cards de metas compartilhadas
+        window.createSharedGoalCard = function(goal) {
+            const card = document.createElement('div');
+            card.className = 'goal-card shared-goal-card';
+            card.dataset.goalId = goal.id;
+            card.dataset.period = goal.period || 'monthly';
+            if (goal.userCompleted) {
+                card.classList.add('completed');
+            }
+            
+            // Ícones por categoria
+            const categoryIcons = {
+                'Mental': '🧠',
+                'Físico': '💪',
+                'Emocional': '💜',
+                'Espiritual': '✨',
+                'Financeiro': '💰',
+                'Aparência': '💅'
+            };
+            const categoryIcon = categoryIcons[goal.category] || '🎯';
+            
+            // Ícones e labels por período
+            const periodLabels = {
+                'weekly': { icon: 'calendar-week', label: 'Semanal' },
+                'monthly': { icon: 'calendar-alt', label: 'Mensal' },
+                'yearly': { icon: 'calendar', label: 'Anual' }
+            };
+            const periodInfo = periodLabels[goal.period] || periodLabels['monthly'];
+
+            // Calcular progresso
+            const userProgress = goal.userProgress || 0;
+            const totalRequired = goal.totalRequired || 1;
+            const progressPercentage = Math.min((userProgress / totalRequired) * 100, 100);
+
+            card.innerHTML = `
+                <div class="goal-header">
+                    <div class="goal-info">
+                        <div class="goal-badges">
+                            <div class="goal-period-badge ${goal.period || 'monthly'}">
+                                <i class="fas fa-${periodInfo.icon}"></i>
+                                <span>${periodInfo.label}</span>
+                            </div>
+                            <div class="goal-category-badge">
+                                <span class="category-icon">${categoryIcon}</span>
+                                <span class="category-name">${goal.category || 'Geral'}</span>
+                            </div>
+                        </div>
+                        <h3>${goal.title}</h3>
+                        ${goal.description ? `<p>${goal.description}</p>` : ''}
+                    </div>
+                    <div class="goal-actions">
+                        ${goal.userCompleted ? 
+                            '<div class="goal-completed-badge"><i class="fas fa-check-circle"></i><span>Completa</span></div>' :
+                            ''
+                        }
+                    </div>
+                </div>
+                
+                <div class="goal-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+                    </div>
+                    <span class="progress-text">${userProgress}/${totalRequired}</span>
+                </div>
+                
+                ${goal.xp > 0 || goal.points > 0 ? `
+                <div class="goal-rewards">
+                    ${goal.xp > 0 ? `<span class="reward-item"><i class="fas fa-star"></i> +${goal.xp} XP</span>` : ''}
+                    ${goal.points > 0 ? `<span class="reward-item"><i class="fas fa-coins"></i> +${goal.points} Moedas</span>` : ''}
+                </div>
+                ` : ''}
+                
+                <div class="goal-notes">
+                    <div class="notes-header" onclick="expandSharedNotes('${goal.id}')">
+                        <i class="fas fa-sticky-note"></i>
+                        <span>Minhas anotações</span>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="notes-content" id="sharedNotes-${goal.id}" style="display: none;">
+                        <textarea 
+                            class="notes-textarea shared-notes-input"
+                            placeholder="Adicione suas observações pessoais sobre esta meta..."
+                            data-goal-id="${goal.id}"
+                            onblur="updateSharedGoalNotes('${goal.id}')"
+                        >${goal.userNotes || ''}</textarea>
+                    </div>
+                </div>
+                
+                <div class="goal-footer">
+                    ${!goal.userCompleted ? `
+                    <div class="progress-controls">
+                        <button class="btn-progress-minus" onclick="updateSharedProgress('${goal.id}', -1)">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="current-progress">${userProgress}</span>
+                        <button class="btn-progress-plus" onclick="updateSharedProgress('${goal.id}', 1)">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            return card;
+        };
+        
         // Template para criar cards de metas - acessível globalmente
         window.createGoalCard = function(goal) {
             const card = document.createElement('div');

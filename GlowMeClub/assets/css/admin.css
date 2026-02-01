@@ -1219,6 +1219,133 @@
     font-size: 0.875rem;
 }
 
+/* ===== SHARED GOALS ADMIN ===== */
+.shared-goals-admin-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.shared-goal-admin-card {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.shared-goal-admin-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.shared-goal-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.shared-goal-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.shared-goal-status.active {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.shared-goal-status.inactive {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.shared-goal-admin-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 0.5rem;
+}
+
+.shared-goal-admin-desc {
+    color: #6B7280;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.shared-goal-admin-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.shared-goal-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.shared-goal-info-item i {
+    color: var(--admin-primary);
+}
+
+.shared-goal-admin-rewards {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: #F9FAFB;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.shared-goal-reward {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.shared-goal-reward i {
+    color: var(--admin-primary);
+}
+
+.shared-goal-admin-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.shared-goal-admin-actions button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.empty-shared-goals {
+    text-align: center;
+    padding: 3rem;
+    color: #6B7280;
+}
+
+.empty-shared-goals i {
+    font-size: 3rem;
+    color: #9CA3AF;
+    margin-bottom: 1rem;
+}
+
+.empty-shared-goals h4 {
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
 /* ===== FLASH MISSIONS ADMIN ===== */
 
 .flash-section {

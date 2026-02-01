@@ -1,5 +1,134 @@
 /* ===== METAS MOBILE FIRST ===== */
 
+/* Section Headers and Dividers */
+.section-header {
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    color: var(--user-color, #8B5CF6);
+}
+
+.section-subtitle {
+    color: #6B7280;
+    font-size: 0.9rem;
+}
+
+.section-divider {
+    height: 2px;
+    background: #E5E7EB;
+    margin: 3rem 0;
+}
+
+/* Shared Goals Section */
+.shared-goals-section,
+.personal-goals-section {
+    margin-bottom: 2rem;
+}
+
+.shared-goals-overview {
+    background: linear-gradient(135deg, var(--user-color-10, rgba(139, 92, 246, 0.1)) 0%, transparent 100%);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--user-color-20, rgba(139, 92, 246, 0.2));
+}
+
+/* Shared Goal Cards */
+.shared-goal-card {
+    border: 2px solid var(--user-color-20, rgba(139, 92, 246, 0.2));
+    background: white;
+}
+
+.shared-goal-card .goal-header {
+    position: relative;
+}
+
+.shared-goal-card .goal-rewards {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #E5E7EB;
+}
+
+.reward-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.reward-item i {
+    color: var(--user-color, #8B5CF6);
+}
+
+/* Progress Controls for Shared Goals */
+.progress-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 auto;
+}
+
+.btn-progress-minus,
+.btn-progress-plus {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--user-color, #8B5CF6);
+    background: white;
+    color: var(--user-color, #8B5CF6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-progress-minus:hover,
+.btn-progress-plus:hover {
+    background: var(--user-color, #8B5CF6);
+    color: white;
+    transform: scale(1.1);
+}
+
+.current-progress {
+    font-weight: 600;
+    color: #1F2937;
+    font-size: 1.125rem;
+    min-width: 2rem;
+    text-align: center;
+}
+
+/* Shared Notes */
+.shared-notes-input {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.75rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 0.875rem;
+}
+
+.shared-notes-input:focus {
+    outline: none;
+    border-color: var(--user-color, #8B5CF6);
+}
+
 /* Page Header Mobile - Estilo melhorado */
 .page-header {
     text-align: center;

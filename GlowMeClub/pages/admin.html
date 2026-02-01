@@ -110,6 +110,28 @@
             </div>
         </div>
         
+        <!-- Shared Goals Section -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-users"></i> Nossas Metas
+                </h3>
+                <button class="btn btn-primary" id="newSharedGoalBtn">
+                    <i class="fas fa-plus"></i> Nova Meta Compartilhada
+                </button>
+            </div>
+            <div class="shared-goals-admin-list" id="sharedGoalsList">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+            <div class="empty-shared-goals" id="emptySharedGoals" style="display: none;">
+                <i class="fas fa-bullseye"></i>
+                <h4>Nenhuma meta compartilhada criada</h4>
+                <p>Crie metas compartilhadas para toda a comunidade!</p>
+            </div>
+        </div>
+        
         <!-- Rewards Section -->
         <div class="admin-section">
             <div class="section-header">
@@ -191,6 +213,89 @@
                     <button type="button" class="btn btn-secondary" id="cancelFlashBtn">Cancelar</button>
                     <button type="submit" class="btn btn-warning" id="saveFlashBtn">
                         <i class="fas fa-bolt"></i> Criar Missão
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Shared Goal Modal -->
+    <div class="modal" id="sharedGoalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-users"></i>
+                    <span id="sharedGoalModalTitle">Nova Meta Compartilhada</span>
+                </h3>
+                <button class="modal-close" id="closeSharedGoalModal">&times;</button>
+            </div>
+            
+            <form id="sharedGoalForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Título</label>
+                        <input type="text" id="sharedGoalTitle" class="form-input" placeholder="Ex: Completar 10 exercícios essa semana" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Descrição (opcional)</label>
+                        <textarea id="sharedGoalDescription" class="form-input" rows="2" placeholder="Detalhes sobre a meta..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Categoria</label>
+                            <select id="sharedGoalCategory" class="form-input">
+                                <option value="Geral">🎯 Geral</option>
+                                <option value="Mental">🧠 Mental</option>
+                                <option value="Físico">💪 Físico</option>
+                                <option value="Emocional">💜 Emocional</option>
+                                <option value="Espiritual">✨ Espiritual</option>
+                                <option value="Financeiro">💰 Financeiro</option>
+                                <option value="Aparência">💅 Aparência</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Período</label>
+                            <select id="sharedGoalPeriod" class="form-input" required>
+                                <option value="weekly">📅 Semanal</option>
+                                <option value="monthly">📆 Mensal</option>
+                                <option value="yearly">🗓️ Anual</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Quantidade Total Requerida</label>
+                        <input type="number" id="sharedGoalTotal" class="form-input" placeholder="Ex: 10" min="1" required>
+                        <span class="form-hint">Quantas vezes a ação deve ser realizada para completar a meta</span>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Recompensa em XP</label>
+                            <input type="number" id="sharedGoalXp" class="form-input" placeholder="0" min="0" value="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Recompensa em Moedas</label>
+                            <input type="number" id="sharedGoalPoints" class="form-input" placeholder="0" min="0" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="sharedGoalActive" checked>
+                            Meta Ativa
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelSharedGoal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Meta
                     </button>
                 </div>
             </form>

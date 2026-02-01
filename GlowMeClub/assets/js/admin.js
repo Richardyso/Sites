@@ -17,10 +17,12 @@
     let allUsers = [];
     let allRewards = [];
     let allFlashMissions = [];
+    let allSharedGoals = [];
     let currentUserHistory = [];
     let currentHistoryFilter = 'all';
     let rewardImageBase64 = null; // Imagem da recompensa em base64
     let editingFlashMissionId = null; // ID da missão relâmpago sendo editada
+    let editingSharedGoalId = null; // ID da meta compartilhada sendo editada
     
     // ===== AUTENTICAÇÃO E ACESSO =====
     
@@ -1189,6 +1191,186 @@
     window.adminFilterHistory = filterHistory;
     window.adminPenalizeUser = penalizeUser;
     
+    // ===== METAS COMPARTILHADAS =====
+    
+    async function loadSharedGoals() {
+        try {
+            const data = await window.api.get('/shared-goals/admin');
+            
+            if (data.success) {
+                allSharedGoals = data.goals || [];
+                displaySharedGoals();
+            }
+        } catch (error) {
+            log.error('Erro ao carregar metas compartilhadas:', error);
+            allSharedGoals = [];
+            displaySharedGoals();
+        }
+    }
+    
+    function displaySharedGoals() {
+        const goalsList = document.getElementById('sharedGoalsList');
+        const emptyState = document.getElementById('emptySharedGoals');
+        
+        if (!goalsList) return;
+        
+        if (allSharedGoals.length === 0) {
+            goalsList.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'block';
+            return;
+        }
+        
+        if (emptyState) emptyState.style.display = 'none';
+        goalsList.style.display = 'grid';
+        
+        goalsList.innerHTML = allSharedGoals.map(goal => {
+            const periodLabels = {
+                'weekly': { icon: 'calendar-week', label: 'Semanal' },
+                'monthly': { icon: 'calendar-alt', label: 'Mensal' },
+                'yearly': { icon: 'calendar', label: 'Anual' }
+            };
+            const periodInfo = periodLabels[goal.period] || periodLabels['monthly'];
+            
+            const categoryIcons = {
+                'Mental': '🧠',
+                'Físico': '💪',
+                'Emocional': '💜',
+                'Espiritual': '✨',
+                'Financeiro': '💰',
+                'Aparência': '💅'
+            };
+            const categoryIcon = categoryIcons[goal.category] || '🎯';
+            
+            return `
+                <div class="shared-goal-admin-card">
+                    <div class="shared-goal-admin-header">
+                        <span class="shared-goal-status ${goal.active ? 'active' : 'inactive'}">
+                            <i class="fas fa-circle"></i>
+                            ${goal.active ? 'Ativa' : 'Inativa'}
+                        </span>
+                    </div>
+                    <h4 class="shared-goal-admin-title">${goal.title}</h4>
+                    ${goal.description ? `<p class="shared-goal-admin-desc">${goal.description}</p>` : ''}
+                    
+                    <div class="shared-goal-admin-info">
+                        <div class="shared-goal-info-item">
+                            <i class="fas fa-${periodInfo.icon}"></i>
+                            <span>${periodInfo.label}</span>
+                        </div>
+                        <div class="shared-goal-info-item">
+                            ${categoryIcon} ${goal.category || 'Geral'}
+                        </div>
+                        <div class="shared-goal-info-item">
+                            <i class="fas fa-bullseye"></i>
+                            <span>Meta: ${goal.totalRequired}</span>
+                        </div>
+                    </div>
+                    
+                    ${goal.xp > 0 || goal.points > 0 ? `
+                    <div class="shared-goal-admin-rewards">
+                        ${goal.xp > 0 ? `<span class="shared-goal-reward"><i class="fas fa-star"></i> +${goal.xp} XP</span>` : ''}
+                        ${goal.points > 0 ? `<span class="shared-goal-reward"><i class="fas fa-coins"></i> +${goal.points} Moedas</span>` : ''}
+                    </div>
+                    ` : ''}
+                    
+                    <div class="shared-goal-admin-actions">
+                        <button class="btn btn-warning btn-sm" onclick="editSharedGoal('${goal.id}')">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteSharedGoal('${goal.id}')">
+                            <i class="fas fa-trash"></i> Deletar
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function openSharedGoalModal(goal = null) {
+        const modal = document.getElementById('sharedGoalModal');
+        const modalTitle = document.getElementById('sharedGoalModalTitle');
+        const form = document.getElementById('sharedGoalForm');
+        
+        if (goal) {
+            editingSharedGoalId = goal.id;
+            modalTitle.textContent = 'Editar Meta Compartilhada';
+            
+            document.getElementById('sharedGoalTitle').value = goal.title || '';
+            document.getElementById('sharedGoalDescription').value = goal.description || '';
+            document.getElementById('sharedGoalCategory').value = goal.category || 'Geral';
+            document.getElementById('sharedGoalPeriod').value = goal.period || 'monthly';
+            document.getElementById('sharedGoalTotal').value = goal.totalRequired || 1;
+            document.getElementById('sharedGoalXp').value = goal.xp || 0;
+            document.getElementById('sharedGoalPoints').value = goal.points || 0;
+            document.getElementById('sharedGoalActive').checked = goal.active !== false;
+        } else {
+            editingSharedGoalId = null;
+            modalTitle.textContent = 'Nova Meta Compartilhada';
+            form.reset();
+            document.getElementById('sharedGoalActive').checked = true;
+        }
+        
+        modal.style.display = 'flex';
+    }
+    
+    async function saveSharedGoal(event) {
+        event.preventDefault();
+        
+        const goalData = {
+            title: document.getElementById('sharedGoalTitle').value,
+            description: document.getElementById('sharedGoalDescription').value,
+            category: document.getElementById('sharedGoalCategory').value,
+            period: document.getElementById('sharedGoalPeriod').value,
+            totalRequired: parseInt(document.getElementById('sharedGoalTotal').value),
+            xp: parseInt(document.getElementById('sharedGoalXp').value) || 0,
+            points: parseInt(document.getElementById('sharedGoalPoints').value) || 0,
+            active: document.getElementById('sharedGoalActive').checked
+        };
+        
+        try {
+            let response;
+            if (editingSharedGoalId) {
+                response = await window.api.put(`/shared-goals/${editingSharedGoalId}`, goalData);
+            } else {
+                response = await window.api.post('/shared-goals', goalData);
+            }
+            
+            if (response.success) {
+                closeModal('sharedGoalModal');
+                await loadSharedGoals();
+                showToast(editingSharedGoalId ? 'Meta compartilhada atualizada!' : 'Meta compartilhada criada!', 'success');
+            }
+        } catch (error) {
+            log.error('Erro ao salvar meta compartilhada:', error);
+            showToast('Erro ao salvar meta compartilhada', 'error');
+        }
+    }
+    
+    window.editSharedGoal = async function(id) {
+        const goal = allSharedGoals.find(g => g.id === id);
+        if (goal) {
+            openSharedGoalModal(goal);
+        }
+    };
+    
+    window.deleteSharedGoal = async function(id) {
+        if (!confirm('Tem certeza que deseja deletar esta meta compartilhada? Isso também removerá o progresso de todos os usuários.')) {
+            return;
+        }
+        
+        try {
+            const response = await window.api.delete(`/shared-goals/${id}`);
+            
+            if (response.success) {
+                await loadSharedGoals();
+                showToast('Meta compartilhada deletada!', 'success');
+            }
+        } catch (error) {
+            log.error('Erro ao deletar meta compartilhada:', error);
+            showToast('Erro ao deletar meta compartilhada', 'error');
+        }
+    };
+
     // ===== MISSÕES RELÂMPAGO =====
     
     async function loadFlashMissions() {
@@ -1423,6 +1605,7 @@
         
         await loadAllUsers();
         await loadRewards();
+        await loadSharedGoals();
         await loadFlashMissions();
         
         // Event listeners
@@ -1500,6 +1683,29 @@
         const flashForm = document.getElementById('flashMissionForm');
         if (flashForm) {
             flashForm.onsubmit = saveFlashMission;
+        }
+        
+        // Botão de nova meta compartilhada
+        const newSharedGoalBtn = document.getElementById('newSharedGoalBtn');
+        if (newSharedGoalBtn) {
+            newSharedGoalBtn.onclick = () => openSharedGoalModal();
+        }
+        
+        // Formulário de meta compartilhada
+        const sharedGoalForm = document.getElementById('sharedGoalForm');
+        if (sharedGoalForm) {
+            sharedGoalForm.onsubmit = saveSharedGoal;
+        }
+        
+        // Fechar modal de meta compartilhada
+        const closeSharedGoalBtn = document.getElementById('closeSharedGoalModal');
+        if (closeSharedGoalBtn) {
+            closeSharedGoalBtn.onclick = () => closeModal('sharedGoalModal');
+        }
+        
+        const cancelSharedGoalBtn = document.getElementById('cancelSharedGoal');
+        if (cancelSharedGoalBtn) {
+            cancelSharedGoalBtn.onclick = () => closeModal('sharedGoalModal');
         }
         
         // Fechar modal de missão relâmpago
