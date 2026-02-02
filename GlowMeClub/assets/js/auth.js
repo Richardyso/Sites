@@ -113,22 +113,56 @@ async function handleSignup(e) {
     submitBtn.disabled = true;
     
     try {
-        // Fazer requisição para API
-        const data = await window.api.post('/auth/register', {
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            preferredColor: formData.preferredColor,
-            focusArea: formData.focusArea,
-            phone: phoneWithDDI
-        });
+        let data;
+        
+        // Verificar se deve usar Firebase-only devido a CORS
+        if (window.useFirebaseOnly) {
+            _log('info', '🔥 Usando cadastro Firebase direto');
+            data = await window.FirebaseOnlyAuth.createAccount(formData.email, formData.password, {
+                name: formData.name,
+                preferredColor: formData.preferredColor,
+                focusArea: formData.focusArea,
+                phone: phoneWithDDI
+            });
+        } else {
+            try {
+                // Tentar fazer requisição para API
+                data = await window.api.post('/auth/register', {
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password,
+                    preferredColor: formData.preferredColor,
+                    focusArea: formData.focusArea,
+                    phone: phoneWithDDI
+                });
+            } catch (apiError) {
+                // Se for erro CORS, marcar e tentar Firebase
+                if (apiError.message && (apiError.message.includes('CORS') || apiError.message.includes('Failed to fetch'))) {
+                    _log('warn', '⚠️ Erro CORS detectado, mudando para Firebase-only');
+                    window.markCorsError();
+                    data = await window.FirebaseOnlyAuth.createAccount(formData.email, formData.password, {
+                        name: formData.name,
+                        preferredColor: formData.preferredColor,
+                        focusArea: formData.focusArea,
+                        phone: phoneWithDDI
+                    });
+                } else {
+                    throw apiError;
+                }
+            }
+        }
         
         // Mostrar mensagem de sucesso e redirecionar para login
-        showSuccess('Cadastro realizado com sucesso! Verifique seu email de boas-vindas. 💜');
+        showSuccess('Cadastro realizado com sucesso! 💜');
         
-        // Aguardar 2 segundos e redirecionar para login
+        // Aguardar 2 segundos e redirecionar para login ou dashboard
         setTimeout(() => {
-            window.location.href = 'login.html';
+            if (data.token) {
+                // Se já tem token, ir direto para dashboard
+                window.location.href = 'dashboard.html';
+            } else {
+                window.location.href = 'login.html';
+            }
         }, 2500);
         
     } catch (error) {
@@ -159,11 +193,32 @@ async function handleLogin(e) {
     submitBtn.disabled = true;
     
     try {
-        // Fazer requisição para API
-        const data = await window.api.post('/auth/login', { email, password });
+        let data;
+        
+        // Verificar se deve usar Firebase-only devido a CORS
+        if (window.useFirebaseOnly) {
+            _log('info', '🔥 Usando autenticação Firebase direta');
+            data = await window.FirebaseOnlyAuth.loginWithEmail(email, password);
+        } else {
+            try {
+                // Tentar fazer requisição para API
+                data = await window.api.post('/auth/login', { email, password });
+            } catch (apiError) {
+                // Se for erro CORS, marcar e tentar Firebase
+                if (apiError.message && (apiError.message.includes('CORS') || apiError.message.includes('Failed to fetch'))) {
+                    _log('warn', '⚠️ Erro CORS detectado, mudando para Firebase-only');
+                    window.markCorsError();
+                    data = await window.FirebaseOnlyAuth.loginWithEmail(email, password);
+                } else {
+                    throw apiError;
+                }
+            }
+        }
         
         // Salvar token
-        window.api.saveToken(data.token);
+        if (data.token) {
+            window.api.saveToken(data.token);
+        }
         
         // Salvar dados do usuário em cache para uso offline
         if (data.user) {
@@ -184,6 +239,8 @@ async function handleLogin(e) {
         
         if (window.api.isNetworkError(error)) {
             showError('Sem conexão com o servidor. Verifique sua internet.');
+        } else if (error.message.includes('Senha incorreta') || error.message.includes('Usuário não encontrado')) {
+            showError(error.message);
         } else {
             showError('Email ou senha incorretos');
         }
@@ -411,25 +468,44 @@ async function checkAuthState() {
         const token = window.api.getToken();
         
         if (token) {
-        try {
-            // Verificar se token é válido
-            const data = await window.api.get('/auth/me');
-            
-            // Token válido
-            _log('info', '✅ Token válido!');
-            
-            // Salvar dados do usuário em cache
-            if (data.user) {
-                localStorage.setItem('cachedUserData', JSON.stringify(data.user));
-            }
-            
-            const isAdmin = data.user && data.user.role === 'admin';
-            
-            // Se estamos na mesma página que deveríamos estar, não redirecionar
-            if ((isAdmin && isAdminPage) || (!isAdmin && !isAdminPage && !isPublicPage)) {
-                _log('info', '✅ Usuário na página correta, sem redirecionamento necessário');
-                return;
-            }
+            try {
+                let data;
+                
+                // Verificar se deve usar Firebase-only
+                if (window.useFirebaseOnly) {
+                    _log('info', '🔥 Verificando autenticação com Firebase');
+                    data = await window.FirebaseOnlyAuth.getCurrentUser();
+                } else {
+                    try {
+                        // Verificar se token é válido
+                        data = await window.api.get('/auth/me');
+                    } catch (apiError) {
+                        // Se for erro CORS ou rede, tentar Firebase
+                        if (apiError.message && (apiError.message.includes('CORS') || apiError.message.includes('Failed to fetch'))) {
+                            _log('warn', '⚠️ Erro ao verificar token com API, tentando Firebase');
+                            window.markCorsError();
+                            data = await window.FirebaseOnlyAuth.getCurrentUser();
+                        } else {
+                            throw apiError;
+                        }
+                    }
+                }
+                
+                // Token válido
+                _log('info', '✅ Token válido!');
+                
+                // Salvar dados do usuário em cache
+                if (data.user) {
+                    localStorage.setItem('cachedUserData', JSON.stringify(data.user));
+                }
+                
+                const isAdmin = data.user && data.user.role === 'admin';
+                
+                // Se estamos na mesma página que deveríamos estar, não redirecionar
+                if ((isAdmin && isAdminPage) || (!isAdmin && !isAdminPage && !isPublicPage)) {
+                    _log('info', '✅ Usuário na página correta, sem redirecionamento necessário');
+                    return;
+                }
                 
                 // Se é admin e está tentando acessar página de usuário normal
                 if (isAdmin && isUserOnlyPage) {
