@@ -465,6 +465,107 @@
     color: #9CA3AF;
 }
 
+/* Sua Jornada Glow - padrão fundo branco e texto preto (sempre, independente do tema) */
+.level-roadmap-section .roadmap-card {
+    background: #ffffff !important;
+}
+
+.level-roadmap-section .roadmap-header h3,
+.level-roadmap-section .roadmap-header p {
+    color: #1a1a1a !important;
+}
+
+.level-roadmap-section .roadmap-header h3 i {
+    color: #1a1a1a !important;
+}
+
+.level-roadmap-section .roadmap-item.current .roadmap-content {
+    background: #ffffff !important;
+    border: 2px solid #1a1a1a !important;
+}
+
+.level-roadmap-section .connector-line {
+    background: #1a1a1a !important;
+}
+
+.level-roadmap-section .roadmap-item.current .connector-line {
+    background: #1a1a1a !important;
+}
+
+.level-roadmap-section .roadmap-item.completed .connector-line {
+    background: #1a1a1a !important;
+}
+
+.level-roadmap-section .roadmap-item.completed .connector-dot {
+    background: #1a1a1a !important;
+    box-shadow: 0 0 0 2px #1a1a1a !important;
+}
+
+.level-roadmap-section .connector-dot {
+    background: #e5e7eb !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 0 2px #1a1a1a !important;
+}
+
+.level-roadmap-section .roadmap-item.current .connector-dot {
+    background: #1a1a1a !important;
+    box-shadow: 0 0 0 2px #1a1a1a !important;
+}
+
+.level-roadmap-section .roadmap-level-badge {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #333333 !important;
+}
+
+.level-roadmap-section .roadmap-item.current .roadmap-level-badge {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #333333 !important;
+    animation: none !important;
+}
+
+.level-roadmap-section .roadmap-item.completed .roadmap-level-badge {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #333333 !important;
+}
+
+.level-roadmap-section .roadmap-item.current .roadmap-level-name {
+    color: #000000 !important;
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+.level-roadmap-section .roadmap-item.current .roadmap-quote {
+    color: #333333 !important;
+}
+
+.level-roadmap-section .roadmap-item.current .roadmap-xp-range {
+    color: #000000 !important;
+}
+
+.level-roadmap-section .status-badge.current-badge {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #333333 !important;
+}
+
+.level-roadmap-section .roadmap-content {
+    background: #fafafa !important;
+}
+
+.level-roadmap-section .roadmap-summary {
+    border-top-color: #e5e7eb !important;
+}
+
+.level-roadmap-section .summary-item .summary-label,
+.level-roadmap-section .summary-item .summary-value {
+    color: #1a1a1a !important;
+}
+
 /* Roadmap Summary */
 .roadmap-summary {
     display: flex;
