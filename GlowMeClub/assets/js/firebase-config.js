@@ -167,6 +167,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Verificar se Firebase SDK está disponível antes de inicializar
     if (typeof firebase !== 'undefined') {
         initializeFirebase();
+        
+        // Adicionar listener para mudanças de estado de autenticação
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                console.log('🔥 Firebase: Usuário autenticado:', user.email);
+                // Não fazer nada automático aqui para evitar loops
+            } else {
+                console.log('🔥 Firebase: Usuário não autenticado');
+                // Não fazer logout automático aqui para evitar loops
+            }
+        });
     }
 });
 

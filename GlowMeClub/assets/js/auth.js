@@ -298,6 +298,9 @@ async function handlePasswordReset(e) {
 window.logout = async function() {
     console.log('🚪 Iniciando logout...');
     
+    // Limpar sessionStorage para evitar loops
+    sessionStorage.removeItem('lastAuthRedirect');
+    
     try {
         if (window.api && window.api.post) {
             await window.api.post('/auth/logout');
@@ -324,122 +327,176 @@ window.logout = async function() {
     }
     localStorage.removeItem('authToken');
     localStorage.removeItem('cachedUserData');
+    sessionStorage.clear(); // Limpar todo sessionStorage
     
     console.log('🔄 Redirecionando para login...');
     
-    // Redirecionar para login (com caminho absoluto)
-    window.location.href = '/pages/login.html';
+    // Determinar o caminho correto baseado na estrutura atual
+    const currentPath = window.location.pathname;
+    let loginPath = '/pages/login.html';
+    
+    // Se estiver em /pages/, usar caminho relativo
+    if (currentPath.includes('/pages/')) {
+        loginPath = 'login.html';
+    }
+    // Se estiver na raiz, usar /pages/login.html
+    else if (currentPath === '/' || currentPath.endsWith('index.html')) {
+        loginPath = 'pages/login.html';
+    }
+    
+    // Redirecionar para login
+    window.location.href = loginPath;
 }
+
+// Variável para evitar loops de redirecionamento
+let isCheckingAuth = false;
 
 // Verificar autenticação
 async function checkAuthState() {
     _log('info', '🔍 === VERIFICANDO AUTENTICAÇÃO ===');
     
-    // Páginas que não precisam de autenticação
-    const publicPageNames = ['index.html', 'cadastro.html', 'login.html', 'redefinir-senha.html'];
+    // Evitar múltiplas verificações simultâneas
+    if (isCheckingAuth) {
+        _log('warn', '⚠️ Verificação de auth já em andamento, ignorando...');
+        return;
+    }
     
-    // Páginas que o admin NÃO pode acessar
-    const userOnlyPages = ['dashboard.html', 'metas.html', 'missoes.html', 'pontos.html', 'recompensas.html', 'perfil.html'];
+    isCheckingAuth = true;
     
-    // Pegar o nome do arquivo atual
-    const currentPath = window.location.pathname;
-    const currentFile = currentPath.split('/').pop() || 'index.html';
-    
-    // Verificar se é uma página pública
-    const isPublicPage = publicPageNames.includes(currentFile) || currentPath === '/' || currentPath === '';
-    
-    // Verificar se é página admin
-    const isAdminPage = currentFile === 'admin.html';
-    
-    // Verificar se é página exclusiva de usuários normais
-    const isUserOnlyPage = userOnlyPages.includes(currentFile);
-    
-    _log('debug', '📍 Informações da página:', {
-        currentPath,
-        currentFile,
-        isPublicPage,
-        isAdminPage,
-        isUserOnlyPage
-    });
-    
-    const token = window.api.getToken();
-    
-    if (token) {
-        try {
-            // Verificar se token é válido
-            const data = await window.api.get('/auth/me');
-            
-            // Token válido
-            _log('info', '✅ Token válido!');
-            
-            // Salvar dados do usuário em cache
-            if (data.user) {
-                localStorage.setItem('cachedUserData', JSON.stringify(data.user));
-            }
-            
-            const isAdmin = data.user && data.user.role === 'admin';
-            
-            // Se é admin e está tentando acessar página de usuário normal
-            if (isAdmin && isUserOnlyPage) {
-                _log('info', '🔒 Admin tentando acessar página de usuário, redirecionando para admin.html');
-                window.location.href = 'admin.html';
-                return;
-            }
-            
-            // Se é usuário normal tentando acessar página admin
-            if (!isAdmin && isAdminPage) {
-                _log('info', '🔒 Usuário comum tentando acessar admin, redirecionando para dashboard.html');
-                window.location.href = 'dashboard.html';
-                return;
-            }
-            
-            if (isPublicPage) {
-                _log('info', '➡️ Usuário autenticado em página pública, redirecionando...');
-                // Admin vai para admin.html, outros para dashboard.html
-                if (isAdmin) {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'dashboard.html';
-                }
-            }
-        } catch (error) {
-            _log('error', '❌ Erro ao verificar autenticação:', error);
-            
-            // Se for erro 401 explícito, token é inválido
-            if (error.status === 401 || (error.message && error.message.includes('401'))) {
-                _log('warn', '🔒 Token inválido');
+    try {
+        // Páginas que não precisam de autenticação
+        const publicPageNames = ['index.html', 'cadastro.html', 'login.html', 'redefinir-senha.html'];
+        
+        // Páginas que o admin NÃO pode acessar
+        const userOnlyPages = ['dashboard.html', 'metas.html', 'missoes.html', 'pontos.html', 'recompensas.html', 'perfil.html'];
+        
+        // Pegar o nome do arquivo atual
+        const currentPath = window.location.pathname;
+        const currentFile = currentPath.split('/').pop() || 'index.html';
+        
+        // Verificar se é uma página pública
+        const isPublicPage = publicPageNames.includes(currentFile) || currentPath === '/' || currentPath === '';
+        
+        // Verificar se é página admin
+        const isAdminPage = currentFile === 'admin.html';
+        
+        // Verificar se é página exclusiva de usuários normais
+        const isUserOnlyPage = userOnlyPages.includes(currentFile);
+        
+        _log('debug', '📍 Informações da página:', {
+            currentPath,
+            currentFile,
+            isPublicPage,
+            isAdminPage,
+            isUserOnlyPage
+        });
+        
+        // Verificar se há redirecionamento em loop
+        const lastRedirect = sessionStorage.getItem('lastAuthRedirect');
+        const currentTime = Date.now();
+        if (lastRedirect) {
+            const lastRedirectData = JSON.parse(lastRedirect);
+            if (currentTime - lastRedirectData.time < 2000 && lastRedirectData.path === currentPath) {
+                _log('error', '❌ Loop de redirecionamento detectado! Limpando dados de autenticação...');
                 window.api.removeToken();
+                localStorage.removeItem('cachedUserData');
+                sessionStorage.removeItem('lastAuthRedirect');
                 if (!isPublicPage) {
-                    window.location.href = 'login.html';
+                    window.location.href = '/pages/login.html';
                 }
-            } else {
-                // Para outros erros (rede, timeout, etc), manter sessão
-                _log('warn', '⚠️ Erro de conexão - Mantendo sessão');
+                return;
+            }
+        }
+        
+        const token = window.api.getToken();
+        
+        if (token) {
+            try {
+                // Verificar se token é válido
+                const data = await window.api.get('/auth/me');
                 
-                // Verificar cache para ver se é admin
-                const cachedData = localStorage.getItem('cachedUserData');
-                if (cachedData) {
-                    try {
-                        const user = JSON.parse(cachedData);
-                        if (user.role === 'admin' && isUserOnlyPage) {
-                            window.location.href = 'admin.html';
-                            return;
-                        }
-                    } catch (e) {}
+                // Token válido
+                _log('info', '✅ Token válido!');
+                
+                // Salvar dados do usuário em cache
+                if (data.user) {
+                    localStorage.setItem('cachedUserData', JSON.stringify(data.user));
+                }
+                
+                const isAdmin = data.user && data.user.role === 'admin';
+                
+                // Se é admin e está tentando acessar página de usuário normal
+                if (isAdmin && isUserOnlyPage) {
+                    _log('info', '🔒 Admin tentando acessar página de usuário, redirecionando para admin.html');
+                    sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
+                    window.location.href = '/pages/admin.html';
+                    return;
+                }
+                
+                // Se é usuário normal tentando acessar página admin
+                if (!isAdmin && isAdminPage) {
+                    _log('info', '🔒 Usuário comum tentando acessar admin, redirecionando para dashboard.html');
+                    sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
+                    window.location.href = '/pages/dashboard.html';
+                    return;
                 }
                 
                 if (isPublicPage) {
-                    window.location.href = 'dashboard.html';
+                    _log('info', '➡️ Usuário autenticado em página pública, redirecionando...');
+                    sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
+                    // Admin vai para admin.html, outros para dashboard.html
+                    if (isAdmin) {
+                        window.location.href = '/pages/admin.html';
+                    } else {
+                        window.location.href = '/pages/dashboard.html';
+                    }
+                }
+            } catch (error) {
+                _log('error', '❌ Erro ao verificar autenticação:', error);
+                
+                // Se for erro 401 explícito, token é inválido
+                if (error.status === 401 || (error.message && error.message.includes('401'))) {
+                    _log('warn', '🔒 Token inválido');
+                    window.api.removeToken();
+                    localStorage.removeItem('cachedUserData');
+                    if (!isPublicPage) {
+                        sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
+                        window.location.href = '/pages/login.html';
+                    }
+                } else {
+                    // Para outros erros (rede, timeout, etc), manter sessão
+                    _log('warn', '⚠️ Erro de conexão - Mantendo sessão');
+                    
+                    // Verificar cache para ver se é admin
+                    const cachedData = localStorage.getItem('cachedUserData');
+                    if (cachedData) {
+                        try {
+                            const user = JSON.parse(cachedData);
+                            if (user.role === 'admin' && isUserOnlyPage) {
+                                sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
+                                window.location.href = '/pages/admin.html';
+                                return;
+                            }
+                        } catch (e) {}
+                    }
+                    
+                    if (isPublicPage && cachedData) {
+                        sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
+                        window.location.href = '/pages/dashboard.html';
+                    }
                 }
             }
+        } else {
+            // Sem token
+            _log('info', '🔓 Usuário não autenticado');
+            if (!isPublicPage) {
+                _log('info', '➡️ Redirecionando para login...');
+                sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
+                window.location.href = '/pages/login.html';
+            }
         }
-    } else {
-        // Sem token
-        _log('info', '🔓 Usuário não autenticado');
-        if (!isPublicPage) {
-            _log('info', '➡️ Redirecionando para login...');
-            window.location.href = 'login.html';
-        }
+    } finally {
+        isCheckingAuth = false;
     }
 }
 
@@ -561,8 +618,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Verificar estado de autenticação
-    checkAuthState();
+    // Verificar estado de autenticação com pequeno delay para evitar condições de corrida
+    setTimeout(() => {
+        checkAuthState();
+    }, 100);
     
     // Log de inicialização
     _log('info', '🚀 Sistema de autenticação inicializado');
