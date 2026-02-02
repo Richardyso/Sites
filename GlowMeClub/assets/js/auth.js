@@ -411,19 +411,25 @@ async function checkAuthState() {
         const token = window.api.getToken();
         
         if (token) {
-            try {
-                // Verificar se token é válido
-                const data = await window.api.get('/auth/me');
-                
-                // Token válido
-                _log('info', '✅ Token válido!');
-                
-                // Salvar dados do usuário em cache
-                if (data.user) {
-                    localStorage.setItem('cachedUserData', JSON.stringify(data.user));
-                }
-                
-                const isAdmin = data.user && data.user.role === 'admin';
+        try {
+            // Verificar se token é válido
+            const data = await window.api.get('/auth/me');
+            
+            // Token válido
+            _log('info', '✅ Token válido!');
+            
+            // Salvar dados do usuário em cache
+            if (data.user) {
+                localStorage.setItem('cachedUserData', JSON.stringify(data.user));
+            }
+            
+            const isAdmin = data.user && data.user.role === 'admin';
+            
+            // Se estamos na mesma página que deveríamos estar, não redirecionar
+            if ((isAdmin && isAdminPage) || (!isAdmin && !isAdminPage && !isPublicPage)) {
+                _log('info', '✅ Usuário na página correta, sem redirecionamento necessário');
+                return;
+            }
                 
                 // Se é admin e está tentando acessar página de usuário normal
                 if (isAdmin && isUserOnlyPage) {
@@ -451,40 +457,62 @@ async function checkAuthState() {
                         window.location.href = '/pages/dashboard.html';
                     }
                 }
-            } catch (error) {
-                _log('error', '❌ Erro ao verificar autenticação:', error);
-                
-                // Se for erro 401 explícito, token é inválido
-                if (error.status === 401 || (error.message && error.message.includes('401'))) {
-                    _log('warn', '🔒 Token inválido');
-                    window.api.removeToken();
-                    localStorage.removeItem('cachedUserData');
-                    if (!isPublicPage) {
-                        sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
-                        window.location.href = '/pages/login.html';
-                    }
-                } else {
-                    // Para outros erros (rede, timeout, etc), manter sessão
-                    _log('warn', '⚠️ Erro de conexão - Mantendo sessão');
-                    
-                    // Verificar cache para ver se é admin
-                    const cachedData = localStorage.getItem('cachedUserData');
-                    if (cachedData) {
-                        try {
-                            const user = JSON.parse(cachedData);
-                            if (user.role === 'admin' && isUserOnlyPage) {
-                                sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
-                                window.location.href = '/pages/admin.html';
-                                return;
-                            }
-                        } catch (e) {}
-                    }
-                    
-                    if (isPublicPage && cachedData) {
-                        sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
-                        window.location.href = '/pages/dashboard.html';
-                    }
+        } catch (error) {
+            _log('error', '❌ Erro ao verificar autenticação:', error);
+            
+            // Se for erro 401 explícito, token é inválido
+            if (error.status === 401 || (error.message && error.message.includes('401'))) {
+                _log('warn', '🔒 Token inválido');
+                window.api.removeToken();
+                localStorage.removeItem('cachedUserData');
+                if (!isPublicPage) {
+                    sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
+                    window.location.href = '/pages/login.html';
                 }
+            } else if (error.status === 500 || error.status === 502 || error.status === 503) {
+                // Erro do servidor - não fazer nada, deixar usuário na página atual
+                _log('error', '❌ Erro no servidor (500/502/503) - mantendo usuário na página atual');
+                
+                // Se estiver em página pública, não redirecionar
+                if (isPublicPage) {
+                    _log('info', '✅ Mantendo usuário na página pública devido a erro do servidor');
+                    return;
+                }
+                
+                // Se estiver em página protegida mas tem dados em cache, permitir acesso
+                const cachedData = localStorage.getItem('cachedUserData');
+                if (cachedData && !isPublicPage) {
+                    _log('info', '✅ Usando dados em cache devido a erro do servidor');
+                    return;
+                }
+                
+                // Só redirecionar para login se não tiver cache e não for página pública
+                if (!cachedData && !isPublicPage) {
+                    _log('warn', '⚠️ Sem cache e servidor com erro - redirecionando para login');
+                    window.location.href = '/pages/login.html';
+                }
+            } else {
+                // Para outros erros (rede, timeout, etc), manter sessão
+                _log('warn', '⚠️ Erro de conexão - Mantendo sessão');
+                
+                // Verificar cache para ver se é admin
+                const cachedData = localStorage.getItem('cachedUserData');
+                if (cachedData) {
+                    try {
+                        const user = JSON.parse(cachedData);
+                        if (user.role === 'admin' && isUserOnlyPage) {
+                            sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
+                            window.location.href = '/pages/admin.html';
+                            return;
+                        }
+                    } catch (e) {}
+                }
+                
+                // Não redirecionar se já estiver em página pública
+                if (!isPublicPage && !cachedData) {
+                    window.location.href = '/pages/login.html';
+                }
+            }
             }
         } else {
             // Sem token
