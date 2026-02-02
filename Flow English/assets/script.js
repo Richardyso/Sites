@@ -73,7 +73,7 @@ function sendToWhatsapp(e) {
     
     // Coletar todas as respostas
     var answers = [];
-    for(let i = 1; i <= 10; i++) {
+    for(let i = 1; i <= 15; i++) {
         var answer = document.getElementById(`q${i}`).value;
         answers.push(`Pergunta ${i}: ${answer}`);
     }
@@ -111,7 +111,7 @@ function saveProgress() {
         answers: {}
     };
     
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 15; i++) {
         const select = document.getElementById(`q${i}`);
         if (select && select.value) {
             formData.answers[`q${i}`] = select.value;
@@ -150,7 +150,7 @@ function loadProgress() {
 
 // Função para atualizar barra de progresso
 function updateProgress() {
-    const total = 10;
+    const total = 15;
     let answered = 0;
     
     for (let i = 1; i <= total; i++) {

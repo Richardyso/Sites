@@ -499,6 +499,7 @@ nav a:hover {
 
 .bg-blue { background: var(--brand-blue); }
 .bg-red { background: var(--brand-red); }
+.bg-teal { background: var(--brand-teal); }
 
 .btn-submit { 
     width: 100%; 

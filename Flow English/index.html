@@ -598,14 +598,14 @@
 
             <h2 style="text-align: center; margin-bottom: 10px;">Teste de Nivelamento</h2>
 
-            <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">Responda para sabermos se você começa no Book 1 ou Book 2 (Total: 10 Perguntas).</p>
+            <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">Responda para sabermos se você começa no Book 1, Book 2 ou Book 3 (Total: 15 Perguntas).</p>
 
             <!-- Barra de Progresso -->
             <div class="progress-container">
                 <div class="progress-bar">
                     <div class="progress-fill"></div>
                 </div>
-                <p class="progress-text">0 de 10 perguntas respondidas</p>
+                <p class="progress-text">0 de 15 perguntas respondidas</p>
             </div>
 
             <form id="levelingForm" onsubmit="sendToWhatsapp(event)" role="form">
@@ -723,6 +723,57 @@
                     </select>
                 </div>
 
+                <h4 style="margin-bottom: 15px; margin-top: 30px;"><span class="level-badge bg-teal">Book 3 Level (Perfect & Modals)</span></h4>
+
+                <div class="test-question">
+                    <label for="q11">11. "She ____ that movie three times."</label>
+                    <select id="q11" name="q11" aria-label="Pergunta 11: She ___ that movie three times">
+                        <option value="">Selecione</option>
+                        <option value="has seen">Has seen</option>
+                        <option value="have seen">Have seen</option>
+                        <option value="saw">Saw</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q12">12. "____ you ever been to London?"</label>
+                    <select id="q12" name="q12" aria-label="Pergunta 12: ___ you ever been to London?">
+                        <option value="">Selecione</option>
+                        <option value="have">Have</option>
+                        <option value="has">Has</option>
+                        <option value="did">Did</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q13">13. "They ____ speak English well."</label>
+                    <select id="q13" name="q13" aria-label="Pergunta 13: They ___ speak English well">
+                        <option value="">Selecione</option>
+                        <option value="can">Can</option>
+                        <option value="cans">Cans</option>
+                        <option value="can to">Can to</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q14">14. "You ____ eat so much sugar." (conselho)</label>
+                    <select id="q14" name="q14" aria-label="Pergunta 14: You ___ eat so much sugar">
+                        <option value="">Selecione</option>
+                        <option value="shouldn't">Shouldn't</option>
+                        <option value="don't should">Don't should</option>
+                        <option value="aren't should">Aren't should</option>
+                    </select>
+                </div>
+
+                <div class="test-question">
+                    <label for="q15">15. "Students ____ wear a uniform here." (obrigação)</label>
+                    <select id="q15" name="q15" aria-label="Pergunta 15: Students ___ wear a uniform here">
+                        <option value="">Selecione</option>
+                        <option value="must">Must</option>
+                        <option value="can">Can</option>
+                        <option value="should">Should</option>
+                    </select>
+                </div>
 
                 <button type="submit" class="btn-submit"><i class="fab fa-whatsapp"></i> Enviar Resultado e Baixar Material</button>
 
