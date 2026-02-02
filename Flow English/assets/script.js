@@ -25,22 +25,23 @@ function closeMenu() {
     menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
 }
 
-// Função para alternar a exibição do conteúdo do Book 1 ou Book 2
+// Função para alternar a exibição do conteúdo do Book 1, Book 2 ou Book 3
 function changeBook(bookNumber) {
     closeMenu(); // Fechar menu mobile ao trocar de book
     const book1Section = document.getElementById('content-book1');
     const book2Section = document.getElementById('content-book2');
+    const book3Section = document.getElementById('content-book3');
+
+    book1Section.style.display = bookNumber === 1 ? 'block' : 'none';
+    book2Section.style.display = bookNumber === 2 ? 'block' : 'none';
+    book3Section.style.display = bookNumber === 3 ? 'block' : 'none';
 
     if (bookNumber === 1) {
-        book1Section.style.display = 'block';
-        book2Section.style.display = 'none';
-        // Ativa a primeira aba do Book 1
-        openTab('book1-present', document.querySelector('.tabs button:not(.book2)'));
+        openTab('book1-present', document.querySelector('#content-book1 .tabs button:not(.book2):not(.book3)'));
     } else if (bookNumber === 2) {
-        book1Section.style.display = 'none';
-        book2Section.style.display = 'block';
-        // Ativa a primeira aba do Book 2
-        openTab('book2-present', document.querySelector('.tabs button.book2'));
+        openTab('book2-present', document.querySelector('#content-book2 .tabs button.book2'));
+    } else if (bookNumber === 3) {
+        openTab('book3-perfect-aff', document.querySelector('#content-book3 .tabs button.book3'));
     }
 }
 
@@ -173,12 +174,13 @@ function updateProgress() {
 
 // Configuração inicial ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicialmente, mostra Book 1 e oculta Book 2
+    // Inicialmente, mostra Book 1 e oculta Book 2 e Book 3
     document.getElementById('content-book1').style.display = 'block';
     document.getElementById('content-book2').style.display = 'none';
+    document.getElementById('content-book3').style.display = 'none';
     
     // Ativa a primeira aba do Book 1 no carregamento
-    const initialTabButton = document.querySelector('.tabs button[onclick*="book1-present"]');
+    const initialTabButton = document.querySelector('#content-book1 .tabs button[onclick*="book1-present"]');
     if(initialTabButton) {
          openTab('book1-present', initialTabButton);
     }

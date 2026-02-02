@@ -2,6 +2,7 @@
 :root {
     --brand-blue: #007bff;
     --brand-red: #e74c3c;
+    --brand-teal: #17a2b8;
     --dark-bg: #111;
     --light-bg: #f4f6f9;
     --white: #fff;
@@ -129,6 +130,14 @@ nav a:hover {
     background: var(--brand-red);
 }
 
+.nav-book3 {
+    color: var(--brand-teal) !important;
+}
+
+.nav-book3::after {
+    background: var(--brand-teal);
+}
+
 .btn-whatsapp {
     background: #25D366;
     color: white;
@@ -254,6 +263,14 @@ nav a:hover {
     background-color: #c0392b; 
 }
 
+.btn-download.book3 {
+    background-color: var(--brand-teal);
+}
+
+.btn-download.book3:hover {
+    background-color: #138496;
+}
+
 .btn-download i { 
     margin-right: 10px; 
     font-size: 1.2rem; 
@@ -319,6 +336,16 @@ nav a:hover {
 .tab-btn.book2.active { 
     background: var(--brand-red); 
     color: white; 
+}
+
+.tab-btn.book3 {
+    border-color: var(--brand-teal);
+    color: var(--brand-teal);
+}
+
+.tab-btn.book3.active {
+    background: var(--brand-teal);
+    color: white;
 }
 
 .content-tab { 
