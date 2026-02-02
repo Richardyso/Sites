@@ -113,56 +113,22 @@ async function handleSignup(e) {
     submitBtn.disabled = true;
     
     try {
-        let data;
-        
-        // Verificar se deve usar Firebase-only devido a CORS
-        if (window.useFirebaseOnly) {
-            _log('info', '🔥 Usando cadastro Firebase direto');
-            data = await window.FirebaseOnlyAuth.createAccount(formData.email, formData.password, {
-                name: formData.name,
-                preferredColor: formData.preferredColor,
-                focusArea: formData.focusArea,
-                phone: phoneWithDDI
-            });
-        } else {
-            try {
-                // Tentar fazer requisição para API
-                data = await window.api.post('/auth/register', {
-                    name: formData.name,
-                    email: formData.email,
-                    password: formData.password,
-                    preferredColor: formData.preferredColor,
-                    focusArea: formData.focusArea,
-                    phone: phoneWithDDI
-                });
-            } catch (apiError) {
-                // Se for erro CORS, marcar e tentar Firebase
-                if (apiError.message && (apiError.message.includes('CORS') || apiError.message.includes('Failed to fetch'))) {
-                    _log('warn', '⚠️ Erro CORS detectado, mudando para Firebase-only');
-                    window.markCorsError();
-                    data = await window.FirebaseOnlyAuth.createAccount(formData.email, formData.password, {
-                        name: formData.name,
-                        preferredColor: formData.preferredColor,
-                        focusArea: formData.focusArea,
-                        phone: phoneWithDDI
-                    });
-                } else {
-                    throw apiError;
-                }
-            }
-        }
+        // Fazer requisição para API
+        const data = await window.api.post('/auth/register', {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            preferredColor: formData.preferredColor,
+            focusArea: formData.focusArea,
+            phone: phoneWithDDI
+        });
         
         // Mostrar mensagem de sucesso e redirecionar para login
-        showSuccess('Cadastro realizado com sucesso! 💜');
+        showSuccess('Cadastro realizado com sucesso! Verifique seu email de boas-vindas. 💜');
         
-        // Aguardar 2 segundos e redirecionar para login ou dashboard
+        // Aguardar 2 segundos e redirecionar para login
         setTimeout(() => {
-            if (data.token) {
-                // Se já tem token, ir direto para dashboard
-                window.location.href = 'dashboard.html';
-            } else {
-                window.location.href = 'login.html';
-            }
+            window.location.href = 'login.html';
         }, 2500);
         
     } catch (error) {
@@ -193,32 +159,11 @@ async function handleLogin(e) {
     submitBtn.disabled = true;
     
     try {
-        let data;
-        
-        // Verificar se deve usar Firebase-only devido a CORS
-        if (window.useFirebaseOnly) {
-            _log('info', '🔥 Usando autenticação Firebase direta');
-            data = await window.FirebaseOnlyAuth.loginWithEmail(email, password);
-        } else {
-            try {
-                // Tentar fazer requisição para API
-                data = await window.api.post('/auth/login', { email, password });
-            } catch (apiError) {
-                // Se for erro CORS, marcar e tentar Firebase
-                if (apiError.message && (apiError.message.includes('CORS') || apiError.message.includes('Failed to fetch'))) {
-                    _log('warn', '⚠️ Erro CORS detectado, mudando para Firebase-only');
-                    window.markCorsError();
-                    data = await window.FirebaseOnlyAuth.loginWithEmail(email, password);
-                } else {
-                    throw apiError;
-                }
-            }
-        }
+        // Fazer requisição para API
+        const data = await window.api.post('/auth/login', { email, password });
         
         // Salvar token
-        if (data.token) {
-            window.api.saveToken(data.token);
-        }
+        window.api.saveToken(data.token);
         
         // Salvar dados do usuário em cache para uso offline
         if (data.user) {
@@ -239,8 +184,6 @@ async function handleLogin(e) {
         
         if (window.api.isNetworkError(error)) {
             showError('Sem conexão com o servidor. Verifique sua internet.');
-        } else if (error.message.includes('Senha incorreta') || error.message.includes('Usuário não encontrado')) {
-            showError(error.message);
         } else {
             showError('Email ou senha incorretos');
         }
@@ -355,9 +298,6 @@ async function handlePasswordReset(e) {
 window.logout = async function() {
     console.log('🚪 Iniciando logout...');
     
-    // Limpar sessionStorage para evitar loops
-    sessionStorage.removeItem('lastAuthRedirect');
-    
     try {
         if (window.api && window.api.post) {
             await window.api.post('/auth/logout');
@@ -384,155 +324,84 @@ window.logout = async function() {
     }
     localStorage.removeItem('authToken');
     localStorage.removeItem('cachedUserData');
-    sessionStorage.clear(); // Limpar todo sessionStorage
     
     console.log('🔄 Redirecionando para login...');
     
-    // Determinar o caminho correto baseado na estrutura atual
-    const currentPath = window.location.pathname;
-    let loginPath = '/pages/login.html';
-    
-    // Se estiver em /pages/, usar caminho relativo
-    if (currentPath.includes('/pages/')) {
-        loginPath = 'login.html';
-    }
-    // Se estiver na raiz, usar /pages/login.html
-    else if (currentPath === '/' || currentPath.endsWith('index.html')) {
-        loginPath = 'pages/login.html';
-    }
-    
-    // Redirecionar para login
-    window.location.href = loginPath;
+    // Redirecionar para login (com caminho absoluto)
+    window.location.href = '/pages/login.html';
 }
-
-// Variável para evitar loops de redirecionamento
-let isCheckingAuth = false;
 
 // Verificar autenticação
 async function checkAuthState() {
     _log('info', '🔍 === VERIFICANDO AUTENTICAÇÃO ===');
     
-    // Evitar múltiplas verificações simultâneas
-    if (isCheckingAuth) {
-        _log('warn', '⚠️ Verificação de auth já em andamento, ignorando...');
-        return;
-    }
+    // Páginas que não precisam de autenticação
+    const publicPageNames = ['index.html', 'cadastro.html', 'login.html', 'redefinir-senha.html'];
     
-    isCheckingAuth = true;
+    // Páginas que o admin NÃO pode acessar
+    const userOnlyPages = ['dashboard.html', 'metas.html', 'missoes.html', 'pontos.html', 'recompensas.html', 'perfil.html'];
     
-    try {
-        // Páginas que não precisam de autenticação
-        const publicPageNames = ['index.html', 'cadastro.html', 'login.html', 'redefinir-senha.html'];
-        
-        // Páginas que o admin NÃO pode acessar
-        const userOnlyPages = ['dashboard.html', 'metas.html', 'missoes.html', 'pontos.html', 'recompensas.html', 'perfil.html'];
-        
-        // Pegar o nome do arquivo atual
-        const currentPath = window.location.pathname;
-        const currentFile = currentPath.split('/').pop() || 'index.html';
-        
-        // Verificar se é uma página pública
-        const isPublicPage = publicPageNames.includes(currentFile) || currentPath === '/' || currentPath === '';
-        
-        // Verificar se é página admin
-        const isAdminPage = currentFile === 'admin.html';
-        
-        // Verificar se é página exclusiva de usuários normais
-        const isUserOnlyPage = userOnlyPages.includes(currentFile);
-        
-        _log('debug', '📍 Informações da página:', {
-            currentPath,
-            currentFile,
-            isPublicPage,
-            isAdminPage,
-            isUserOnlyPage
-        });
-        
-        // Verificar se há redirecionamento em loop
-        const lastRedirect = sessionStorage.getItem('lastAuthRedirect');
-        const currentTime = Date.now();
-        if (lastRedirect) {
-            const lastRedirectData = JSON.parse(lastRedirect);
-            if (currentTime - lastRedirectData.time < 2000 && lastRedirectData.path === currentPath) {
-                _log('error', '❌ Loop de redirecionamento detectado! Limpando dados de autenticação...');
-                window.api.removeToken();
-                localStorage.removeItem('cachedUserData');
-                sessionStorage.removeItem('lastAuthRedirect');
-                if (!isPublicPage) {
-                    window.location.href = '/pages/login.html';
-                }
+    // Pegar o nome do arquivo atual
+    const currentPath = window.location.pathname;
+    const currentFile = currentPath.split('/').pop() || 'index.html';
+    
+    // Verificar se é uma página pública
+    const isPublicPage = publicPageNames.includes(currentFile) || currentPath === '/' || currentPath === '';
+    
+    // Verificar se é página admin
+    const isAdminPage = currentFile === 'admin.html';
+    
+    // Verificar se é página exclusiva de usuários normais
+    const isUserOnlyPage = userOnlyPages.includes(currentFile);
+    
+    _log('debug', '📍 Informações da página:', {
+        currentPath,
+        currentFile,
+        isPublicPage,
+        isAdminPage,
+        isUserOnlyPage
+    });
+    
+    const token = window.api.getToken();
+    
+    if (token) {
+        try {
+            // Verificar se token é válido
+            const data = await window.api.get('/auth/me');
+            
+            // Token válido
+            _log('info', '✅ Token válido!');
+            
+            // Salvar dados do usuário em cache
+            if (data.user) {
+                localStorage.setItem('cachedUserData', JSON.stringify(data.user));
+            }
+            
+            const isAdmin = data.user && data.user.role === 'admin';
+            
+            // Se é admin e está tentando acessar página de usuário normal
+            if (isAdmin && isUserOnlyPage) {
+                _log('info', '🔒 Admin tentando acessar página de usuário, redirecionando para admin.html');
+                window.location.href = 'admin.html';
                 return;
             }
-        }
-        
-        const token = window.api.getToken();
-        
-        if (token) {
-            try {
-                let data;
-                
-                // Verificar se deve usar Firebase-only
-                if (window.useFirebaseOnly) {
-                    _log('info', '🔥 Verificando autenticação com Firebase');
-                    data = await window.FirebaseOnlyAuth.getCurrentUser();
+            
+            // Se é usuário normal tentando acessar página admin
+            if (!isAdmin && isAdminPage) {
+                _log('info', '🔒 Usuário comum tentando acessar admin, redirecionando para dashboard.html');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            if (isPublicPage) {
+                _log('info', '➡️ Usuário autenticado em página pública, redirecionando...');
+                // Admin vai para admin.html, outros para dashboard.html
+                if (isAdmin) {
+                    window.location.href = 'admin.html';
                 } else {
-                    try {
-                        // Verificar se token é válido
-                        data = await window.api.get('/auth/me');
-                    } catch (apiError) {
-                        // Se for erro CORS ou rede, tentar Firebase
-                        if (apiError.message && (apiError.message.includes('CORS') || apiError.message.includes('Failed to fetch'))) {
-                            _log('warn', '⚠️ Erro ao verificar token com API, tentando Firebase');
-                            window.markCorsError();
-                            data = await window.FirebaseOnlyAuth.getCurrentUser();
-                        } else {
-                            throw apiError;
-                        }
-                    }
+                    window.location.href = 'dashboard.html';
                 }
-                
-                // Token válido
-                _log('info', '✅ Token válido!');
-                
-                // Salvar dados do usuário em cache
-                if (data.user) {
-                    localStorage.setItem('cachedUserData', JSON.stringify(data.user));
-                }
-                
-                const isAdmin = data.user && data.user.role === 'admin';
-                
-                // Se estamos na mesma página que deveríamos estar, não redirecionar
-                if ((isAdmin && isAdminPage) || (!isAdmin && !isAdminPage && !isPublicPage)) {
-                    _log('info', '✅ Usuário na página correta, sem redirecionamento necessário');
-                    return;
-                }
-                
-                // Se é admin e está tentando acessar página de usuário normal
-                if (isAdmin && isUserOnlyPage) {
-                    _log('info', '🔒 Admin tentando acessar página de usuário, redirecionando para admin.html');
-                    sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
-                    window.location.href = '/pages/admin.html';
-                    return;
-                }
-                
-                // Se é usuário normal tentando acessar página admin
-                if (!isAdmin && isAdminPage) {
-                    _log('info', '🔒 Usuário comum tentando acessar admin, redirecionando para dashboard.html');
-                    sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
-                    window.location.href = '/pages/dashboard.html';
-                    return;
-                }
-                
-                if (isPublicPage) {
-                    _log('info', '➡️ Usuário autenticado em página pública, redirecionando...');
-                    sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
-                    // Admin vai para admin.html, outros para dashboard.html
-                    if (isAdmin) {
-                        window.location.href = '/pages/admin.html';
-                    } else {
-                        window.location.href = '/pages/dashboard.html';
-                    }
-                }
+            }
         } catch (error) {
             _log('error', '❌ Erro ao verificar autenticação:', error);
             
@@ -540,32 +409,8 @@ async function checkAuthState() {
             if (error.status === 401 || (error.message && error.message.includes('401'))) {
                 _log('warn', '🔒 Token inválido');
                 window.api.removeToken();
-                localStorage.removeItem('cachedUserData');
                 if (!isPublicPage) {
-                    sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
-                    window.location.href = '/pages/login.html';
-                }
-            } else if (error.status === 500 || error.status === 502 || error.status === 503) {
-                // Erro do servidor - não fazer nada, deixar usuário na página atual
-                _log('error', '❌ Erro no servidor (500/502/503) - mantendo usuário na página atual');
-                
-                // Se estiver em página pública, não redirecionar
-                if (isPublicPage) {
-                    _log('info', '✅ Mantendo usuário na página pública devido a erro do servidor');
-                    return;
-                }
-                
-                // Se estiver em página protegida mas tem dados em cache, permitir acesso
-                const cachedData = localStorage.getItem('cachedUserData');
-                if (cachedData && !isPublicPage) {
-                    _log('info', '✅ Usando dados em cache devido a erro do servidor');
-                    return;
-                }
-                
-                // Só redirecionar para login se não tiver cache e não for página pública
-                if (!cachedData && !isPublicPage) {
-                    _log('warn', '⚠️ Sem cache e servidor com erro - redirecionando para login');
-                    window.location.href = '/pages/login.html';
+                    window.location.href = 'login.html';
                 }
             } else {
                 // Para outros erros (rede, timeout, etc), manter sessão
@@ -577,30 +422,24 @@ async function checkAuthState() {
                     try {
                         const user = JSON.parse(cachedData);
                         if (user.role === 'admin' && isUserOnlyPage) {
-                            sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
-                            window.location.href = '/pages/admin.html';
+                            window.location.href = 'admin.html';
                             return;
                         }
                     } catch (e) {}
                 }
                 
-                // Não redirecionar se já estiver em página pública
-                if (!isPublicPage && !cachedData) {
-                    window.location.href = '/pages/login.html';
+                if (isPublicPage) {
+                    window.location.href = 'dashboard.html';
                 }
             }
-            }
-        } else {
-            // Sem token
-            _log('info', '🔓 Usuário não autenticado');
-            if (!isPublicPage) {
-                _log('info', '➡️ Redirecionando para login...');
-                sessionStorage.setItem('lastAuthRedirect', JSON.stringify({ path: currentPath, time: currentTime }));
-                window.location.href = '/pages/login.html';
-            }
         }
-    } finally {
-        isCheckingAuth = false;
+    } else {
+        // Sem token
+        _log('info', '🔓 Usuário não autenticado');
+        if (!isPublicPage) {
+            _log('info', '➡️ Redirecionando para login...');
+            window.location.href = 'login.html';
+        }
     }
 }
 
@@ -722,10 +561,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Verificar estado de autenticação com pequeno delay para evitar condições de corrida
-    setTimeout(() => {
-        checkAuthState();
-    }, 100);
+    // Verificar estado de autenticação
+    checkAuthState();
     
     // Log de inicialização
     _log('info', '🚀 Sistema de autenticação inicializado');

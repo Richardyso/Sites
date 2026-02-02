@@ -8,24 +8,11 @@ const config = {
     
     // URL da API baseada no ambiente
     get API_BASE_URL() {
-        // Se estiver rodando localmente via file://
-        if (window.location.protocol === 'file:') {
-            return 'https://glowmeclub-backend.vercel.app/api';
-        }
-        
-        // Se estiver em desenvolvimento
         if (this.isDevelopment) {
             return 'http://localhost:3000/api';
         }
-        
-        // Em produção (Vercel)
-        if (window.location.hostname.includes('vercel.app') || 
-            window.location.hostname.includes('glowmeclub')) {
-            return 'https://glowmeclub-backend.vercel.app/api';
-        }
-        
-        // Fallback - usar o backend em produção
-        return 'https://glowmeclub-backend.vercel.app/api';
+        // Em produção, a API está na mesma URL que o frontend
+        return window.location.origin + '/api';
     },
     
     // Modo de autenticação

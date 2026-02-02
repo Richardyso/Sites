@@ -80,30 +80,10 @@ class API {
             
             // Verificar resposta
             if (!response.ok) {
-                // Tentar obter mensagem de erro do corpo da resposta
-                let errorMessage = `API Error: ${response.status}`;
-                try {
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        const errorData = await response.json();
-                        errorMessage = errorData.message || errorMessage;
-                    } else {
-                        // Se não for JSON (provavelmente HTML), usar status text
-                        errorMessage = `Server Error: ${response.status} ${response.statusText}`;
-                    }
-                } catch (e) {
-                    // Manter mensagem padrão se não conseguir processar o erro
-                }
-                
-                const error = new Error(errorMessage);
+                // Apenas lançar erro com o status, deixar cada página decidir o que fazer
+                const error = new Error(`API Error: ${response.status}`);
                 error.status = response.status;
                 throw error;
-            }
-            
-            // Verificar se a resposta é JSON
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('Invalid response format: expected JSON');
             }
             
             const data = await response.json();
@@ -120,11 +100,6 @@ class API {
             
         } catch (error) {
             logger.error('❌ Erro na requisição:', error);
-            
-            // Se for erro do servidor (500, 502, 503)
-            if (error.status >= 500 && error.status < 600) {
-                this.showServerErrorNotification();
-            }
             
             // Se for erro de rede, tentar modo offline
             if (this.isNetworkError(error)) {
@@ -255,75 +230,6 @@ class API {
     
     async delete(endpoint, options = {}) {
         return this.request(endpoint, { ...options, method: 'DELETE' });
-    }
-    
-    // Mostrar notificação de erro do servidor
-    showServerErrorNotification() {
-        // Evitar múltiplas notificações
-        if (document.querySelector('.server-error-notification')) return;
-        
-        const notification = document.createElement('div');
-        notification.className = 'server-error-notification';
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #EF4444;
-            color: white;
-            padding: 16px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            max-width: 400px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 10000;
-            animation: slideInRight 0.3s ease-out;
-        `;
-        
-        notification.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <div>
-                    <strong>Erro no Servidor</strong>
-                    <p style="margin: 4px 0 0 0; opacity: 0.9;">
-                        O servidor está temporariamente indisponível. Tente novamente em alguns instantes.
-                    </p>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" style="
-                    background: none;
-                    border: none;
-                    color: white;
-                    cursor: pointer;
-                    padding: 4px;
-                    margin-left: auto;
-                ">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Adicionar animação
-        if (!document.getElementById('server-error-animation')) {
-            const style = document.createElement('style');
-            style.id = 'server-error-animation';
-            style.textContent = `
-                @keyframes slideInRight {
-                    from {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
-        // Remover após 10 segundos
-        setTimeout(() => notification.remove(), 10000);
     }
 }
 

@@ -376,29 +376,26 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    background: white;
+    background: #E5E7EB;
     color: #6B7280;
     padding: 0.1rem 0.35rem;
-    border: 1px solid #E5E7EB;
     border-radius: 4px;
 }
 
 .roadmap-item.completed .roadmap-level-badge {
-    background: white;
-    color: #1F2937;
-    border: 1px solid #E5E7EB;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
 }
 
 .roadmap-item.current .roadmap-level-badge {
-    background: white;
-    color: #1F2937;
-    border: 1px solid #E5E7EB;
+    background: #8B5CF6;
+    color: white;
     animation: badge-glow 2s infinite;
 }
 
 @keyframes badge-glow {
-    0%, 100% { box-shadow: 0 0 4px rgba(0, 0, 0, 0.1); }
-    50% { box-shadow: 0 0 8px rgba(0, 0, 0, 0.15); }
+    0%, 100% { box-shadow: 0 0 4px rgba(139, 92, 246, 0.3); }
+    50% { box-shadow: 0 0 8px rgba(139, 92, 246, 0.5); }
 }
 
 .roadmap-level-name {
@@ -435,7 +432,7 @@
 }
 
 .roadmap-item.current .roadmap-xp-range {
-    color: #1F2937;
+    color: #8B5CF6;
 }
 
 /* Status badge */
@@ -454,21 +451,18 @@
 }
 
 .status-badge.current-badge {
-    background: white;
-    color: #1F2937;
-    border: 1px solid #E5E7EB;
+    background: rgba(139, 92, 246, 0.1);
+    color: #8B5CF6;
 }
 
 .status-badge.completed-badge {
-    background: white;
-    color: #1F2937;
-    border: 1px solid #E5E7EB;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
 }
 
 .status-badge.locked-badge {
-    background: white;
+    background: rgba(156, 163, 175, 0.1);
     color: #9CA3AF;
-    border: 1px solid #E5E7EB;
 }
 
 /* Roadmap Summary */

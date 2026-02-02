@@ -178,48 +178,14 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    
     <!-- Scripts -->
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/firebase-backend.js"></script>
-    <script src="assets/js/auth.js"></script>
-    
-    <!-- Verificação de autenticação -->
+    <!-- Modo Local - Sem Firebase -->
     <script>
-        // Debug: Verificar estado de autenticação
-        console.log('🏠 Página inicial carregada');
-        console.log('📍 URL atual:', window.location.href);
-        console.log('🔑 Token presente:', !!localStorage.getItem('authToken'));
-        console.log('👤 Dados cached:', !!localStorage.getItem('cachedUserData'));
-        
-        // Verificar se há loop de redirecionamento
-        const lastRedirect = sessionStorage.getItem('lastAuthRedirect');
-        if (lastRedirect) {
-            const data = JSON.parse(lastRedirect);
-            console.log('⚠️ Último redirecionamento:', data);
-            
-            // Se o último redirecionamento foi há menos de 2 segundos, pode ser um loop
-            if (Date.now() - data.time < 2000) {
-                console.error('❌ Possível loop de redirecionamento detectado!');
-                // Limpar dados para evitar loop
-                sessionStorage.removeItem('lastAuthRedirect');
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('cachedUserData');
-            }
-        }
-        
         // Apenas remover token inválido se existir
         if (localStorage.getItem('authToken')) {
             // Verificar se é um token local válido
             const token = localStorage.getItem('authToken');
             if (!token || token.includes('firebase')) {
-                console.log('🗑️ Removendo token inválido');
                 localStorage.removeItem('authToken');
             }
         }

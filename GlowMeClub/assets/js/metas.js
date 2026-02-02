@@ -8,9 +8,6 @@ if (!window.appConfig || !window.api) {
 // Dados do usuário atual
 let currentUser = null;
 let userGoals = [];
-let sharedGoals = [];
-let currentSharedPeriodFilter = 'all';
-let currentPersonalPeriodFilter = 'all';
 
 // Carregar metas do usuário
 async function loadUserGoals() {
@@ -30,9 +27,8 @@ async function loadUserGoals() {
         // Atualizar header
         updateHeader();
         
-        // Carregar metas pessoais e compartilhadas
+        // Carregar metas
         await loadGoalsFromBackend();
-        await loadSharedGoals();
         
     } catch (error) {
         logger.error('Erro ao carregar metas:', error);
@@ -587,191 +583,6 @@ function showSuccess(message) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// ===== FUNÇÕES DE METAS COMPARTILHADAS =====
-
-// Carregar metas compartilhadas
-async function loadSharedGoals() {
-    try {
-        const data = await window.api.get('/shared-goals/progress');
-        
-        if (data.success && data.goals) {
-            sharedGoals = data.goals;
-            displaySharedGoals();
-            updateSharedProgressOverview();
-        }
-    } catch (error) {
-        logger.error('Erro ao carregar metas compartilhadas:', error);
-        showToast('❌ Erro ao carregar metas compartilhadas');
-    }
-}
-
-// Exibir metas compartilhadas
-function displaySharedGoals() {
-    const container = document.getElementById('sharedGoalsGrid');
-    if (!container) return;
-    
-    // Filtrar por período
-    let filteredGoals = sharedGoals;
-    if (currentSharedPeriodFilter !== 'all') {
-        filteredGoals = sharedGoals.filter(goal => goal.period === currentSharedPeriodFilter);
-    }
-    
-    if (filteredGoals.length === 0) {
-        container.innerHTML = `
-            <div class="empty-goals">
-                <i class="fas fa-bullseye empty-icon"></i>
-                <p>Nenhuma meta compartilhada ${currentSharedPeriodFilter !== 'all' ? 'neste período' : 'disponível'}</p>
-            </div>
-        `;
-        return;
-    }
-    
-    container.innerHTML = '';
-    filteredGoals.forEach(goal => {
-        const card = window.createSharedGoalCard(goal);
-        container.appendChild(card);
-    });
-}
-
-// Atualizar overview de progresso compartilhado
-function updateSharedProgressOverview() {
-    const weeklyGoals = sharedGoals.filter(g => g.period === 'weekly');
-    const monthlyGoals = sharedGoals.filter(g => g.period === 'monthly');
-    const yearlyGoals = sharedGoals.filter(g => g.period === 'yearly');
-    
-    // Atualizar barras de progresso
-    updateSharedProgressBar('weekly', 
-        weeklyGoals.filter(g => g.userCompleted).length, 
-        weeklyGoals.length
-    );
-    updateSharedProgressBar('monthly', 
-        monthlyGoals.filter(g => g.userCompleted).length, 
-        monthlyGoals.length
-    );
-    updateSharedProgressBar('yearly', 
-        yearlyGoals.filter(g => g.userCompleted).length, 
-        yearlyGoals.length
-    );
-    
-    // Progresso total
-    const totalGoals = sharedGoals.length;
-    const completedGoals = sharedGoals.filter(g => g.userCompleted).length;
-    const totalPercentage = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
-    
-    const totalProgressEl = document.getElementById('sharedTotalProgress');
-    if (totalProgressEl) {
-        totalProgressEl.textContent = `${totalPercentage}%`;
-    }
-}
-
-// Atualizar barra de progresso individual compartilhada
-function updateSharedProgressBar(period, completed, total) {
-    const progressEl = document.getElementById(`shared${period.charAt(0).toUpperCase() + period.slice(1)}Progress`);
-    const textEl = document.getElementById(`shared${period.charAt(0).toUpperCase() + period.slice(1)}Text`);
-    
-    if (progressEl && textEl) {
-        const percentage = total > 0 ? (completed / total) * 100 : 0;
-        progressEl.style.width = `${percentage}%`;
-        textEl.textContent = `${completed}/${total}`;
-    }
-}
-
-// Expandir/contrair notas compartilhadas
-window.expandSharedNotes = function(goalId) {
-    const notesEl = document.getElementById(`sharedNotes-${goalId}`);
-    const toggleIcon = notesEl?.parentElement?.querySelector('.toggle-icon');
-    
-    if (notesEl) {
-        if (notesEl.style.display === 'none') {
-            notesEl.style.display = 'block';
-            if (toggleIcon) toggleIcon.style.transform = 'rotate(180deg)';
-        } else {
-            notesEl.style.display = 'none';
-            if (toggleIcon) toggleIcon.style.transform = 'rotate(0deg)';
-        }
-    }
-};
-
-// Atualizar notas da meta compartilhada
-window.updateSharedGoalNotes = async function(goalId) {
-    const notesInput = document.querySelector(`#sharedNotes-${goalId} textarea`);
-    if (!notesInput) return;
-    
-    const notes = notesInput.value;
-    
-    try {
-        await window.api.put(`/shared-goals/${goalId}/progress`, {
-            notes: notes
-        });
-        
-        // Atualizar dados locais
-        const goal = sharedGoals.find(g => g.id === goalId);
-        if (goal) {
-            goal.userNotes = notes;
-        }
-    } catch (error) {
-        logger.error('Erro ao atualizar notas:', error);
-        showToast('❌ Erro ao salvar anotações');
-    }
-};
-
-// Atualizar progresso da meta compartilhada
-window.updateSharedProgress = async function(goalId, increment) {
-    const goal = sharedGoals.find(g => g.id === goalId);
-    if (!goal) return;
-    
-    const newProgress = Math.max(0, Math.min(goal.totalRequired, (goal.userProgress || 0) + increment));
-    const completed = newProgress >= goal.totalRequired;
-    
-    try {
-        const response = await window.api.put(`/shared-goals/${goalId}/progress`, {
-            progress: newProgress,
-            completed: completed
-        });
-        
-        if (response.success) {
-            goal.userProgress = newProgress;
-            goal.userCompleted = completed;
-            
-            // Recarregar display
-            displaySharedGoals();
-            updateSharedProgressOverview();
-            
-            if (response.rewarded) {
-                showToast(`🎉 Meta compartilhada completada! +${goal.xp} XP e +${goal.points} moedas`);
-                
-                // Atualizar dados do usuário localmente
-                if (currentUser) {
-                    currentUser.totalXp = (currentUser.totalXp || 0) + goal.xp;
-                    currentUser.points = (currentUser.points || 0) + goal.points;
-                    updateHeader();
-                }
-            }
-        }
-    } catch (error) {
-        logger.error('Erro ao atualizar progresso:', error);
-        showToast('❌ Erro ao atualizar progresso');
-    }
-};
-
-// Configurar tabs para metas compartilhadas
-function setupSharedGoalsTabs() {
-    const sharedTabs = document.querySelectorAll('.shared-tabs .goals-tab');
-    
-    sharedTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const period = tab.dataset.period;
-            
-            // Remover active de todas as tabs compartilhadas
-            sharedTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            
-            currentSharedPeriodFilter = period;
-            displaySharedGoals();
-        });
-    });
-}
-
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     logger.info('📋 Carregando página de metas...');
@@ -781,7 +592,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Setup tabs de período
     setupGoalsTabs();
-    setupSharedGoalsTabs();
     
     // Botão de adicionar meta
     const addGoalBtn = document.getElementById('addGoalBtn');

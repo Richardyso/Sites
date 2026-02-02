@@ -40,7 +40,6 @@ const userRoutes = require('./routes/users');
 const goalsRoutes = require('./routes/goals');
 const missionsRoutes = require('./routes/missions');
 const rewardsRoutes = require('./routes/rewards');
-const sharedGoalsRoutes = require('./routes/sharedGoals');
 
 // Criar aplicação Express
 const app = express();
@@ -117,7 +116,6 @@ app.use('/api/users', userRoutes); // Inclui rotas de admin e ranking
 app.use('/api/user', userRoutes); // Alias para compatibilidade
 app.use('/api/admin', userRoutes); // Rotas de admin (redirecionam para users)
 app.use('/api/points', userRoutes); // Rotas de pontos (histórico)
-app.use('/api/shared-goals', sharedGoalsRoutes); // Rotas de metas compartilhadas
 app.use('/api/goals', goalsRoutes);
 app.use('/api/missions', missionsRoutes);
 app.use('/api/rewards', rewardsRoutes);
