@@ -248,9 +248,9 @@ async function handleGoogleLogin() {
             if (data.user && data.user.role === 'admin') {
                 window.location.href = 'admin.html';
             } else {
-                // Se for novo usuário, redirecionar para perfil para completar cadastro
+                // Se for novo usuário, redirecionar para onboarding (completar perfil)
                 if (data.isNewUser) {
-                    window.location.href = 'perfil.html';
+                    window.location.href = 'completar-perfil.html';
                 } else {
                     window.location.href = 'dashboard.html';
                 }

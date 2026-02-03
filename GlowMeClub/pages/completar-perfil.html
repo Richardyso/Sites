@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete seu perfil - GlowMeClub</title>
+
+    <link rel="icon" type="image/png" href="../assets/images/favico.png">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Complete seu perfil - GlowMeClub">
+    <meta property="og:description" content="Último passo para personalizar sua experiência">
+    <meta property="og:image" content="../assets/images/og.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/perfil.css">
+    <link rel="stylesheet" href="../assets/css/completar-perfil.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header class="app-header">
+        <nav class="app-nav">
+            <div class="header-left">
+                <a href="dashboard.html" class="logo-link">
+                    <img src="../assets/images/glowmeclub.png" alt="GlowMeClub" class="logo-img">
+                </a>
+            </div>
+            <div class="user-area">
+                <span class="user-name onboarding-header-name" id="headerUserName">Usuário</span>
+                <button type="button" class="logout-btn" id="logoutBtn" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="logout-text">Sair</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <div class="page-header onboarding-page-header">
+            <h1 class="page-title">Complete seu perfil</h1>
+            <p class="page-subtitle">Último passo: personalize sua experiência com sua foto, cor, área de foco e preferências.</p>
+        </div>
+
+        <div class="profile-form-card">
+            <form id="onboardingForm">
+                <div class="avatar-section">
+                    <div class="avatar-container">
+                        <div class="profile-avatar-large" id="profileAvatar">
+                            <span id="avatarInitial">U</span>
+                            <img id="avatarImage" src="" alt="Avatar">
+                        </div>
+                        <label for="avatarInput" class="avatar-edit-btn" title="Alterar foto">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="avatarInput" accept="image/*">
+                    </div>
+                    <div class="avatar-info">
+                        <p class="avatar-hint">Clique no ícone da câmera para alterar sua foto</p>
+                        <p class="avatar-hint-small">Formatos: JPG, PNG, GIF (máx. 5MB)</p>
+                        <button type="button" id="removeAvatarBtn" class="btn-text remove-avatar-btn">
+                            <i class="fas fa-trash"></i> Remover foto
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-phone"></i>
+                        Telefone
+                    </h3>
+                    <div class="form-group">
+                        <label for="userPhone" class="form-label">Telefone (opcional)</label>
+                        <div class="phone-input-container">
+                            <input type="text" id="phoneDdi" name="phoneDdi" class="form-input phone-ddi-input" value="+55" placeholder="+55" maxlength="5">
+                            <input type="tel" id="userPhone" name="phone" class="form-input phone-input" placeholder="(11) 99999-9999" maxlength="15">
+                        </div>
+                        <span class="form-hint">DDI padrão: +55 (Brasil). Formato: (DDD) 9XXXX-XXXX</span>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-palette"></i>
+                        Preferências
+                    </h3>
+                    <div class="form-group">
+                        <label class="form-label">Cor preferida</label>
+                        <button type="button" class="color-selector-btn" id="colorSelectorBtn">
+                            <span class="selected-color-preview" id="selectedColorPreview"></span>
+                            <span class="selected-color-name" id="selectedColorName">Roxo</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <input type="hidden" id="preferredColor" name="preferredColor" value="#8B5CF6">
+                    </div>
+                    <div class="form-group">
+                        <label for="focusArea" class="form-label">Área de foco principal</label>
+                        <select id="focusArea" name="focusArea" class="form-select" required>
+                            <option value="Mental">🧠 Mental</option>
+                            <option value="Físico">💪 Físico</option>
+                            <option value="Emocional">💗 Emocional</option>
+                            <option value="Espiritual">🕊️ Espiritual</option>
+                            <option value="Financeiro">💰 Financeiro</option>
+                            <option value="Aparência">✨ Aparência</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section email-prefs-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-envelope"></i>
+                        Preferências de Email
+                    </h3>
+                    <p class="section-desc">Escolha quais emails você quer receber</p>
+                    <div class="email-prefs-list">
+                        <label class="email-pref-item">
+                            <input type="checkbox" id="emailWeekly" name="emailWeekly" checked>
+                            <div class="pref-info">
+                                <span class="pref-title">📊 Resumo Semanal</span>
+                                <span class="pref-desc">Receba um resumo fofo da sua semana todos os domingos</span>
+                            </div>
+                        </label>
+                        <label class="email-pref-item">
+                            <input type="checkbox" id="emailRewards" name="emailRewards" checked>
+                            <div class="pref-info">
+                                <span class="pref-title">🎁 Recompensas</span>
+                                <span class="pref-desc">Notificação quando resgatar recompensas</span>
+                            </div>
+                        </label>
+                        <label class="email-pref-item">
+                            <input type="checkbox" id="emailLevelUp" name="emailLevelUp" checked>
+                            <div class="pref-info">
+                                <span class="pref-title">👑 Level Up</span>
+                                <span class="pref-desc">Celebre quando subir de nível</span>
+                            </div>
+                        </label>
+                        <label class="email-pref-item">
+                            <input type="checkbox" id="emailReminders" name="emailReminders">
+                            <div class="pref-info">
+                                <span class="pref-title">⏰ Lembretes</span>
+                                <span class="pref-desc">Receba lembretes para manter seu streak</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-completar-perfil" id="submitBtn">
+                        <i class="fas fa-check"></i>
+                        Completar perfil
+                    </button>
+                </div>
+
+                <div id="statusMessage" class="status-message"></div>
+            </form>
+        </div>
+    </main>
+
+    <div class="modal" id="cropModal">
+        <div class="modal-content crop-modal-content">
+            <div class="modal-header">
+                <h3>Ajustar Imagem</h3>
+                <button type="button" class="close-btn" id="closeCropModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="crop-preview-container">
+                    <img id="cropPreview" src="" alt="Preview">
+                </div>
+                <p class="crop-hint">A imagem será redimensionada e comprimida automaticamente</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelCrop">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmCrop">
+                    <i class="fas fa-check"></i> Usar esta imagem
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="colorPickerModal">
+        <div class="modal-content color-picker-modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-palette"></i> Escolha sua cor favorita</h3>
+                <button type="button" class="close-btn" id="closeColorModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="color-grid color-grid-3x3" id="colorGrid">
+                    <div class="color-option" data-color="#EF4444" data-name="Vermelho"></div>
+                    <div class="color-option" data-color="#3B82F6" data-name="Azul"></div>
+                    <div class="color-option" data-color="#EAB308" data-name="Amarelo"></div>
+                    <div class="color-option" data-color="#F97316" data-name="Laranja"></div>
+                    <div class="color-option" data-color="#22C55E" data-name="Verde"></div>
+                    <div class="color-option" data-color="#8B5CF6" data-name="Roxo"></div>
+                    <div class="color-option" data-color="#6B7280" data-name="Cinza"></div>
+                    <div class="color-option" data-color="#D4A574" data-name="Bege"></div>
+                    <div class="color-option" data-color="#EC4899" data-name="Rosa"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelColorPicker">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/completar-perfil.js"></script>
+</body>
+</html>

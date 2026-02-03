@@ -1,0 +1,70 @@
+/* ===== COMPLETAR PERFIL - Onboarding pós-Google ===== */
+
+/* Esconder elementos que o JS controla por visibilidade */
+#avatarInput {
+    display: none;
+}
+
+.profile-avatar-large #avatarImage {
+    display: none;
+}
+
+.profile-avatar-large #avatarImage[src]:not([src=""]) {
+    display: block;
+}
+
+.remove-avatar-btn {
+    display: none;
+}
+
+.remove-avatar-btn.visible {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Preview da cor padrão (sem inline) */
+#selectedColorPreview {
+    background: #8B5CF6;
+}
+
+/* Cores do grid no modal (sem inline) */
+#colorGrid .color-option[data-color="#EF4444"] { background: #EF4444; }
+#colorGrid .color-option[data-color="#3B82F6"] { background: #3B82F6; }
+#colorGrid .color-option[data-color="#EAB308"] { background: #EAB308; }
+#colorGrid .color-option[data-color="#F97316"] { background: #F97316; }
+#colorGrid .color-option[data-color="#22C55E"] { background: #22C55E; }
+#colorGrid .color-option[data-color="#8B5CF6"] { background: #8B5CF6; }
+#colorGrid .color-option[data-color="#6B7280"] { background: #6B7280; }
+#colorGrid .color-option[data-color="#D4A574"] { background: #D4A574; }
+#colorGrid .color-option[data-color="#EC4899"] { background: #EC4899; }
+
+/* Header da página de onboarding */
+.onboarding-page-header .page-title {
+    font-size: 1.5rem;
+}
+
+.onboarding-page-header .page-subtitle {
+    font-size: 0.95rem;
+    color: #666;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+/* Botão principal */
+.btn-completar-perfil {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    justify-content: center;
+}
+
+.btn-completar-perfil.btn-loading {
+    pointer-events: none;
+    opacity: 0.9;
+}
+
+.onboarding-header-name {
+    margin-right: 0.5rem;
+}
