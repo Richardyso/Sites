@@ -1,8 +1,32 @@
 // ===== SISTEMA DE TEMA DINÂMICO - GLOWMECLUB =====
-// Aplica a cor favorita do usuário como tema em toda a experiência
+// Aplica a cor favorita do usuário e modo escuro (persistente por perfil)
 
 (function() {
     'use strict';
+
+    // ===== MODO ESCURO (aplicar o mais cedo possível para evitar flash) =====
+    function getDarkModeFromUser() {
+        try {
+            const cached = localStorage.getItem('cachedUserData');
+            if (cached) {
+                const user = JSON.parse(cached);
+                return user.darkMode === true;
+            }
+        } catch (e) {}
+        return false;
+    }
+
+    function applyDarkMode(isDark) {
+        const html = document.documentElement;
+        if (isDark) {
+            html.setAttribute('data-theme', 'dark');
+        } else {
+            html.removeAttribute('data-theme');
+        }
+    }
+
+    // Aplicar modo escuro imediatamente (síncrono)
+    applyDarkMode(getDarkModeFromUser());
 
     // Cores disponíveis no cadastro
     const colorOptions = {
@@ -591,22 +615,79 @@
     window.addEventListener('storage', (e) => {
         if (e.key === 'cachedUserData') {
             initTheme();
+            applyDarkMode(getDarkModeFromUser());
         }
     });
+
+    // ===== TOGGLE MODO ESCURO =====
+    function toggleDarkMode() {
+        const isDark = getDarkModeFromUser();
+        const newDark = !isDark;
+
+        // Aplicar imediatamente (otimista)
+        applyDarkMode(newDark);
+        updateToggleIcon(newDark);
+
+        // Atualizar cache local
+        try {
+            const cached = localStorage.getItem('cachedUserData');
+            if (cached) {
+                const user = JSON.parse(cached);
+                user.darkMode = newDark;
+                localStorage.setItem('cachedUserData', JSON.stringify(user));
+            }
+        } catch (e) {}
+
+        // Persistir no perfil via API
+        if (window.api && window.api.getToken()) {
+            window.api.put('/user/profile', { darkMode: newDark }).catch(function(err) {
+                console.warn('Erro ao salvar preferência de modo escuro:', err);
+                applyDarkMode(!newDark);
+                updateToggleIcon(!newDark);
+            });
+        }
+    }
+
+    function updateToggleIcon(isDark) {
+        const btns = document.querySelectorAll('.theme-toggle-btn');
+        btns.forEach(function(btn) {
+            const icon = btn.querySelector('i');
+            if (icon) {
+                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            }
+            btn.setAttribute('aria-label', isDark ? 'Alternar para modo claro' : 'Alternar para modo escuro');
+        });
+    }
+
+    function setupThemeToggle() {
+        const btns = document.querySelectorAll('.theme-toggle-btn');
+        btns.forEach(function(btn) {
+            btn.removeEventListener('click', toggleDarkMode);
+            btn.addEventListener('click', toggleDarkMode);
+            updateToggleIcon(getDarkModeFromUser());
+        });
+    }
 
     // Expor funções globalmente
     window.GlowTheme = {
         apply: applyTheme,
         update: updateTheme,
         init: initTheme,
-        getColor: getUserColor
+        getColor: getUserColor,
+        toggleDarkMode: toggleDarkMode,
+        isDarkMode: getDarkModeFromUser,
+        setupThemeToggle: setupThemeToggle
     };
 
     // Inicializar quando DOM estiver pronto
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initTheme);
-    } else {
+    function onReady() {
         initTheme();
+        setupThemeToggle();
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onReady);
+    } else {
+        onReady();
     }
 
     // Re-aplicar quando a página carregar completamente (para garantir)

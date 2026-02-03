@@ -1,0 +1,262 @@
+/* ===== MODO ESCURO - Variáveis e transição suave ===== */
+/* Aplicado via data-theme="dark" no <html> */
+
+html {
+    transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+html[data-theme="dark"] {
+    --dm-bg-primary: #0f0f12;
+    --dm-bg-secondary: #1a1a1f;
+    --dm-bg-card: #232328;
+    --dm-bg-elevated: #2d2d33;
+    --dm-text-primary: #f3f4f6;
+    --dm-text-secondary: #9ca3af;
+    --dm-border: rgba(255, 255, 255, 0.08);
+}
+
+/* Transição suave em elementos principais */
+body,
+.app-header,
+.mobile-menu,
+.content-card,
+.stats-card,
+.main-container,
+.profile-form-card {
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* === Modo escuro - Base === */
+html[data-theme="dark"] body {
+    background-color: var(--dm-bg-primary);
+    color: var(--dm-text-primary);
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 {
+    color: var(--dm-text-primary);
+}
+
+html[data-theme="dark"] .page-title {
+    color: var(--dm-text-primary) !important;
+}
+
+html[data-theme="dark"] .page-subtitle {
+    color: var(--dm-text-secondary);
+}
+
+/* Header */
+html[data-theme="dark"] .app-header {
+    background: var(--dm-bg-secondary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="dark"] .user-profile-link {
+    color: var(--dm-text-primary);
+}
+
+html[data-theme="dark"] .user-profile-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .logout-btn {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--dm-text-secondary);
+}
+
+html[data-theme="dark"] .logout-btn:hover {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: #dc2626;
+    color: #f87171;
+}
+
+/* Mobile Menu */
+html[data-theme="dark"] .mobile-menu {
+    background: var(--dm-bg-secondary);
+}
+
+html[data-theme="dark"] .mobile-menu-nav .mobile-menu-link,
+html[data-theme="dark"] .mobile-menu-footer .mobile-menu-link {
+    color: var(--dm-text-primary);
+}
+
+html[data-theme="dark"] .mobile-menu-nav .mobile-menu-link:hover,
+html[data-theme="dark"] .mobile-menu-footer .mobile-menu-link:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--dm-text-primary);
+}
+
+html[data-theme="dark"] .mobile-menu-divider {
+    background: var(--dm-border);
+}
+
+/* Cards e conteúdo */
+html[data-theme="dark"] .content-card,
+html[data-theme="dark"] .stats-card {
+    background: var(--dm-bg-card);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Nav links desktop */
+html[data-theme="dark"] .nav-link {
+    color: var(--dm-text-secondary);
+}
+
+html[data-theme="dark"] .nav-link.active {
+    color: var(--dm-text-primary);
+}
+
+/* Hamburger */
+html[data-theme="dark"] .hamburger-btn span {
+    background: var(--dm-text-primary);
+}
+
+html[data-theme="dark"] .hamburger-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Dashboard e páginas internas */
+html[data-theme="dark"] .level-card-main,
+html[data-theme="dark"] .roadmap-card,
+html[data-theme="dark"] .ranking-card-cute,
+html[data-theme="dark"] .stat-card-cute {
+    background: var(--dm-bg-card);
+    border-color: var(--dm-border);
+}
+
+html[data-theme="dark"] .welcome-title {
+    color: var(--dm-text-primary);
+}
+
+html[data-theme="dark"] .level-label-top,
+html[data-theme="dark"] .level-quote,
+html[data-theme="dark"] .progress-text-hero {
+    color: var(--dm-text-secondary);
+}
+
+html[data-theme="dark"] .roadmap-header h3,
+html[data-theme="dark"] .roadmap-level-name,
+html[data-theme="dark"] .ranking-header-cute h3 {
+    color: var(--dm-text-primary);
+}
+
+html[data-theme="dark"] .roadmap-header p,
+html[data-theme="dark"] .ranking-header-cute p,
+html[data-theme="dark"] .stat-content-cute h3 {
+    color: var(--dm-text-secondary);
+}
+
+html[data-theme="dark"] .profile-form-card {
+    background: var(--dm-bg-card);
+}
+
+html[data-theme="dark"] .form-section,
+html[data-theme="dark"] .avatar-section {
+    border-color: var(--dm-border);
+}
+
+html[data-theme="dark"] .form-input,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] .form-textarea {
+    background: var(--dm-bg-elevated);
+    border-color: var(--dm-border);
+    color: var(--dm-text-primary);
+}
+
+html[data-theme="dark"] .form-input::placeholder,
+html[data-theme="dark"] .form-textarea::placeholder {
+    color: var(--dm-text-secondary);
+}
+
+html[data-theme="dark"] .form-label,
+html[data-theme="dark"] .section-title {
+    color: var(--dm-text-primary);
+}
+
+/* Toggle de tema - estilos do botão */
+.theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--cor-texto-medio, #6B7280);
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--cor-lilas-suave, rgba(139, 92, 246, 0.1));
+    color: var(--user-color, var(--cor-roxo-medio));
+}
+
+.theme-toggle-btn:focus-visible {
+    outline: 2px solid var(--user-color, var(--cor-roxo-medio));
+    outline-offset: 2px;
+}
+
+.theme-toggle-btn i {
+    font-size: 1rem;
+    transition: transform 0.35s ease;
+}
+
+.theme-toggle-btn:hover i {
+    transform: rotate(15deg);
+}
+
+html[data-theme="dark"] .theme-toggle-btn {
+    color: var(--dm-text-secondary);
+}
+
+html[data-theme="dark"] .theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--user-color);
+}
+
+/* Admin page - header escuro em ambos os modos */
+.admin-header .theme-toggle-btn {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.admin-header .theme-toggle-btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+html[data-theme="dark"] .admin-header {
+    background: var(--dm-bg-secondary);
+}
+
+html[data-theme="dark"] .admin-content,
+html[data-theme="dark"] .admin-section {
+    background: transparent;
+    color: var(--dm-text-primary);
+}
+
+html[data-theme="dark"] .admin-section {
+    border-color: var(--dm-border);
+}
+
+/* Responsividade do toggle */
+@media (max-width: 359px) {
+    .theme-toggle-btn {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+    }
+    
+    .theme-toggle-btn i {
+        font-size: 0.875rem;
+    }
+}

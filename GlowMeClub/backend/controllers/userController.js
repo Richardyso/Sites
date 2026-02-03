@@ -53,7 +53,7 @@ exports.getUserProfile = async (req, res) => {
 exports.updateUserProfile = async (req, res) => {
     try {
         const userId = req.user.uid;
-        const { name, preferredColor, focusArea, phone, profileImage, emailPreferences } = req.body;
+        const { name, preferredColor, focusArea, phone, profileImage, emailPreferences, darkMode } = req.body;
         
         // Validações
         const updates = {};
@@ -104,6 +104,11 @@ exports.updateUserProfile = async (req, res) => {
                 levelUp: emailPreferences.levelUp !== false,
                 reminders: emailPreferences.reminders === true
             };
+        }
+        
+        // Preferência de modo escuro (por perfil)
+        if (typeof darkMode === 'boolean') {
+            updates.darkMode = darkMode;
         }
         
         if (Object.keys(updates).length === 0) {
