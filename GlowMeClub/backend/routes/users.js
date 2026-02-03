@@ -130,6 +130,49 @@ router.put('/users/:id', verifyToken, isAdmin, async (req, res) => {
 });
 
 /**
+ * DELETE /api/admin/users/:id
+ * Excluir usuária permanentemente (admin only). Remove Firestore + Firebase Auth.
+ */
+router.delete('/users/:id', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const uid = req.params.id;
+        if (req.user.uid === uid) {
+            return res.status(400).json({
+                error: 'Não permitido',
+                message: 'Você não pode excluir sua própria conta por aqui.'
+            });
+        }
+
+        const batch = firestore.batch();
+        batch.delete(firestore.collection('users').doc(uid));
+
+        const collections = ['goals', 'missions', 'pointsHistory', 'rewards'];
+        for (const collectionName of collections) {
+            const snapshot = await firestore
+                .collection('users')
+                .doc(uid)
+                .collection(collectionName)
+                .get();
+            snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        }
+
+        await batch.commit();
+        await auth.deleteUser(uid);
+
+        res.json({
+            success: true,
+            message: 'Usuária excluída com sucesso'
+        });
+    } catch (error) {
+        console.error('Erro ao excluir usuária:', error);
+        res.status(500).json({
+            error: 'Erro ao excluir usuária',
+            message: error.message || 'Não foi possível excluir. Tente novamente.'
+        });
+    }
+});
+
+/**
  * POST /api/admin/users/:id/grant-points
  * Conceder XP e Moedas a um usuário (admin only)
  */

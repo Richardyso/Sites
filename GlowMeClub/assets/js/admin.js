@@ -1198,6 +1198,24 @@
         }
     }
     
+    async function deleteUserInAdmin() {
+        const userId = document.getElementById('editUserId').value;
+        if (!userId) return;
+        const user = allUsers.find(u => u.uid === userId);
+        const name = user ? (user.name || user.email || 'Usuária') : 'Usuária';
+        if (!confirm(`Excluir permanentemente "${name}"? Esta ação não pode ser desfeita.`)) return;
+        try {
+            await window.api.delete(`/admin/users/${userId}`);
+            allUsers = allUsers.filter(u => u.uid !== userId);
+            displayUsers(allUsers);
+            closeModal('editUserModal');
+            showToast('Usuária excluída.', 'success');
+        } catch (error) {
+            log.error('Erro ao excluir usuária:', error);
+            showToast(error.message || 'Erro ao excluir usuária', 'error');
+        }
+    }
+    
     // ===== UTILIDADES =====
     
     function showToast(message, type = 'success') {
@@ -1507,6 +1525,9 @@
         
         const cancelEditUser = document.getElementById('cancelEditUser');
         if (cancelEditUser) cancelEditUser.onclick = () => closeModal('editUserModal');
+        
+        const deleteUserBtn = document.getElementById('deleteUserBtn');
+        if (deleteUserBtn) deleteUserBtn.onclick = deleteUserInAdmin;
         
         const closeRewardModal = document.getElementById('closeRewardModal');
         if (closeRewardModal) closeRewardModal.onclick = () => closeModal('rewardModal');
