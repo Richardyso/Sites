@@ -765,20 +765,26 @@
         return hex || 'Padrão';
     }
     
-    // Formatar telefone para exibição (ex: +5511999999999 → +55 (11) 99999-9999)
+    // Formatar telefone para exibição no admin
+    // Brasil (+55): +55 (XX) 9 XXXX-XXXX
+    // Outros países: DDI + espaço + dígitos (sem formatação específica)
     function formatPhoneForDisplay(phone) {
         if (!phone || typeof phone !== 'string') return '';
-        const digits = phone.replace(/\D/g, '');
-        if (digits.length < 10) return phone;
-        const ddiMatch = phone.trim().match(/^(\+\d{1,4})/);
+        const raw = phone.trim();
+        const digits = raw.replace(/\D/g, '');
+        if (digits.length < 10) return raw;
+        const ddiMatch = raw.match(/^(\+\d{1,4})/);
         const ddi = ddiMatch ? ddiMatch[1] : '';
-        const afterDdi = digits.replace(/^\d{1,4}/, '');
-        const ddd = afterDdi.substring(0, 2);
-        const num = afterDdi.substring(2);
-        const formatted = num.length >= 9
-            ? num.replace(/^(\d{5})(\d{4})/, '$1-$2')
-            : num.replace(/^(\d{4})(\d{4})/, '$1-$2');
-        return ddi ? `${ddi} (${ddd}) ${formatted}` : `(${ddd}) ${formatted}`;
+        const ddiDigits = ddi.replace(/\D/g, '');
+        const afterDdi = digits.slice(ddiDigits.length);
+        if (!afterDdi.length) return raw;
+        if (ddi === '+55') {
+            if (afterDdi.length !== 11) return raw;
+            const ddd = afterDdi.slice(0, 2);
+            const num = afterDdi.slice(2);
+            return `+55 (${ddd}) ${num.slice(0, 1)} ${num.slice(1, 5)}-${num.slice(5)}`;
+        }
+        return ddi + ' ' + afterDdi;
     }
     
     function closeModal(modalId) {
