@@ -14,7 +14,14 @@ if (!window.appConfig || !window.api) {
     console.error('❌ Dependências não encontradas. Certifique-se de carregar config.js e api.js primeiro.');
 }
 
-// ===== TELEFONE: DDI (+ obrigatório, máx 3 dígitos) + número (Brasil +55 máx 12 dígitos, outros máx 9) =====
+// ===== TELEFONE: DDI (+ obrigatório, 1 a 3 dígitos: +1 a +351) + número (campo à parte, não altera o DDI) =====
+function normalizeDDI(raw) {
+    const s = (raw || '').trim();
+    const withPlus = s.startsWith('+') ? s : '+' + s.replace(/\D/g, '');
+    const digits = withPlus.slice(1).replace(/\D/g, '').slice(0, 3);
+    return digits.length >= 1 ? '+' + digits : '+55';
+}
+
 function formatPhoneInput(value, ddi) {
     const digits = String(value || '').replace(/\D/g, '');
     const ddiNorm = (ddi || '+55').toString().trim().replace(/\D/g, '');
@@ -85,16 +92,15 @@ async function handleSignup(e) {
     }
 
     const phoneDigits = formData.phone.replace(/\D/g, '');
-    const ddiForValidation = formData.phoneDdi.startsWith('+') ? formData.phoneDdi : '+' + formData.phoneDdi;
+    const ddiForValidation = normalizeDDI(formData.phoneDdi);
     const validation = validatePhoneWithDDI(ddiForValidation, phoneDigits);
     if (!validation.valid) {
         showError(validation.message || 'Telefone inválido.');
         return;
     }
     
-    // Montar telefone com DDI (Brasil: remove 0 inicial se tiver 12 dígitos)
-    let ddi = formData.phoneDdi;
-    if (!ddi.startsWith('+')) ddi = '+' + ddi;
+    // Montar telefone: DDI normalizado (1–3 dígitos; se só "+" usa +55)
+    let ddi = normalizeDDI(formData.phoneDdi);
     let digitsToSave = phoneDigits;
     if (ddi === '+55' && phoneDigits.length === 12 && phoneDigits.startsWith('0')) digitsToSave = phoneDigits.slice(1);
     const phoneWithDDI = ddi + digitsToSave;
@@ -509,14 +515,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // DDI: + obrigatório, máx 3 dígitos
+    // DDI: + obrigatório; de 1 a 3 dígitos (+1 EUA a +351 Portugal). Campo do número não altera o DDI.
     const ddiInput = document.getElementById('phoneDdi');
     if (ddiInput) {
         ddiInput.addEventListener('input', function(e) {
             let v = e.target.value.replace(/[^\d+]/g, '');
             if (!v.startsWith('+')) v = '+' + v.replace(/\+/g, '');
-            const digits = v.slice(1);
-            e.target.value = '+' + digits.substring(0, 3);
+            const digits = v.slice(1).substring(0, 3);
+            e.target.value = '+' + digits;
         });
     }
     

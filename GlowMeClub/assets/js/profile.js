@@ -162,7 +162,14 @@ function populateForm() {
     updateSaveButton();
 }
 
-// ===== TELEFONE: DDI (+ obrigatório, máx 3 dígitos) + número (Brasil +55 máx 12, outros máx 9) =====
+// ===== TELEFONE: DDI (+ obrigatório, 1 a 3 dígitos: +1 a +351) + número (campo à parte, não altera o DDI) =====
+function normalizeDDI(raw) {
+    const s = (raw || '').trim();
+    const withPlus = s.startsWith('+') ? s : '+' + s.replace(/\D/g, '');
+    const digits = withPlus.slice(1).replace(/\D/g, '').slice(0, 3);
+    return digits.length >= 1 ? '+' + digits : '+55';
+}
+
 function formatPhoneNumber(value, ddi) {
     const digits = String(value || '').replace(/\D/g, '');
     const ddiNorm = (ddi || '+55').toString().trim().replace(/\D/g, '');
@@ -196,8 +203,7 @@ function getPhoneForSave() {
     if (!phoneInput || !phoneInput.value.trim()) return null;
     let digits = phoneInput.value.replace(/\D/g, '');
     if (digits.length === 0) return null;
-    let ddi = ddiInput ? ddiInput.value.trim() : '+55';
-    if (!ddi.startsWith('+')) ddi = '+' + ddi;
+    const ddi = normalizeDDI(ddiInput ? ddiInput.value : '+55');
     const isBrazil = (ddi === '+55');
     if (isBrazil && digits.length === 12 && digits.startsWith('0')) digits = digits.slice(1);
     return ddi + digits;
@@ -499,7 +505,8 @@ function setupEventListeners() {
         ddiInput.addEventListener('input', function(e) {
             let v = e.target.value.replace(/[^\d+]/g, '');
             if (!v.startsWith('+')) v = '+' + v.replace(/\+/g, '');
-            e.target.value = '+' + v.slice(1).substring(0, 3);
+            const digits = v.slice(1).substring(0, 3);
+            e.target.value = '+' + digits;
             markAsChanged();
         });
     }
@@ -721,7 +728,7 @@ async function handleSaveProfile(e) {
             const phoneInput = document.getElementById('userPhone');
             const ddiInput = document.getElementById('phoneDdi');
             if (phoneInput && phoneInput.value.trim()) {
-                const ddi = ddiInput ? (ddiInput.value.trim().startsWith('+') ? ddiInput.value.trim() : '+' + ddiInput.value.trim()) : '+55';
+                const ddi = normalizeDDI(ddiInput ? ddiInput.value : '+55');
                 const digits = phoneInput.value.replace(/\D/g, '');
                 const v = validatePhoneWithDDI(ddi, digits);
                 if (!v.valid) {
