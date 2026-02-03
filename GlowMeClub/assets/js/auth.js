@@ -14,9 +14,9 @@ if (!window.appConfig || !window.api) {
     console.error('❌ Dependências não encontradas. Certifique-se de carregar config.js e api.js primeiro.');
 }
 
-// ===== FUNÇÕES DE TELEFONE (DDI + número; regras por país) =====
+// ===== FUNÇÕES DE TELEFONE (DDI + número; regras simplificadas) =====
+// Brasil +55: até 12 dígitos (considerando 0 no início); Portugal +351: exatamente 9 dígitos
 
-// Formata o número conforme o DDI: Brasil (DDD + 9 dígitos), Portugal (9 dígitos), outros (apenas dígitos)
 function formatPhoneInput(value, ddi) {
     const digits = String(value || '').replace(/\D/g, '');
     const ddiNorm = (ddi || '+55').toString().trim().replace(/\D/g, '');
@@ -24,21 +24,20 @@ function formatPhoneInput(value, ddi) {
     const isPortugal = ddiNorm === '351';
 
     if (isBrazil) {
-        const limited = digits.substring(0, 11);
+        const limited = digits.substring(0, 12);
         if (limited.length === 0) return '';
-        const ddd = limited.slice(0, 2);
-        const rest = limited.slice(2);
+        const normalized = limited.replace(/^0/, '').substring(0, 11);
+        if (normalized.length === 0) return limited;
+        const ddd = normalized.slice(0, 2);
+        const rest = normalized.slice(2);
         const part1 = rest.slice(0, 5);
         const part2 = rest.slice(5, 9);
         return part2 ? `(${ddd}) ${part1}-${part2}` : rest.length > 0 ? `(${ddd}) ${part1}` : `(${ddd})`;
     }
-    if (isPortugal) {
-        return digits.substring(0, 9);
-    }
+    if (isPortugal) return digits.substring(0, 9);
     return digits.substring(0, 15);
 }
 
-// Valida por DDI: Brasil 11 dígitos (DDD + número), Portugal 9 dígitos, outros 8–15 dígitos
 function validatePhoneWithDDI(ddi, digitsOnly) {
     const d = String(digitsOnly || '').replace(/\D/g, '');
     const ddiNorm = (ddi || '+55').toString().trim();
@@ -46,11 +45,11 @@ function validatePhoneWithDDI(ddi, digitsOnly) {
     const isPortugal = ddiNorm === '+351' || ddiNorm === '351';
 
     if (isBrazil) {
-        if (d.length !== 11) return { valid: false, message: 'Brasil: informe DDD + 9 dígitos (11 no total).' };
+        if (d.length < 10 || d.length > 12) return { valid: false, message: 'Brasil: informe até 12 dígitos (DDD + número).' };
         return { valid: true };
     }
     if (isPortugal) {
-        if (d.length !== 9) return { valid: false, message: 'Portugal: informe 9 dígitos além do DDI.' };
+        if (d.length !== 9) return { valid: false, message: 'Portugal: informe 9 dígitos.' };
         return { valid: true };
     }
     if (d.length < 8 || d.length > 15) return { valid: false, message: 'Informe entre 8 e 15 dígitos além do DDI.' };
@@ -107,12 +106,12 @@ async function handleSignup(e) {
         return;
     }
     
-    // Montar telefone com DDI
+    // Montar telefone com DDI (Brasil: remove 0 inicial se tiver 12 dígitos)
     let ddi = formData.phoneDdi;
-    if (!ddi.startsWith('+')) {
-        ddi = '+' + ddi;
-    }
-    const phoneWithDDI = ddi + phoneDigits;
+    if (!ddi.startsWith('+')) ddi = '+' + ddi;
+    let digitsToSave = phoneDigits;
+    if (ddi === '+55' && phoneDigits.length === 12 && phoneDigits.startsWith('0')) digitsToSave = phoneDigits.slice(1);
+    const phoneWithDDI = ddi + digitsToSave;
     
     // Mostrar loading
     submitBtn.classList.add('btn-loading');
