@@ -8,7 +8,8 @@ if (!window.appConfig || !window.api) {
 // Dados do usuário atual
 let currentUser = null;
 let originalData = null;
-let selectedImageBase64 = null;
+let selectedImageBase64 = null; // Nova imagem escolhida (base64) ou null se não alterou
+let userWantsToRemoveAvatar = false; // true apenas quando usuário clicou em "Remover foto"
 let hasUnsavedChanges = false;
 
 // ===== INICIALIZAÇÃO =====
@@ -217,8 +218,8 @@ function updateAvatarDisplay() {
     const avatarImage = document.getElementById('avatarImage');
     const removeBtn = document.getElementById('removeAvatarBtn');
     
-    // Verificar se tem imagem
-    const imageData = selectedImageBase64 || currentUser?.profileImage;
+    // Mostrar nova imagem escolhida ou a atual do perfil (não sumir se só editou outro campo)
+    const imageData = selectedImageBase64 || (userWantsToRemoveAvatar ? null : currentUser?.profileImage);
     
     if (imageData) {
         avatarImage.src = imageData;
@@ -608,6 +609,7 @@ async function confirmImageCrop() {
         });
         
         selectedImageBase64 = compressedImage;
+        userWantsToRemoveAvatar = false;
         updateAvatarDisplay();
         markAsChanged();
         
@@ -700,12 +702,8 @@ function getBase64SizeKB(base64String) {
 
 function handleRemoveAvatar() {
     selectedImageBase64 = null;
-    
-    // Marcar para remover no servidor
-    if (currentUser?.profileImage) {
-        currentUser.profileImage = null;
-    }
-    
+    userWantsToRemoveAvatar = true;
+    if (currentUser) currentUser.profileImage = null;
     updateAvatarDisplay();
     markAsChanged();
     showStatus('Foto removida. Clique em Salvar para confirmar.', 'info');
@@ -749,11 +747,10 @@ async function handleSaveProfile(e) {
             formData.phone = null; // Permite remover o telefone
         }
         
-        // Adicionar imagem se houver
+        // Imagem: enviar só se escolheu nova, ou se pediu para remover; caso contrário manter a atual
         if (selectedImageBase64) {
             formData.profileImage = selectedImageBase64;
-        } else if (selectedImageBase64 === null && currentUser?.profileImage) {
-            // Remover imagem
+        } else if (userWantsToRemoveAvatar) {
             formData.profileImage = null;
         }
         
@@ -771,6 +768,7 @@ async function handleSaveProfile(e) {
             currentUser = response.user;
             originalData = { ...currentUser };
             selectedImageBase64 = null;
+            userWantsToRemoveAvatar = false;
             
             // Atualizar cache
             localStorage.setItem('cachedUserData', JSON.stringify(currentUser));
@@ -802,6 +800,8 @@ async function handleSaveProfile(e) {
             
             if (selectedImageBase64) {
                 formData.profileImage = selectedImageBase64;
+            } else if (userWantsToRemoveAvatar) {
+                formData.profileImage = null;
             }
             
             currentUser = { ...currentUser, ...formData };
