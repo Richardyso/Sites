@@ -8,13 +8,13 @@ if (!window.appConfig || !window.api) {
 let currentUser = null;
 let selectedImageBase64 = null;
 
-const _log = (type, ...args) => {
+function logOnboarding(type, ...args) {
     if (window.logger && window.logger[type]) {
         window.logger[type](...args);
     } else {
         console[type === 'debug' ? 'log' : type](...args);
     }
-};
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     initOnboarding();
@@ -32,7 +32,7 @@ async function initOnboarding() {
         currentUser = data.user;
 
         if (currentUser.focusArea) {
-            _log('info', 'Perfil já completo, redirecionando para dashboard');
+            logOnboarding('info', 'Perfil já completo, redirecionando para dashboard');
             window.location.href = 'dashboard.html';
             return;
         }
@@ -41,7 +41,7 @@ async function initOnboarding() {
         setupEventListeners();
         updateHeaderName();
     } catch (error) {
-        _log('error', 'Erro ao carregar usuário:', error);
+        logOnboarding('error', 'Erro ao carregar usuário:', error);
         const cached = localStorage.getItem('cachedUserData');
         if (cached) {
             try {
@@ -303,7 +303,7 @@ async function confirmImageCrop() {
         closeCropModal();
         showStatus('Imagem carregada. Clique em Completar perfil para salvar.', 'success');
     } catch (err) {
-        _log('error', err);
+        logOnboarding('error', err);
         showStatus('Erro ao processar imagem.', 'error');
     }
 }
@@ -435,7 +435,7 @@ async function handleSubmit(e) {
             throw new Error(response.message || 'Erro ao salvar');
         }
     } catch (error) {
-        _log('error', 'Erro ao salvar perfil:', error);
+        logOnboarding('error', 'Erro ao salvar perfil:', error);
         submitBtn.disabled = false;
         submitBtn.classList.remove('btn-loading');
         submitBtn.innerHTML = originalHtml;
