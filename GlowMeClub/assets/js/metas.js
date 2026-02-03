@@ -219,9 +219,11 @@ async function handleCreateGoal(e) {
     const saveBtn = form.querySelector('[type="submit"]');
     const originalText = saveBtn.innerHTML;
     
-    // Pegar período do select
-    const periodSelect = form.goalPeriod || form.querySelector('#goalPeriod');
-    const period = periodSelect ? periodSelect.value : 'monthly';
+    // Pegar período do select (por id para garantir o valor selecionado)
+    const periodEl = document.getElementById('goalPeriod');
+    const period = (periodEl && periodEl.value && ['weekly', 'monthly', 'yearly'].includes(periodEl.value))
+        ? periodEl.value
+        : 'monthly';
     
     // Pegar categoria do select
     const categorySelect = form.goalCategory || form.querySelector('#goalCategory');
