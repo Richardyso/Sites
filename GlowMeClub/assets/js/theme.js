@@ -430,11 +430,17 @@
             }
 
             .history-stat {
-                background: rgba(${rgbString}, 0.1) !important;
+                background: rgba(${rgbString}, 0.15) !important;
+                color: #374151 !important;
             }
 
             .history-stat .stat-value {
-                color: ${color} !important;
+                color: #1F2937 !important;
+            }
+
+            .history-stat .stat-label {
+                color: #4B5563 !important;
+                opacity: 1;
             }
 
             /* Goals page */
