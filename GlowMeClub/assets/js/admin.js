@@ -353,6 +353,10 @@
         if (displayName) displayName.textContent = user.name || 'Usuária';
         if (emailDisplay) emailDisplay.textContent = user.email || '';
         if (userInitial) userInitial.textContent = initial;
+        const phoneDisplay = document.getElementById('editUserPhoneDisplay');
+        if (phoneDisplay) {
+            phoneDisplay.textContent = user.phone ? formatPhoneForDisplay(user.phone) : 'Telefone não cadastrado';
+        }
         
         // Avatar com imagem ou cor de fundo
         if (userAvatar) {
@@ -759,6 +763,22 @@
         
         // Se não encontrar, retornar o próprio hex
         return hex || 'Padrão';
+    }
+    
+    // Formatar telefone para exibição (ex: +5511999999999 → +55 (11) 99999-9999)
+    function formatPhoneForDisplay(phone) {
+        if (!phone || typeof phone !== 'string') return '';
+        const digits = phone.replace(/\D/g, '');
+        if (digits.length < 10) return phone;
+        const ddiMatch = phone.trim().match(/^(\+\d{1,4})/);
+        const ddi = ddiMatch ? ddiMatch[1] : '';
+        const afterDdi = digits.replace(/^\d{1,4}/, '');
+        const ddd = afterDdi.substring(0, 2);
+        const num = afterDdi.substring(2);
+        const formatted = num.length >= 9
+            ? num.replace(/^(\d{5})(\d{4})/, '$1-$2')
+            : num.replace(/^(\d{4})(\d{4})/, '$1-$2');
+        return ddi ? `${ddi} (${ddd}) ${formatted}` : `(${ddd}) ${formatted}`;
     }
     
     function closeModal(modalId) {

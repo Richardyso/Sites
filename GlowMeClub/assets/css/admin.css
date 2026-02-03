@@ -817,6 +817,13 @@
     font-weight: 500;
 }
 
+.user-profile-phone {
+    font-size: 0.875rem;
+    color: var(--admin-gray-500);
+    display: block;
+    margin-top: 0.25rem;
+}
+
 /* ===== User Info Cards ===== */
 .user-info-cards {
     display: grid;
