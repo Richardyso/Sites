@@ -702,6 +702,7 @@ router.get('/users/:id/history', verifyToken, isAdmin, async (req, res) => {
                 action: data.reason || data.action || 'Pontos',
                 reason: data.reason || data.action || 'Pontos',
                 type: data.type || (xp > 0 || coins > 0 ? 'earned' : 'spent'),
+                observation: data.observation || null,
                 date: dateValue,
                 createdAt: dateValue
             });

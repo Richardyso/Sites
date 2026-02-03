@@ -677,10 +677,14 @@
             const coinsDisplay = coins !== 0 ? `${coinsSign}${coins}` : '-';
             const xpDisplay = xp !== 0 ? `${xpSign}${xp}` : '-';
             
+            const obsSafe = item.observation ? String(item.observation).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
+            const actionContent = item.type === 'mission_completed' && item.observation
+                ? `${icon} ${item.reason || item.action || 'Transação'}<br><span class="history-observation"><i class="fas fa-sticky-note"></i> ${obsSafe}</span>`
+                : `${icon} ${item.reason || item.action || 'Transação'}`;
             return `
                 <tr class="${isPenalty ? 'penalty-row' : ''}">
                     <td class="history-date">${dateStr}</td>
-                    <td class="history-action">${icon} ${item.reason || item.action || 'Transação'}</td>
+                    <td class="history-action">${actionContent}</td>
                     <td class="history-coins ${coinsClass}">${coinsDisplay}</td>
                     <td class="history-xp ${xpClass}">${xpDisplay}</td>
                 </tr>

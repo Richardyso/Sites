@@ -383,6 +383,7 @@ exports.completeMission = async (req, res) => {
             coins: coinsEarned,
             points: xpEarned, // Compatibilidade
             type: 'mission_completed',
+            observation: observation && observation.trim() ? observation.trim() : null,
             createdAt: serverTimestamp()
         });
         
