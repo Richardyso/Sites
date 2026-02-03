@@ -579,6 +579,10 @@
     gap: 0.5rem;
 }
 
+.modal-footer-split {
+    justify-content: space-between;
+}
+
 /* Image Upload */
 .image-upload-container {
     margin-bottom: 1rem;
