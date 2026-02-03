@@ -118,7 +118,7 @@ exports.createSharedGoal = async (req, res) => {
             points: parseInt(points) || 0,
             active,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            createdBy: req.user.uid
+            createdBy: req.user.id
         };
 
         const docRef = await db.collection('sharedGoals').add(newGoal);
@@ -237,7 +237,7 @@ exports.deleteSharedGoal = async (req, res) => {
 // Buscar progresso do usuário nas metas compartilhadas
 exports.getUserSharedGoalProgress = async (req, res) => {
     try {
-        const userId = req.user.uid;
+        const userId = req.user.id;
         
         // Buscar todas as metas compartilhadas ativas
         const goalsSnapshot = await db.collection('sharedGoals')
@@ -288,7 +288,7 @@ exports.getUserSharedGoalProgress = async (req, res) => {
 // Atualizar progresso do usuário em uma meta compartilhada
 exports.updateUserSharedGoalProgress = async (req, res) => {
     try {
-        const userId = req.user.uid;
+        const userId = req.user.id;
         const { goalId } = req.params;
         const { progress, notes, completed } = req.body;
         
