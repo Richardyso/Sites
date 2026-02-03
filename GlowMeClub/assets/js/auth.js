@@ -14,41 +14,47 @@ if (!window.appConfig || !window.api) {
     console.error('❌ Dependências não encontradas. Certifique-se de carregar config.js e api.js primeiro.');
 }
 
-// ===== FUNÇÕES DE TELEFONE =====
+// ===== FUNÇÕES DE TELEFONE (DDI + número; regras por país) =====
 
-// Formata o número de telefone brasileiro
-function formatPhoneInput(value) {
-    // Remove tudo que não é número
-    let phone = value.replace(/\D/g, '');
-    
-    // Limita a 11 dígitos (DDD + 9 dígitos)
-    phone = phone.substring(0, 11);
-    
-    // Formata: (XX) XXXXX-XXXX
-    if (phone.length > 0) {
-        phone = phone.replace(/^(\d{2})/, '($1) ');
-        phone = phone.replace(/(\(\d{2}\) )(\d{5})/, '$1$2-');
+// Formata o número conforme o DDI: Brasil (DDD + 9 dígitos), Portugal (9 dígitos), outros (apenas dígitos)
+function formatPhoneInput(value, ddi) {
+    const digits = String(value || '').replace(/\D/g, '');
+    const ddiNorm = (ddi || '+55').toString().trim().replace(/\D/g, '');
+    const isBrazil = ddiNorm === '55';
+    const isPortugal = ddiNorm === '351';
+
+    if (isBrazil) {
+        const limited = digits.substring(0, 11);
+        if (limited.length === 0) return '';
+        const ddd = limited.slice(0, 2);
+        const rest = limited.slice(2);
+        const part1 = rest.slice(0, 5);
+        const part2 = rest.slice(5, 9);
+        return part2 ? `(${ddd}) ${part1}-${part2}` : rest.length > 0 ? `(${ddd}) ${part1}` : `(${ddd})`;
     }
-    
-    return phone;
+    if (isPortugal) {
+        return digits.substring(0, 9);
+    }
+    return digits.substring(0, 15);
 }
 
-// Valida telefone brasileiro
-function validateBrazilianPhone(phone) {
-    // Remove formatação
-    const digits = phone.replace(/\D/g, '');
-    
-    // Deve ter 11 dígitos (DDD + 9 dígitos de celular)
-    if (digits.length !== 11) {
-        return false;
+// Valida por DDI: Brasil 11 dígitos (DDD + número), Portugal 9 dígitos, outros 8–15 dígitos
+function validatePhoneWithDDI(ddi, digitsOnly) {
+    const d = String(digitsOnly || '').replace(/\D/g, '');
+    const ddiNorm = (ddi || '+55').toString().trim();
+    const isBrazil = ddiNorm === '+55' || ddiNorm === '55';
+    const isPortugal = ddiNorm === '+351' || ddiNorm === '351';
+
+    if (isBrazil) {
+        if (d.length !== 11) return { valid: false, message: 'Brasil: informe DDD + 9 dígitos (11 no total).' };
+        return { valid: true };
     }
-    
-    // O nono dígito deve ser 9 para celulares brasileiros
-    if (digits.charAt(2) !== '9') {
-        return false;
+    if (isPortugal) {
+        if (d.length !== 9) return { valid: false, message: 'Portugal: informe 9 dígitos além do DDI.' };
+        return { valid: true };
     }
-    
-    return true;
+    if (d.length < 8 || d.length > 15) return { valid: false, message: 'Informe entre 8 e 15 dígitos além do DDI.' };
+    return { valid: true };
 }
 
 // ===== FUNÇÕES DE AUTENTICAÇÃO =====
@@ -92,16 +98,16 @@ async function handleSignup(e) {
         showError('O telefone é obrigatório');
         return;
     }
-    
-    // Validar formato do telefone (se DDI for +55, valida padrão brasileiro)
-    const isBrazilianDDI = formData.phoneDdi === '+55';
-    if (isBrazilianDDI && !validateBrazilianPhone(formData.phone)) {
-        showError('Telefone inválido. Use o formato: (DDD) 9XXXX-XXXX');
+
+    const phoneDigits = formData.phone.replace(/\D/g, '');
+    const ddiForValidation = formData.phoneDdi.startsWith('+') ? formData.phoneDdi : '+' + formData.phoneDdi;
+    const validation = validatePhoneWithDDI(ddiForValidation, phoneDigits);
+    if (!validation.valid) {
+        showError(validation.message || 'Telefone inválido.');
         return;
     }
     
-    // Formatar telefone com DDI escolhido
-    const phoneDigits = formData.phone.replace(/\D/g, '');
+    // Montar telefone com DDI
     let ddi = formData.phoneDdi;
     if (!ddi.startsWith('+')) {
         ddi = '+' + ddi;
@@ -505,9 +511,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const phoneInput = document.getElementById('phone');
     if (phoneInput) {
         phoneInput.addEventListener('input', function(e) {
+            const ddiEl = document.getElementById('phoneDdi');
+            const ddi = ddiEl ? ddiEl.value.trim() : '+55';
             const cursorPos = e.target.selectionStart;
             const oldLength = e.target.value.length;
-            e.target.value = formatPhoneInput(e.target.value);
+            e.target.value = formatPhoneInput(e.target.value, ddi);
             const newLength = e.target.value.length;
             
             // Ajusta posição do cursor

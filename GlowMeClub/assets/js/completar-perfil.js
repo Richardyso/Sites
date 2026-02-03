@@ -77,10 +77,10 @@ function populateForm() {
         const match = currentUser.phone.match(/^(\+\d{1,4})\s*(.*)$/);
         if (match) {
             if (ddiInput) ddiInput.value = match[1];
-            if (phoneInput) phoneInput.value = formatPhoneNumber(match[2]);
+            if (phoneInput) phoneInput.value = formatPhoneNumber(match[2], match[1]);
         } else {
             if (ddiInput) ddiInput.value = '+55';
-            if (phoneInput) phoneInput.value = formatPhoneNumber(currentUser.phone);
+            if (phoneInput) phoneInput.value = formatPhoneNumber(currentUser.phone, '+55');
         }
     } else {
         if (ddiInput) ddiInput.value = '+55';
@@ -98,21 +98,35 @@ function populateForm() {
     updateAvatarDisplay();
 }
 
-function formatPhoneNumber(value) {
-    let phone = String(value || '').replace(/\D/g, '');
-    phone = phone.substring(0, 11);
-    if (phone.length > 0) {
-        phone = phone.replace(/^(\d{2})/, '($1) ');
-        phone = phone.replace(/(\(\d{2}\) )(\d{5})/, '$1$2-');
+// Formata por DDI: Brasil (DDD + 9 dígitos), Portugal (9 dígitos), outros (apenas dígitos)
+function formatPhoneNumber(value, ddi) {
+    const digits = String(value || '').replace(/\D/g, '');
+    const ddiNorm = (ddi || '+55').toString().trim().replace(/\D/g, '');
+    const isBrazil = ddiNorm === '55';
+    const isPortugal = ddiNorm === '351';
+    if (isBrazil) {
+        const limited = digits.substring(0, 11);
+        if (limited.length === 0) return '';
+        const ddd = limited.slice(0, 2);
+        const rest = limited.slice(2);
+        const part1 = rest.slice(0, 5);
+        const part2 = rest.slice(5, 9);
+        return part2 ? `(${ddd}) ${part1}-${part2}` : rest.length > 0 ? `(${ddd}) ${part1}` : `(${ddd})`;
     }
-    return phone;
+    if (isPortugal) return digits.substring(0, 9);
+    return digits.substring(0, 15);
 }
 
-function validateBrazilianPhone(phone) {
-    const digits = String(phone || '').replace(/\D/g, '');
-    if (digits.length !== 11) return false;
-    if (digits.charAt(2) !== '9') return false;
-    return true;
+// Valida por DDI: Brasil 11 dígitos, Portugal 9 dígitos, outros 8–15
+function validatePhoneWithDDI(ddi, digitsOnly) {
+    const d = String(digitsOnly || '').replace(/\D/g, '');
+    const ddiNorm = (ddi || '+55').toString().trim();
+    const isBrazil = ddiNorm === '+55' || ddiNorm === '55';
+    const isPortugal = ddiNorm === '+351' || ddiNorm === '351';
+    if (isBrazil) return d.length === 11 ? { valid: true } : { valid: false, message: 'Brasil: informe DDD + 9 dígitos (11 no total).' };
+    if (isPortugal) return d.length === 9 ? { valid: true } : { valid: false, message: 'Portugal: informe 9 dígitos além do DDI.' };
+    if (d.length < 8 || d.length > 15) return { valid: false, message: 'Informe entre 8 e 15 dígitos além do DDI.' };
+    return { valid: true };
 }
 
 function getPhoneForSave() {
@@ -359,7 +373,9 @@ function setupEventListeners() {
     const phoneInput = document.getElementById('userPhone');
     if (phoneInput) {
         phoneInput.addEventListener('input', function (e) {
-            e.target.value = formatPhoneNumber(e.target.value);
+            const ddiEl = document.getElementById('phoneDdi');
+            const ddi = ddiEl ? ddiEl.value.trim() : '+55';
+            e.target.value = formatPhoneNumber(e.target.value, ddi);
         });
     }
     const ddiInput = document.getElementById('phoneDdi');
@@ -398,9 +414,15 @@ async function handleSubmit(e) {
     e.preventDefault();
 
     const phoneVal = document.getElementById('userPhone')?.value?.trim();
-    if (phoneVal && !validateBrazilianPhone(phoneVal)) {
-        showStatus('Telefone inválido. Use o formato: (DDD) 9XXXX-XXXX', 'error');
-        return;
+    if (phoneVal) {
+        const ddiEl = document.getElementById('phoneDdi');
+        const ddi = ddiEl ? (ddiEl.value.trim().startsWith('+') ? ddiEl.value.trim() : '+' + ddiEl.value.trim()) : '+55';
+        const digits = phoneVal.replace(/\D/g, '');
+        const v = validatePhoneWithDDI(ddi, digits);
+        if (!v.valid) {
+            showStatus(v.message || 'Telefone inválido.', 'error');
+            return;
+        }
     }
 
     const submitBtn = document.getElementById('submitBtn');
