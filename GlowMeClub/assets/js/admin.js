@@ -21,6 +21,9 @@
     let currentHistoryFilter = 'all';
     let rewardImageBase64 = null; // Imagem da recompensa em base64
     let editingFlashMissionId = null; // ID da missão relâmpago sendo editada
+    let allSharedGoals = [];
+    let currentNossaMetaPeriodFilter = 'all';
+    let editingNossaMetaId = null;
     
     // ===== AUTENTICAÇÃO E ACESSO =====
     
@@ -1424,6 +1427,171 @@
         }
     };
     
+    // ===== NOSSAS METAS (metas compartilhadas para todas as usuárias) =====
+    
+    async function loadSharedGoals() {
+        try {
+            const data = await window.api.get('/shared-goals/admin');
+            allSharedGoals = (data && data.goals) ? data.goals : [];
+            displayNossasMetas();
+            updateNossasMetasOverview();
+        } catch (error) {
+            log.error('Erro ao carregar Nossas Metas:', error);
+            allSharedGoals = [];
+            displayNossasMetas();
+            updateNossasMetasOverview();
+        }
+    }
+    
+    function updateNossasMetasOverview() {
+        const weekly = allSharedGoals.filter(g => g.period === 'weekly');
+        const monthly = allSharedGoals.filter(g => g.period === 'monthly');
+        const yearly = allSharedGoals.filter(g => g.period === 'yearly');
+        const setBar = (fillId, textId, completed, total) => {
+            const fill = document.getElementById(fillId);
+            const text = document.getElementById(textId);
+            if (fill && text) {
+                const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+                fill.style.width = pct + '%';
+                text.textContent = completed + '/' + total;
+            }
+        };
+        setBar('sharedWeeklyProgressFill', 'sharedWeeklyProgressText', 0, weekly.length);
+        setBar('sharedMonthlyProgressFill', 'sharedMonthlyProgressText', 0, monthly.length);
+        setBar('sharedYearlyProgressFill', 'sharedYearlyProgressText', 0, yearly.length);
+    }
+    
+    function displayNossasMetas() {
+        const grid = document.getElementById('nossasMetasGrid');
+        const emptyEl = document.getElementById('emptyNossasMetas');
+        if (!grid) return;
+        
+        let list = allSharedGoals;
+        if (currentNossaMetaPeriodFilter !== 'all') {
+            list = list.filter(g => g.period === currentNossaMetaPeriodFilter);
+        }
+        
+        if (list.length === 0) {
+            grid.innerHTML = '';
+            grid.style.display = 'none';
+            if (emptyEl) emptyEl.style.display = 'flex';
+            return;
+        }
+        
+        if (emptyEl) emptyEl.style.display = 'none';
+        grid.style.display = 'grid';
+        grid.innerHTML = '';
+        list.forEach(goal => {
+            grid.appendChild(createSharedGoalCard(goal));
+        });
+    }
+    
+    function createSharedGoalCard(goal) {
+        const periodLabels = { weekly: { icon: 'calendar-week', label: 'Semanal' }, monthly: { icon: 'calendar-alt', label: 'Mensal' }, yearly: { icon: 'calendar', label: 'Anual' } };
+        const periodInfo = periodLabels[goal.period] || periodLabels.monthly;
+        const total = goal.totalRequired || 1;
+        const progress = goal.currentProgress != null ? goal.currentProgress : 0;
+        const pct = total > 0 ? Math.min(100, Math.round((progress / total) * 100)) : 0;
+        const categoryIcons = { Mental: '🧠', Físico: '💪', Emocional: '💜', Espiritual: '✨', Financeiro: '💰', Aparência: '💅' };
+        const catIcon = categoryIcons[goal.category] || '🎯';
+        
+        const card = document.createElement('div');
+        card.className = 'nossa-meta-card' + (goal.active === false ? ' inactive' : '');
+        card.dataset.goalId = goal.id;
+        card.innerHTML = `
+            <div class="nossa-meta-card-header">
+                <div class="goal-badges">
+                    <span class="goal-period-badge ${goal.period || 'monthly'}"><i class="fas fa-${periodInfo.icon}"></i> ${periodInfo.label}</span>
+                    <span class="goal-category-badge"><span class="category-icon">${catIcon}</span> ${goal.category || 'Geral'}</span>
+                </div>
+                <h4 class="nossa-meta-title">${goal.title || ''}</h4>
+                ${goal.description ? `<p class="nossa-meta-desc">${goal.description}</p>` : ''}
+            </div>
+            <div class="nossa-meta-progress-wrap">
+                <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
+                <span class="progress-text">Meta: ${progress}/${total}</span>
+            </div>
+            <div class="nossa-meta-meta-info">Cada usuária deve atingir ${total} para completar</div>
+            <div class="nossa-meta-actions">
+                <button type="button" class="btn btn-sm btn-secondary nossa-meta-edit" data-id="${goal.id}"><i class="fas fa-edit"></i> Editar</button>
+                <button type="button" class="btn btn-sm btn-danger nossa-meta-delete" data-id="${goal.id}"><i class="fas fa-trash"></i> Excluir</button>
+            </div>
+        `;
+        
+        card.querySelector('.nossa-meta-edit').onclick = () => openNossaMetaModal(goal);
+        card.querySelector('.nossa-meta-delete').onclick = () => deleteNossaMeta(goal.id);
+        return card;
+    }
+    
+    function openNossaMetaModal(goal) {
+        editingNossaMetaId = goal ? goal.id : null;
+        document.getElementById('nossaMetaModalTitle').textContent = goal ? 'Editar Meta' : 'Nova Meta';
+        document.getElementById('nossaMetaId').value = goal ? goal.id : '';
+        document.getElementById('nossaMetaTitle').value = goal ? (goal.title || '') : '';
+        document.getElementById('nossaMetaPeriod').value = goal ? (goal.period || 'monthly') : 'monthly';
+        document.getElementById('nossaMetaCategory').value = goal ? (goal.category || 'Geral') : 'Geral';
+        document.getElementById('nossaMetaTotalRequired').value = goal ? (goal.totalRequired || 1) : 1;
+        document.getElementById('nossaMetaDescription').value = goal ? (goal.description || '') : '';
+        document.getElementById('nossaMetaXp').value = goal ? (goal.xp || 0) : 0;
+        document.getElementById('nossaMetaPoints').value = goal ? (goal.points || 0) : 0;
+        document.getElementById('nossaMetaActive').checked = goal ? (goal.active !== false) : true;
+        document.getElementById('nossaMetaModal').classList.add('active');
+    }
+    
+    function closeNossaMetaModal() {
+        document.getElementById('nossaMetaModal').classList.remove('active');
+        editingNossaMetaId = null;
+    }
+    
+    async function saveNossaMeta(e) {
+        e.preventDefault();
+        const id = document.getElementById('nossaMetaId').value.trim();
+        const title = document.getElementById('nossaMetaTitle').value.trim();
+        const period = document.getElementById('nossaMetaPeriod').value;
+        const category = document.getElementById('nossaMetaCategory').value;
+        const totalRequired = parseInt(document.getElementById('nossaMetaTotalRequired').value, 10) || 1;
+        const description = document.getElementById('nossaMetaDescription').value.trim();
+        const xp = parseInt(document.getElementById('nossaMetaXp').value, 10) || 0;
+        const points = parseInt(document.getElementById('nossaMetaPoints').value, 10) || 0;
+        const active = document.getElementById('nossaMetaActive').checked;
+        
+        const payload = { title, period, category, totalRequired, description, xp, points, active };
+        const btn = document.getElementById('saveNossaMetaBtn');
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+        
+        try {
+            if (id) {
+                await window.api.put(`/shared-goals/${id}`, payload);
+                showToast('Meta atualizada!', 'success');
+            } else {
+                await window.api.post('/shared-goals', payload);
+                showToast('Meta criada!', 'success');
+            }
+            closeNossaMetaModal();
+            await loadSharedGoals();
+        } catch (err) {
+            log.error('Erro ao salvar meta:', err);
+            showToast(err.message || 'Erro ao salvar meta', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+        }
+    }
+    
+    async function deleteNossaMeta(goalId) {
+        if (!confirm('Tem certeza que deseja excluir esta meta? Todas as usuárias deixarão de vê-la.')) return;
+        try {
+            await window.api.delete(`/shared-goals/${goalId}`);
+            showToast('Meta excluída!', 'success');
+            await loadSharedGoals();
+        } catch (err) {
+            log.error('Erro ao excluir meta:', err);
+            showToast('Erro ao excluir meta', 'error');
+        }
+    }
+    
     function showToast(message, type = 'info') {
         const existingToast = document.querySelector('.admin-toast');
         if (existingToast) existingToast.remove();
@@ -1454,6 +1622,27 @@
         await loadAllUsers();
         await loadRewards();
         await loadFlashMissions();
+        await loadSharedGoals();
+        
+        // Nossas Metas: tabs e modal
+        document.querySelectorAll('.nossa-meta-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                currentNossaMetaPeriodFilter = tab.dataset.period || 'all';
+                document.querySelectorAll('.nossa-meta-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                displayNossasMetas();
+            });
+        });
+        const addNossaMetaBtn = document.getElementById('addNossaMetaBtn');
+        if (addNossaMetaBtn) addNossaMetaBtn.addEventListener('click', () => openNossaMetaModal(null));
+        const nossaMetaForm = document.getElementById('nossaMetaForm');
+        if (nossaMetaForm) nossaMetaForm.addEventListener('submit', saveNossaMeta);
+        const closeNossaMetaModalBtn = document.getElementById('closeNossaMetaModal');
+        if (closeNossaMetaModalBtn) closeNossaMetaModalBtn.addEventListener('click', closeNossaMetaModal);
+        const cancelNossaMetaBtn = document.getElementById('cancelNossaMetaBtn');
+        if (cancelNossaMetaBtn) cancelNossaMetaBtn.addEventListener('click', closeNossaMetaModal);
+        const nossaMetaModalEl = document.getElementById('nossaMetaModal');
+        if (nossaMetaModalEl) nossaMetaModalEl.addEventListener('click', (e) => { if (e.target === nossaMetaModalEl) closeNossaMetaModal(); });
         
         // Event listeners
         const focusFilter = document.getElementById('focusFilter');

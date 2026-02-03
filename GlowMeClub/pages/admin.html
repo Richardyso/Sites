@@ -131,6 +131,90 @@
                 <p>Crie recompensas para suas usuárias trocarem por pontos.</p>
             </div>
         </div>
+
+        <!-- Nossas Metas Section (metas para todas as usuárias) -->
+        <div class="admin-section nossas-metas-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-bullseye"></i> Nossas Metas
+                </h3>
+                <button type="button" class="btn btn-primary btn-sm" id="addNossaMetaBtn">
+                    <i class="fas fa-plus"></i> Nova Meta
+                </button>
+            </div>
+            <p class="section-description">
+                Metas criadas por você para todas as usuárias. Cada uma acompanha o progresso individualmente na página "Metas".
+            </p>
+
+            <!-- Overview por período (igual Minhas Metas) -->
+            <div class="nossas-metas-overview">
+                <div class="overview-cards-row">
+                    <div class="overview-card-shared">
+                        <div class="overview-icon-shared weekly"><i class="fas fa-calendar-week"></i></div>
+                        <div class="overview-info">
+                            <span class="overview-label">Semanais</span>
+                            <div class="overview-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="sharedWeeklyProgressFill"></div>
+                                </div>
+                                <span class="progress-text" id="sharedWeeklyProgressText">0/0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overview-card-shared">
+                        <div class="overview-icon-shared monthly"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="overview-info">
+                            <span class="overview-label">Mensais</span>
+                            <div class="overview-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="sharedMonthlyProgressFill"></div>
+                                </div>
+                                <span class="progress-text" id="sharedMonthlyProgressText">0/0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overview-card-shared">
+                        <div class="overview-icon-shared yearly"><i class="fas fa-calendar"></i></div>
+                        <div class="overview-info">
+                            <span class="overview-label">Anuais</span>
+                            <div class="overview-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="sharedYearlyProgressFill"></div>
+                                </div>
+                                <span class="progress-text" id="sharedYearlyProgressText">0/0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs por período -->
+            <div class="nossas-metas-tabs">
+                <button type="button" class="nossa-meta-tab active" data-period="all">
+                    <i class="fas fa-th-large"></i> Todas
+                </button>
+                <button type="button" class="nossa-meta-tab" data-period="weekly">
+                    <i class="fas fa-calendar-week"></i> Semanais
+                </button>
+                <button type="button" class="nossa-meta-tab" data-period="monthly">
+                    <i class="fas fa-calendar-alt"></i> Mensais
+                </button>
+                <button type="button" class="nossa-meta-tab" data-period="yearly">
+                    <i class="fas fa-calendar"></i> Anuais
+                </button>
+            </div>
+
+            <!-- Grid de metas -->
+            <div class="nossas-metas-grid" id="nossasMetasGrid">
+                <!-- Metas carregadas aqui -->
+            </div>
+
+            <div class="empty-state" id="emptyNossasMetas" style="display: none;">
+                <i class="fas fa-bullseye empty-icon"></i>
+                <h4>Nenhuma meta criada</h4>
+                <p>Crie metas para todas as usuárias. Elas aparecerão na página "Metas" de cada uma.</p>
+            </div>
+        </div>
     </main>
     
     <!-- Flash Mission Modal -->
@@ -191,6 +275,76 @@
                     <button type="button" class="btn btn-secondary" id="cancelFlashBtn">Cancelar</button>
                     <button type="submit" class="btn btn-warning" id="saveFlashBtn">
                         <i class="fas fa-bolt"></i> Criar Missão
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Nossa Meta Modal (criar/editar meta para todas) -->
+    <div class="modal" id="nossaMetaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-bullseye"></i> <span id="nossaMetaModalTitle">Nova Meta</span></h3>
+                <button type="button" class="modal-close" id="closeNossaMetaModal">&times;</button>
+            </div>
+            <form id="nossaMetaForm">
+                <input type="hidden" id="nossaMetaId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="nossaMetaTitle" class="form-label">Título *</label>
+                        <input type="text" id="nossaMetaTitle" class="form-input" placeholder="Ex: Ler 2 livros este mês" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nossaMetaPeriod" class="form-label">Período *</label>
+                        <select id="nossaMetaPeriod" name="goalPeriod" class="form-input" required>
+                            <option value="weekly">📅 Semanal</option>
+                            <option value="monthly" selected>📆 Mensal</option>
+                            <option value="yearly">🗓️ Anual</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nossaMetaCategory" class="form-label">Área de foco</label>
+                        <select id="nossaMetaCategory" class="form-input">
+                            <option value="Geral">Geral</option>
+                            <option value="Mental">🧠 Mental</option>
+                            <option value="Físico">💪 Físico</option>
+                            <option value="Emocional">💜 Emocional</option>
+                            <option value="Espiritual">✨ Espiritual</option>
+                            <option value="Financeiro">💰 Financeiro</option>
+                            <option value="Aparência">💅 Aparência</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nossaMetaTotalRequired" class="form-label">Total requerido (meta para cada usuária) *</label>
+                        <input type="number" id="nossaMetaTotalRequired" class="form-input" min="1" value="1" placeholder="Ex: 5" required>
+                        <span class="form-hint">Quantidade que cada usuária deve atingir para completar a meta</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="nossaMetaDescription" class="form-label">Descrição (opcional)</label>
+                        <textarea id="nossaMetaDescription" class="form-textarea" rows="2" placeholder="Detalhes da meta"></textarea>
+                    </div>
+                    <div class="form-row-two">
+                        <div class="form-group">
+                            <label for="nossaMetaXp" class="form-label">XP ao completar</label>
+                            <input type="number" id="nossaMetaXp" class="form-input" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="nossaMetaPoints" class="form-label">Pontos ao completar</label>
+                            <input type="number" id="nossaMetaPoints" class="form-input" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label-checkbox">
+                            <input type="checkbox" id="nossaMetaActive" checked>
+                            Meta ativa (visível para as usuárias)
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelNossaMetaBtn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="saveNossaMetaBtn">
+                        <i class="fas fa-check"></i> Salvar
                     </button>
                 </div>
             </form>

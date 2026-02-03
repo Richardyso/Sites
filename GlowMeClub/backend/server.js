@@ -38,6 +38,7 @@ global.USE_FIREBASE = USE_FIREBASE;
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const goalsRoutes = require('./routes/goals');
+const sharedGoalsRoutes = require('./routes/sharedGoals');
 const missionsRoutes = require('./routes/missions');
 const rewardsRoutes = require('./routes/rewards');
 
@@ -117,6 +118,7 @@ app.use('/api/user', userRoutes); // Alias para compatibilidade
 app.use('/api/admin', userRoutes); // Rotas de admin (redirecionam para users)
 app.use('/api/points', userRoutes); // Rotas de pontos (histórico)
 app.use('/api/goals', goalsRoutes);
+app.use('/api/shared-goals', sharedGoalsRoutes);
 app.use('/api/missions', missionsRoutes);
 app.use('/api/rewards', rewardsRoutes);
 
