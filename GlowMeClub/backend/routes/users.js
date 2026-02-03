@@ -157,7 +157,17 @@ router.delete('/users/:id', verifyToken, isAdmin, async (req, res) => {
         }
 
         await batch.commit();
-        await auth.deleteUser(uid);
+
+        try {
+            await auth.deleteUser(uid);
+        } catch (authErr) {
+            if (authErr.code === 'auth/user-not-found') {
+                // Usuário já não existe no Auth (ex.: só no Firestore). Dados do Firestore já foram removidos.
+            } else {
+                console.error('Erro ao remover usuário do Firebase Auth:', authErr);
+                throw authErr;
+            }
+        }
 
         res.json({
             success: true,
