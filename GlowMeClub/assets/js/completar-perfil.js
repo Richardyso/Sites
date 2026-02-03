@@ -98,12 +98,11 @@ function populateForm() {
     updateAvatarDisplay();
 }
 
-// Brasil +55: até 12 dígitos (considerando 0); Portugal +351: 9 dígitos
+// DDI: + obrigatório, máx 3 dígitos. Número: Brasil +55 máx 12 dígitos, outros máx 9.
 function formatPhoneNumber(value, ddi) {
     const digits = String(value || '').replace(/\D/g, '');
     const ddiNorm = (ddi || '+55').toString().trim().replace(/\D/g, '');
     const isBrazil = ddiNorm === '55';
-    const isPortugal = ddiNorm === '351';
     if (isBrazil) {
         const limited = digits.substring(0, 12);
         if (limited.length === 0) return '';
@@ -115,21 +114,15 @@ function formatPhoneNumber(value, ddi) {
         const part2 = rest.slice(5, 9);
         return part2 ? `(${ddd}) ${part1}-${part2}` : rest.length > 0 ? `(${ddd}) ${part1}` : `(${ddd})`;
     }
-    if (isPortugal) return digits.substring(0, 9);
-    return digits.substring(0, 15);
+    return digits.substring(0, 9);
 }
 
 function validatePhoneWithDDI(ddi, digitsOnly) {
     const d = String(digitsOnly || '').replace(/\D/g, '');
-    const ddiNorm = (ddi || '+55').toString().trim();
-    const isBrazil = ddiNorm === '+55' || ddiNorm === '55';
-    const isPortugal = ddiNorm === '+351' || ddiNorm === '351';
-    if (isBrazil) {
-        if (d.length < 10 || d.length > 12) return { valid: false, message: 'Brasil: informe até 12 dígitos (DDD + número).' };
-        return { valid: true };
-    }
-    if (isPortugal) return d.length === 9 ? { valid: true } : { valid: false, message: 'Portugal: informe 9 dígitos.' };
-    if (d.length < 8 || d.length > 15) return { valid: false, message: 'Informe entre 8 e 15 dígitos além do DDI.' };
+    const ddiNorm = (ddi || '+55').toString().trim().replace(/\D/g, '');
+    const isBrazil = ddiNorm === '55';
+    const maxLen = isBrazil ? 12 : 9;
+    if (d.length > maxLen) return { valid: false, message: `Máximo ${maxLen} dígitos no número.` };
     return { valid: true };
 }
 
@@ -389,7 +382,7 @@ function setupEventListeners() {
         ddiInput.addEventListener('input', function (e) {
             let v = e.target.value.replace(/[^\d+]/g, '');
             if (!v.startsWith('+')) v = '+' + v.replace(/\+/g, '');
-            e.target.value = v.substring(0, 5);
+            e.target.value = '+' + v.slice(1).substring(0, 3);
         });
     }
 
