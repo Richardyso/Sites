@@ -34,8 +34,12 @@
           </select>
         </div>
         <div class="selector-group">
+          <label for="verseInput">Versículo (opcional)</label>
+          <input type="number" id="verseInput" class="select verse-input" min="1" placeholder="Todo o capítulo" aria-label="Versículo opcional" />
+        </div>
+        <div class="selector-group">
           <fieldset class="translations-fieldset" id="translationsFieldset">
-            <legend class="translations-legend">Traduções</legend>
+            <legend class="translations-legend">Traduções (opcional: nenhuma = todas)</legend>
             <div class="translations-group" id="translationsGroup"></div>
             <p class="translations-empty-msg" id="translationsEmptyMsg" style="display: none;"></p>
           </fieldset>
@@ -48,7 +52,7 @@
     </section>
 
     <section class="reading-section" id="readingSection" aria-live="polite">
-      <p class="empty-msg" id="emptyMsg">Selecione livro, capítulo e pelo menos uma tradução e clique em Ler.</p>
+      <p class="empty-msg" id="emptyMsg">Selecione livro e capítulo e clique em Ler. Opcional: versículo específico e traduções (nenhuma marcada = todas).</p>
       <div id="loadingMsg" class="loading-msg" style="display: none;">Carregando…</div>
       <div id="errorMsg" class="error-msg" style="display: none;"></div>
       <div id="readingContent" style="display: none;">

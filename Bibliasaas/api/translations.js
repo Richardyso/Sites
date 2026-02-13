@@ -6,6 +6,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const TRADUCOES_DIR = path.join(ROOT, 'assets', 'traducoes');
 
+const TRADUCTION_NAMES = {
+  ACF: 'Almeida Corrigida e Fiel',
+  ARA: 'Almeida Revista e Atualizada',
+  ARC: 'Almeida Revista e Corrigida',
+  AS21: 'Almeida Século XXI',
+  JFAA: 'Almeida Atualizada',
+  KJA: 'King James Atualizada',
+  KJF: 'King James Fiel',
+  NAA: 'Nova Almeida Atualizada',
+  NBV: 'Nova Bíblia Viva',
+  NTLH: 'Nova Tradução na Linguagem de Hoje',
+  NVI: 'Nova Versão Internacional',
+  NVT: 'Nova Versão Transformadora',
+  TB: 'Tradução Brasileira',
+};
+
 function findSqliteFiles() {
   if (fs.existsSync(TRADUCOES_DIR)) {
     const files = fs.readdirSync(TRADUCOES_DIR).filter((f) => f.endsWith('.sqlite'));
@@ -31,10 +47,10 @@ export default async function handler(req, res) {
 
   try {
     const fullPaths = findSqliteFiles();
-    const translations = fullPaths.slice(0, 3).map((filePath) => {
-      const f = path.basename(filePath, '.sqlite');
-      const name = f.charAt(0).toUpperCase() + f.slice(1).replace(/_/g, ' ');
-      return { id: f, name };
+    const translations = fullPaths.map((filePath) => {
+      const id = path.basename(filePath, '.sqlite');
+      const name = TRADUCTION_NAMES[id] || id.charAt(0).toUpperCase() + id.slice(1).replace(/_/g, ' ');
+      return { id, name };
     });
 
     if (debug) {

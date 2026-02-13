@@ -14,7 +14,8 @@ export default async function handler(req, res) {
   const book = parseInt(req.query.book, 10);
   const chapter = parseInt(req.query.chapter, 10);
   const translationsParam = req.query.translations || '';
-  const translationIds = translationsParam.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 3);
+  const translationIds = translationsParam.split(',').map((s) => s.trim()).filter(Boolean);
+  const verseOnly = req.query.verse ? parseInt(req.query.verse, 10) : null;
 
   if (!Number.isInteger(book) || book < 1 || book > 66) {
     return res.status(400).json({ error: 'Parâmetro book inválido (1-66)' });
@@ -25,10 +26,13 @@ export default async function handler(req, res) {
   if (translationIds.length === 0) {
     return res.status(400).json({ error: 'Informe ao menos uma tradução em translations' });
   }
+  if (verseOnly !== null && (!Number.isInteger(verseOnly) || verseOnly < 1)) {
+    return res.status(400).json({ error: 'Parâmetro verse inválido' });
+  }
 
   try {
     const results = await Promise.all(
-      translationIds.map((id) => queryVerses(id, book, chapter))
+      translationIds.map((id) => queryVerses(id, book, chapter, verseOnly))
     );
     res.status(200).json({ data: results });
   } catch (err) {

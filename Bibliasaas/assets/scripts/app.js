@@ -40,6 +40,7 @@
   var versesStacked = document.getElementById('versesStacked');
   var themeToggle = document.getElementById('themeToggle');
   var translationsEmptyMsg = document.getElementById('translationsEmptyMsg');
+  var verseInput = document.getElementById('verseInput');
 
   function apiBase() {
     return typeof window.location.origin !== 'undefined' ? window.location.origin : '';
@@ -160,8 +161,11 @@
 
   function getSelectedTranslations() {
     var nodes = document.querySelectorAll('input[name="translation"]:checked');
+    if (nodes.length === 0) {
+      return translations.map(function (t) { return t.id; });
+    }
     var ids = [];
-    for (var i = 0; i < nodes.length && ids.length < 3; i++) {
+    for (var i = 0; i < nodes.length; i++) {
       ids.push(nodes[i].value);
     }
     return ids;
@@ -176,9 +180,14 @@
     var book = parseInt(bookSelect.value, 10);
     var chapter = parseInt(chapterSelect.value, 10);
     var trans = getSelectedTranslations();
-    log('Ler clicado → livro:', book, '| capítulo:', chapter, '| traduções selecionadas:', trans.length ? trans : 'nenhuma');
-    if (!book || !chapter || trans.length === 0) {
-      if (trans.length === 0) warn('Selecione pelo menos uma tradução para ler.');
+    var verse = verseInput && verseInput.value ? parseInt(verseInput.value, 10) : null;
+    log('Ler clicado → livro:', book, '| capítulo:', chapter, '| versículo:', verse || 'todo', '| traduções:', trans.length ? trans.length + ' selecionada(s)' : 'todas');
+    if (!book || !chapter) {
+      showState(true, false, false, false);
+      setError('');
+      return;
+    }
+    if (trans.length === 0) {
       showState(true, false, false, false);
       setError('');
       return;
@@ -186,6 +195,7 @@
     showState(false, true, false, false);
     setError('');
     var qs = '?book=' + encodeURIComponent(book) + '&chapter=' + encodeURIComponent(chapter) + '&translations=' + trans.map(encodeURIComponent).join(',');
+    if (verse && verse >= 1) qs += '&verse=' + encodeURIComponent(verse);
     var url = apiBase() + '/api/verses' + qs;
     log('GET versículos:', url);
     fetch(url)
@@ -202,7 +212,7 @@
         }
         var data = json.data || [];
         log('Versículos recebidos:', data.length, 'tradução(ões)', data.length ? '→ ' + data.map(function (d) { return d.translationId + ': ' + (d.verses && d.verses.length) + ' versos'; }).join(', ') : '');
-        renderReading(book, chapter, data);
+        renderReading(book, chapter, verse, data);
         showState(false, false, false, true);
       })
       .catch(function (e) {
@@ -212,9 +222,9 @@
       });
   }
 
-  function renderReading(bookNumber, chapter, data) {
+  function renderReading(bookNumber, chapter, verseNumber, data) {
     var bookName = getBookName(bookNumber);
-    readingHeader.textContent = bookName + ' ' + chapter;
+    readingHeader.textContent = verseNumber ? bookName + ' ' + chapter + '.' + verseNumber : bookName + ' ' + chapter;
 
     var maxVerses = 0;
     var byVerse = {};

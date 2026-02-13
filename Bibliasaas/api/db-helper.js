@@ -32,9 +32,9 @@ async function getSql() {
 
 /**
  * Abre um .sqlite em assets/traducoes e executa query de versículos.
- * Usa o mesmo ROOT que api/translations.js para encontrar os arquivos.
+ * verseNumber: opcional; se informado, retorna apenas esse versículo.
  */
-export async function queryVerses(translationId, bookNumber, chapter) {
+export async function queryVerses(translationId, bookNumber, chapter, verseNumber = null) {
   const dbPath = path.join(ROOT, 'assets', 'traducoes', `${translationId}.sqlite`);
   if (!fs.existsSync(dbPath)) {
     return { translationId, verses: [], error: 'Arquivo não encontrado: ' + path.basename(dbPath) };
@@ -61,10 +61,15 @@ export async function queryVerses(translationId, bookNumber, chapter) {
     const chapterCol = colMap.chapter || colMap.capitulo || 'chapter';
     const verseCol = colMap.verse || colMap.versiculo || 'verse';
     const textCol = colMap.text || colMap.texto || colMap.content || 'text';
+    const whereVerse = verseNumber != null ? ` AND ${verseCol}=?` : '';
     const stmt = db.prepare(
-      `SELECT ${verseCol}, ${textCol} FROM ${tableName} WHERE ${bookCol}=? AND ${chapterCol}=? ORDER BY ${verseCol}`
+      `SELECT ${verseCol}, ${textCol} FROM ${tableName} WHERE ${bookCol}=? AND ${chapterCol}=?${whereVerse} ORDER BY ${verseCol}`
     );
-    stmt.bind([bookNumber, chapter]);
+    if (verseNumber != null) {
+      stmt.bind([bookNumber, chapter, verseNumber]);
+    } else {
+      stmt.bind([bookNumber, chapter]);
+    }
     const verses = [];
     while (stmt.step()) {
       const row = stmt.get();
