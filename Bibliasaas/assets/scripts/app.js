@@ -1,6 +1,23 @@
 (function () {
   'use strict';
 
+  var DEBUG = true;
+  function log() {
+    if (DEBUG && typeof console !== 'undefined' && console.log) {
+      console.log.apply(console, ['[Bibliasaas]'].concat(Array.prototype.slice.call(arguments)));
+    }
+  }
+  function warn() {
+    if (DEBUG && typeof console !== 'undefined' && console.warn) {
+      console.warn.apply(console, ['[Bibliasaas]'].concat(Array.prototype.slice.call(arguments)));
+    }
+  }
+  function err() {
+    if (DEBUG && typeof console !== 'undefined' && console.error) {
+      console.error.apply(console, ['[Bibliasaas]'].concat(Array.prototype.slice.call(arguments)));
+    }
+  }
+
   var CHAPTER_COUNTS = [
     50, 40, 27, 36, 34, 24, 21, 4, 31, 24, 22, 25, 29, 36, 10, 13, 10, 42, 150, 31, 12, 8, 66, 52, 5, 48, 12, 14, 3, 9, 1, 4, 7, 3, 3, 3, 2, 14, 4, 28, 16, 24, 21, 28, 16, 16, 13, 6, 6, 4, 4, 5, 3, 6, 4, 3, 1, 13, 5, 5, 3, 5, 1, 1, 1, 22
   ];
@@ -28,6 +45,8 @@
     return typeof window.location.origin !== 'undefined' ? window.location.origin : '';
   }
 
+  log('Iniciado. Origin:', window.location.origin, '| API base:', apiBase());
+
   function showState(showEmpty, showLoading, showError, showContent) {
     emptyMsg.style.display = showEmpty ? 'block' : 'none';
     loadingMsg.style.display = showLoading ? 'block' : 'none';
@@ -40,10 +59,16 @@
   }
 
   function loadBooks() {
-    return fetch(apiBase() + '/api/books')
-      .then(function (r) { return r.json(); })
+    var url = apiBase() + '/api/books';
+    log('GET livros:', url);
+    return fetch(url)
+      .then(function (r) {
+        log('Resposta /api/books → status:', r.status, r.statusText);
+        return r.json();
+      })
       .then(function (data) {
         books = data;
+        log('Livros recebidos:', Array.isArray(data) ? data.length : 0, 'livros', data && data[0] ? '(ex.: ' + data[0].name + ')' : '');
         bookSelect.innerHTML = '';
         var opt = document.createElement('option');
         opt.value = '';
@@ -55,19 +80,29 @@
           o.textContent = b.name;
           bookSelect.appendChild(o);
         });
+      })
+      .catch(function (e) {
+        err('Falha ao carregar livros:', e.message);
       });
   }
 
   function loadTranslations() {
     translationsEmptyMsg.style.display = 'none';
     translationsEmptyMsg.textContent = '';
-    return fetch(apiBase() + '/api/translations')
+    var url = apiBase() + '/api/translations';
+    log('GET traduções:', url);
+    return fetch(url)
       .then(function (r) {
+        log('Resposta /api/translations → status:', r.status, r.statusText);
         if (!r.ok) throw new Error('API respondeu com ' + r.status);
         return r.json();
       })
       .then(function (data) {
         translations = data || [];
+        log('Traduções recebidas:', translations.length, '→', translations.length ? translations.map(function (t) { return t.id + ' (' + t.name + ')'; }) : 'array vazio []');
+        if (translations.length === 0) {
+          warn('Nenhuma tradução na resposta. A API retornou array vazio. Verifique includeFiles no vercel.json e se os .sqlite estão no repo.');
+        }
         translationNames = {};
         translations.forEach(function (t) { translationNames[t.id] = t.name; });
         translationsGroup.innerHTML = '';
@@ -87,7 +122,8 @@
           translationsGroup.appendChild(label);
         });
       })
-      .catch(function (err) {
+      .catch(function (e) {
+        err('Falha ao carregar traduções:', e.message);
         translationsGroup.innerHTML = '';
         translations = [];
         translationsEmptyMsg.textContent = 'Não foi possível carregar as traduções. Verifique se os arquivos .sqlite estão em assets/traducoes e foram enviados ao repositório.';
@@ -131,7 +167,9 @@
     var book = parseInt(bookSelect.value, 10);
     var chapter = parseInt(chapterSelect.value, 10);
     var trans = getSelectedTranslations();
+    log('Ler clicado → livro:', book, '| capítulo:', chapter, '| traduções selecionadas:', trans.length ? trans : 'nenhuma');
     if (!book || !chapter || trans.length === 0) {
+      if (trans.length === 0) warn('Selecione pelo menos uma tradução para ler.');
       showState(true, false, false, false);
       setError('');
       return;
@@ -139,18 +177,27 @@
     showState(false, true, false, false);
     setError('');
     var qs = '?book=' + encodeURIComponent(book) + '&chapter=' + encodeURIComponent(chapter) + '&translations=' + trans.map(encodeURIComponent).join(',');
-    fetch(apiBase() + '/api/verses' + qs)
-      .then(function (r) { return r.json(); })
+    var url = apiBase() + '/api/verses' + qs;
+    log('GET versículos:', url);
+    fetch(url)
+      .then(function (r) {
+        log('Resposta /api/verses → status:', r.status, r.statusText);
+        return r.json();
+      })
       .then(function (json) {
         if (json.error) {
+          err('API versículos retornou erro:', json.error);
           setError(json.error);
           showState(false, false, true, false);
           return;
         }
-        renderReading(book, chapter, json.data);
+        var data = json.data || [];
+        log('Versículos recebidos:', data.length, 'tradução(ões)', data.length ? '→ ' + data.map(function (d) { return d.translationId + ': ' + (d.verses && d.verses.length) + ' versos'; }).join(', ') : '');
+        renderReading(book, chapter, data);
         showState(false, false, false, true);
       })
-      .catch(function (err) {
+      .catch(function (e) {
+        err('Falha ao carregar versículos:', e.message);
         setError('Falha ao carregar versículos. Verifique se as traduções estão em /assets/traducoes.');
         showState(false, false, true, false);
       });
