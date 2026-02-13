@@ -10,6 +10,13 @@ let SQL = null;
 
 async function getSql() {
   if (SQL) return SQL;
+  const wasmInAssets = path.join(ROOT, 'assets', 'wasm', 'sql-wasm.wasm');
+  if (fs.existsSync(wasmInAssets)) {
+    SQL = await initSqlJs({
+      locateFile: (file) => path.join(ROOT, 'assets', 'wasm', file),
+    });
+    return SQL;
+  }
   const bases = [process.cwd(), ROOT];
   for (const base of bases) {
     const wasmPath = path.join(base, 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm');
@@ -20,7 +27,7 @@ async function getSql() {
       return SQL;
     }
   }
-  throw new Error('sql.js: WASM não encontrado em node_modules/sql.js/dist. Bases tentadas: ' + bases.join(', '));
+  throw new Error('sql.js: WASM não encontrado. Procure em assets/wasm/ e node_modules/sql.js/dist. Bases: ' + [ROOT, ...bases].join(', '));
 }
 
 /**
