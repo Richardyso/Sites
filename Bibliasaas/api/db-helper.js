@@ -1,24 +1,28 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import initSqlJs from 'sql.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, '..');
 
 let SQL = null;
 
 async function getSql() {
   if (SQL) return SQL;
-  const wasmPath = path.join(process.cwd(), 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm');
+  const base = process.cwd();
   SQL = await initSqlJs({
-    locateFile: (file) => path.join(process.cwd(), 'node_modules', 'sql.js', 'dist', file),
+    locateFile: (file) => path.join(base, 'node_modules', 'sql.js', 'dist', file),
   });
   return SQL;
 }
 
 /**
  * Abre um .sqlite em assets/traducoes e executa query de versículos.
- * Aceita esquemas: tabela "verse" ou "verses" com (book/book_id, chapter, verse, text/texto).
+ * Usa o mesmo ROOT que api/translations.js para encontrar os arquivos.
  */
 export async function queryVerses(translationId, bookNumber, chapter) {
-  const dbPath = path.join(process.cwd(), 'assets', 'traducoes', `${translationId}.sqlite`);
+  const dbPath = path.join(ROOT, 'assets', 'traducoes', `${translationId}.sqlite`);
   if (!fs.existsSync(dbPath)) {
     return { translationId, verses: [], error: 'Arquivo não encontrado' };
   }

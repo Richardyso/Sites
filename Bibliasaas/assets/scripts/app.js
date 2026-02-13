@@ -98,10 +98,19 @@
         return r.json();
       })
       .then(function (data) {
-        translations = data || [];
+        var list = Array.isArray(data) ? data : (data && data.translations) || [];
+        translations = list;
         log('Traduções recebidas:', translations.length, '→', translations.length ? translations.map(function (t) { return t.id + ' (' + t.name + ')'; }) : 'array vazio []');
         if (translations.length === 0) {
           warn('Nenhuma tradução na resposta. A API retornou array vazio. Verifique includeFiles no vercel.json e se os .sqlite estão no repo.');
+          fetch(apiBase() + '/api/translations?debug=1')
+            .then(function (r) { return r.json(); })
+            .then(function (debugData) {
+              if (debugData && debugData.debug) {
+                log('Debug do servidor (por que não há traduções):', debugData.debug);
+              }
+            })
+            .catch(function () {});
         }
         translationNames = {};
         translations.forEach(function (t) { translationNames[t.id] = t.name; });

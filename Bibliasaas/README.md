@@ -42,6 +42,11 @@ Exemplo: `SELECT verse, text FROM verse WHERE book=? AND chapter=? ORDER BY vers
    vercel
    ```
 
+### Se as 3 traduções não aparecem
+
+- Confirme no **GitHub** (aba de arquivos do repositório) que existem arquivos como `assets/traducoes/almeida.sqlite` (e não só `.gitkeep`). O `includeFiles` no Vercel só inclui o que existe no repo no momento do build.
+- Abra o **F12 → Console**. Se a API retornar lista vazia, o app faz uma chamada extra a `/api/translations?debug=1` e mostra no console o objeto `debug` do servidor (`dirExists`, `dirContents`, `filesFound`). Isso mostra o que a função serverless está vendo no sistema de arquivos.
+
 ## Desenvolvimento local
 
 - **Frontend:** abra `index.html` por um servidor HTTP (ex.: `npx serve .`) para evitar problemas de CORS com `/api`.
