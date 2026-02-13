@@ -195,8 +195,8 @@
       })
       .then(function (json) {
         if (json.error) {
-          err('API versículos retornou erro:', json.error);
-          setError(json.error);
+          err('API versículos retornou erro:', json.error, json.detail ? json.detail : '');
+          setError(json.detail ? json.error + ': ' + json.detail : json.error);
           showState(false, false, true, false);
           return;
         }

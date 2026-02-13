@@ -32,7 +32,8 @@ export default async function handler(req, res) {
     );
     res.status(200).json({ data: results });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro ao buscar versículos' });
+    console.error('[api/verses]', err);
+    const message = err && err.message ? err.message : String(err);
+    res.status(500).json({ error: 'Erro ao buscar versículos', detail: message });
   }
 }

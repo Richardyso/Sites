@@ -10,11 +10,17 @@ let SQL = null;
 
 async function getSql() {
   if (SQL) return SQL;
-  const base = process.cwd();
-  SQL = await initSqlJs({
-    locateFile: (file) => path.join(base, 'node_modules', 'sql.js', 'dist', file),
-  });
-  return SQL;
+  const bases = [process.cwd(), ROOT];
+  for (const base of bases) {
+    const wasmPath = path.join(base, 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm');
+    if (fs.existsSync(wasmPath)) {
+      SQL = await initSqlJs({
+        locateFile: (file) => path.join(base, 'node_modules', 'sql.js', 'dist', file),
+      });
+      return SQL;
+    }
+  }
+  throw new Error('sql.js: WASM não encontrado em node_modules/sql.js/dist. Bases tentadas: ' + bases.join(', '));
 }
 
 /**
@@ -24,17 +30,26 @@ async function getSql() {
 export async function queryVerses(translationId, bookNumber, chapter) {
   const dbPath = path.join(ROOT, 'assets', 'traducoes', `${translationId}.sqlite`);
   if (!fs.existsSync(dbPath)) {
-    return { translationId, verses: [], error: 'Arquivo não encontrado' };
+    return { translationId, verses: [], error: 'Arquivo não encontrado: ' + path.basename(dbPath) };
   }
-  const Sql = await getSql();
+  let Sql;
+  try {
+    Sql = await getSql();
+  } catch (e) {
+    throw new Error('sql.js init: ' + (e && e.message ? e.message : String(e)));
+  }
   const buffer = fs.readFileSync(dbPath);
   const db = new Sql.Database(buffer);
   try {
     const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND (name='verse' OR name='verses' OR name='versiculo')");
     const tableName = tables.length ? tables[0].values[0][0] : 'verse';
-    const cols = db.exec(`PRAGMA table_info(${tableName})`);
+    const colsResult = db.exec(`PRAGMA table_info(${tableName})`);
+    if (!colsResult.length || !colsResult[0].values.length) {
+      db.close();
+      return { translationId, verses: [], error: 'Tabela sem colunas ou não encontrada' };
+    }
     const colMap = {};
-    cols[0].values.forEach(([cid, name]) => { colMap[name.toLowerCase()] = name; });
+    colsResult[0].values.forEach(([cid, name]) => { colMap[name.toLowerCase()] = name; });
     const bookCol = colMap.book_id || colMap.book || colMap.livro || 'book';
     const chapterCol = colMap.chapter || colMap.capitulo || 'chapter';
     const verseCol = colMap.verse || colMap.versiculo || 'verse';
@@ -50,6 +65,9 @@ export async function queryVerses(translationId, bookNumber, chapter) {
     }
     stmt.free();
     return { translationId, verses };
+  } catch (e) {
+    const msg = e && e.message ? e.message : String(e);
+    throw new Error('queryVerses(' + translationId + '): ' + msg);
   } finally {
     db.close();
   }
