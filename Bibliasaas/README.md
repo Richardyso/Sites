@@ -28,13 +28,18 @@ Exemplo: `SELECT verse, text FROM verse WHERE book=? AND chapter=? ORDER BY vers
 
 ## Deploy na Vercel
 
-1. Instale as dependências e faça o deploy:
+1. Coloque os 3 arquivos `.sqlite` em `assets/traducoes/` (ex.: `almeida.sqlite`, `nvi.sqlite`, `acf.sqlite`).
+2. **Importante:** os arquivos precisam estar **commitados e enviados ao repositório**. Se não estiverem no Git, a Vercel não os inclui no deploy e a lista de traduções fica vazia.
+   ```bash
+   git add assets/traducoes/*.sqlite
+   git commit -m "Adiciona bases de traduções"
+   git push
+   ```
+3. Instale as dependências e faça o deploy, ou conecte o repositório no dashboard da Vercel (build sem comando; output na raiz).
    ```bash
    npm install
    vercel
    ```
-2. Ou conecte o repositório no dashboard da Vercel (build sem comando; output na raiz).
-3. Coloque os 3 arquivos `.sqlite` em `assets/traducoes/` (ex.: `almeida.sqlite`, `nvi.sqlite`, `acf.sqlite`).
 
 ## Desenvolvimento local
 

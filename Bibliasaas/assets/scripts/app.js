@@ -22,6 +22,7 @@
   var versesTableBody = document.getElementById('versesTableBody');
   var versesStacked = document.getElementById('versesStacked');
   var themeToggle = document.getElementById('themeToggle');
+  var translationsEmptyMsg = document.getElementById('translationsEmptyMsg');
 
   function apiBase() {
     return typeof window.location.origin !== 'undefined' ? window.location.origin : '';
@@ -58,14 +59,24 @@
   }
 
   function loadTranslations() {
+    translationsEmptyMsg.style.display = 'none';
+    translationsEmptyMsg.textContent = '';
     return fetch(apiBase() + '/api/translations')
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) throw new Error('API respondeu com ' + r.status);
+        return r.json();
+      })
       .then(function (data) {
-        translations = data;
+        translations = data || [];
         translationNames = {};
-        data.forEach(function (t) { translationNames[t.id] = t.name; });
+        translations.forEach(function (t) { translationNames[t.id] = t.name; });
         translationsGroup.innerHTML = '';
-        data.forEach(function (t) {
+        if (translations.length === 0) {
+          translationsEmptyMsg.textContent = 'Nenhuma tradução encontrada. Inclua arquivos .sqlite em assets/traducoes no repositório e faça um novo deploy na Vercel.';
+          translationsEmptyMsg.style.display = 'block';
+          return;
+        }
+        translations.forEach(function (t) {
           var label = document.createElement('label');
           var cb = document.createElement('input');
           cb.type = 'checkbox';
@@ -75,6 +86,12 @@
           label.appendChild(document.createTextNode(t.name));
           translationsGroup.appendChild(label);
         });
+      })
+      .catch(function (err) {
+        translationsGroup.innerHTML = '';
+        translations = [];
+        translationsEmptyMsg.textContent = 'Não foi possível carregar as traduções. Verifique se os arquivos .sqlite estão em assets/traducoes e foram enviados ao repositório.';
+        translationsEmptyMsg.style.display = 'block';
       });
   }
 
