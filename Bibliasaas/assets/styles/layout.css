@@ -1,0 +1,195 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
+  background: var(--header-bg);
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Selector section */
+.selector-section {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border-color);
+}
+
+.selector-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.selector-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Reading view */
+.reading-section {
+  margin-top: 1.5rem;
+}
+
+.reading-header {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.verses-table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+}
+
+.verses-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 400px;
+}
+
+.verses-table th,
+.verses-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+}
+
+.verses-table th {
+  background: var(--table-header-bg);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.verses-table tr:last-child td {
+  border-bottom: none;
+}
+
+.verse-num {
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--verse-number-bg);
+  width: 3rem;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.verse-text {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+/* Mobile: stacked verses */
+.verses-stacked {
+  display: none;
+}
+
+.verse-block {
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 0;
+}
+
+.verse-block:last-child {
+  border-bottom: none;
+}
+
+.verse-block-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.verse-block-num {
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--verse-number-bg);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.verse-translations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.verse-translation-item {
+  padding: 0.4rem 0;
+  border-left: 3px solid var(--accent);
+  padding-left: 0.6rem;
+}
+
+.verse-translation-item .translation-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.2rem;
+}
+
+.verse-translation-item .translation-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .verses-table-wrapper {
+    display: none;
+  }
+
+  .verses-stacked {
+    display: block;
+  }
+
+  .selector-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

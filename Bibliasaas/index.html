@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bibliasaas – Leitor da Bíblia</title>
+  <link rel="stylesheet" href="/assets/styles/variables.css" />
+  <link rel="stylesheet" href="/assets/styles/layout.css" />
+  <link rel="stylesheet" href="/assets/styles/components.css" />
+  <link rel="stylesheet" href="/assets/styles/theme.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1 class="app-title">Bibliasaas</h1>
+      <button type="button" class="btn btn-icon theme-toggle" id="themeToggle" aria-label="Alternar modo escuro">
+        <span class="icon-sun" aria-hidden="true">☀</span>
+        <span class="icon-moon" aria-hidden="true">🌙</span>
+      </button>
+    </header>
+
+    <section class="selector-section">
+      <div class="selector-row">
+        <div class="selector-group">
+          <label for="bookSelect">Livro</label>
+          <select id="bookSelect" class="select" aria-label="Selecionar livro">
+            <option value="">Carregando…</option>
+          </select>
+        </div>
+        <div class="selector-group">
+          <label for="chapterSelect">Capítulo</label>
+          <select id="chapterSelect" class="select" aria-label="Selecionar capítulo">
+            <option value="">—</option>
+          </select>
+        </div>
+        <div class="selector-group">
+          <label>Traduções</label>
+          <div class="translations-group" id="translationsGroup"></div>
+        </div>
+        <div class="selector-group">
+          <label class="sr-only" for="btnRead">Ler capítulo</label>
+          <button type="button" class="btn btn-primary" id="btnRead">Ler</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="reading-section" id="readingSection" aria-live="polite">
+      <p class="empty-msg" id="emptyMsg">Selecione livro, capítulo e pelo menos uma tradução e clique em Ler.</p>
+      <div id="loadingMsg" class="loading-msg" style="display: none;">Carregando…</div>
+      <div id="errorMsg" class="error-msg" style="display: none;"></div>
+      <div id="readingContent" style="display: none;">
+        <p class="reading-header" id="readingHeader"></p>
+        <div class="verses-table-wrapper">
+          <table class="verses-table" id="versesTable" role="table">
+            <thead id="versesTableHead"></thead>
+            <tbody id="versesTableBody"></tbody>
+          </table>
+        </div>
+        <div class="verses-stacked" id="versesStacked"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/assets/scripts/app.js"></script>
+</body>
+</html>

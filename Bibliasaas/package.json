@@ -1,0 +1,12 @@
+{
+  "name": "bibliasaas",
+  "version": "1.0.0",
+  "description": "Leitor da Bíblia com múltiplas traduções em domínio público",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "sql.js": "^1.10.0"
+  }
+}
