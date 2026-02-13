@@ -2,5 +2,13 @@
   "version": 2,
   "rewrites": [
     { "source": "/((?!api/|assets/).*)", "destination": "/index.html" }
-  ]
+  ],
+  "functions": {
+    "api/translations.js": {
+      "includeFiles": "assets/traducoes/*.sqlite"
+    },
+    "api/verses.js": {
+      "includeFiles": "assets/traducoes/*.sqlite"
+    }
+  }
 }
