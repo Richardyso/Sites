@@ -8,10 +8,7 @@
       "includeFiles": "assets/traducoes/*.sqlite"
     },
     "api/verses.js": {
-      "includeFiles": [
-        "assets/traducoes/*.sqlite",
-        "node_modules/sql.js/dist/sql-wasm.wasm"
-      ]
+      "includeFiles": "assets/traducoes/*.sqlite"
     }
   }
 }
