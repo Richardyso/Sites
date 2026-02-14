@@ -1,4 +1,4 @@
-/* Buttons */
+/* Buttons - area de toque minima para mobile */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -11,6 +11,8 @@
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
   font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .btn-primary {
@@ -110,6 +112,16 @@ body:not(.dark-mode) .icon-moon {
 .select:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .select {
+    min-height: 44px;
+    padding: 0.6rem 2rem 0.6rem 0.75rem;
+  }
+  .verse-input.select {
+    min-height: 44px;
+  }
 }
 
 /* Selector group (sidebar) */

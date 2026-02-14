@@ -67,6 +67,13 @@
     errorMsg.textContent = text || '';
   }
 
+  function escapeHtml(s) {
+    if (s == null) return '';
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
   function loadBooks() {
     var url = apiBase() + '/api/books';
     log('GET livros:', url);
@@ -312,19 +319,21 @@
         showState(false, false, false, false, true);
         searchResults.innerHTML = '';
         if (results.length === 0) {
-          searchResults.innerHTML = '<p class="empty-msg">Nenhum versículo encontrado para “‘ + q + '”.</p>';
+          searchResults.innerHTML = '<p class="empty-msg">Nenhum versículo encontrado para "‘ + q + '".</p>';
           return;
         }
         var title = document.createElement('h2');
         title.className = 'reading-header';
-        title.textContent = 'Resultados para “‘ + q + '”';
+        title.textContent = 'Resultados para "‘ + q + '"';
         searchResults.appendChild(title);
         results.slice(0, 80).forEach(function (r) {
           var div = document.createElement('div');
           div.className = 'search-result-item';
           var ref = r.bookName + ' ' + r.chapter + '.' + r.verse;
           var transName = translationNames[r.translationId] || r.translationId;
-          div.innerHTML = '<span class="ref">' + ref + '</span> (' + transName + ') ' + (r.text || '').substring(0, 120) + (r.text && r.text.length > 120 ? '…' : '');
+          var snippet = (r.text || '').substring(0, 120);
+          if (r.text && r.text.length > 120) snippet += '\u2026';
+          div.innerHTML = '<span class="ref">' + escapeHtml(ref) + '</span> (' + escapeHtml(transName) + ') ' + escapeHtml(snippet);
           div.style.cursor = 'pointer';
           div.addEventListener('click', function () {
             loadVerses(r.book, r.chapter, r.verse);
