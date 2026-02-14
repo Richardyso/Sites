@@ -45,7 +45,6 @@
   var searchResults = document.getElementById('searchResults');
   var btnPrevChapter = document.getElementById('btnPrevChapter');
   var btnNextChapter = document.getElementById('btnNextChapter');
-  var btnFooterNextChapter = document.getElementById('btnFooterNextChapter');
   var fontSizeUp = document.getElementById('fontSizeUp');
   var fontSizeDown = document.getElementById('fontSizeDown');
 
@@ -412,7 +411,6 @@
 
   if (btnPrevChapter) btnPrevChapter.addEventListener('click', goPrevChapter);
   if (btnNextChapter) btnNextChapter.addEventListener('click', goNextChapter);
-  if (btnFooterNextChapter) btnFooterNextChapter.addEventListener('click', goNextChapter);
 
   if (fontSizeUp) {
     fontSizeUp.addEventListener('click', function () {

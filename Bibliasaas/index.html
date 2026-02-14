@@ -5,8 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BibliaSaas – Leitor da Bíblia</title>
   <link rel="icon" type="image/png" href="assets/images/favico.png" id="favicon" />
-  <meta property="og:image" content="assets/images/og.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://bibliasaas.vercel.app/" />
+  <meta property="og:image" content="https://bibliasaas.vercel.app/assets/images/og.png" />
   <meta property="og:title" content="BibliaSaas – Leitor da Bíblia" />
+  <meta property="og:description" content="Leia a Bíblia online com múltiplas traduções. Escolha livro, capítulo e versículo." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://bibliasaas.vercel.app/" />
+  <meta name="twitter:image" content="https://bibliasaas.vercel.app/assets/images/og.png" />
+  <meta name="twitter:title" content="BibliaSaas – Leitor da Bíblia" />
+  <meta name="twitter:description" content="Leia a Bíblia online com múltiplas traduções. Escolha livro, capítulo e versículo." />
   <link rel="stylesheet" href="assets/styles/variables.css" />
   <link rel="stylesheet" href="assets/styles/layout.css" />
   <link rel="stylesheet" href="assets/styles/components.css" />
@@ -24,17 +32,13 @@
         <input type="search" id="searchInput" class="header-search" placeholder="Pesquise versículos por palavra" aria-label="Pesquisar na Bíblia" />
       </div>
       <nav class="header-nav">
-        <a href="pages/pagina-em-branco.html" class="header-link">Página em branco</a>
         <a href="pages/sobre.html" class="header-link">Sobre</a>
       </nav>
     </header>
 
     <div class="app-body">
       <aside class="sidebar">
-        <div class="sidebar-title-row">
-          <h2 class="sidebar-title">Livros</h2>
-          <button type="button" class="btn btn-icon sidebar-menu-btn" id="sidebarMenuBtn" aria-label="Menu livros">☰</button>
-        </div>
+        <h2 class="sidebar-title">Livros</h2>
         <div class="sidebar-fields">
           <div class="selector-group">
             <label for="bookSelect">Livro</label>
@@ -89,10 +93,6 @@
         </section>
       </main>
     </div>
-
-    <footer class="app-footer">
-      <button type="button" class="btn btn-primary btn-footer-next" id="btnFooterNextChapter">Próximo capítulo</button>
-    </footer>
   </div>
 
   <script src="assets/scripts/app.js"></script>

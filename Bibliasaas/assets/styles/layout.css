@@ -118,20 +118,10 @@ body {
   gap: 1rem;
 }
 
-.sidebar-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .sidebar-title {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 700;
-}
-
-.sidebar-menu-btn {
-  flex-shrink: 0;
 }
 
 .sidebar-fields {
@@ -314,6 +304,7 @@ body {
     flex-wrap: wrap;
     gap: 0.5rem;
     padding: 0.6rem 0.75rem;
+    justify-content: center;
   }
 
   .header-logo {
@@ -329,17 +320,24 @@ body {
     order: 3;
     width: 100%;
     max-width: none;
-    margin: 0.25rem 0 0;
-    padding: 0 0.75rem;
+    margin: 0.5rem 0 0;
+    padding: 0 0.5rem;
+    flex-basis: 100%;
+    display: flex;
+    justify-content: center;
   }
 
   .header-search {
-    padding: 0.6rem 1rem 0.6rem 2.25rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
     font-size: 16px; /* evita zoom no iOS */
+    min-height: 44px;
   }
 
   .header-nav {
     gap: 0.75rem;
+    justify-content: center;
   }
 
   .header-link {
