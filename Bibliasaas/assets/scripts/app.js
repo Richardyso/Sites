@@ -25,6 +25,8 @@
   var books = [];
   var translations = [];
   var translationNames = {};
+  var currentBook = null;
+  var currentChapter = null;
 
   var bookSelect = document.getElementById('bookSelect');
   var chapterSelect = document.getElementById('chapterSelect');
@@ -35,12 +37,17 @@
   var errorMsg = document.getElementById('errorMsg');
   var readingContent = document.getElementById('readingContent');
   var readingHeader = document.getElementById('readingHeader');
-  var versesTableHead = document.getElementById('versesTableHead');
-  var versesTableBody = document.getElementById('versesTableBody');
   var versesStacked = document.getElementById('versesStacked');
   var themeToggle = document.getElementById('themeToggle');
   var translationsEmptyMsg = document.getElementById('translationsEmptyMsg');
   var verseInput = document.getElementById('verseInput');
+  var searchInput = document.getElementById('searchInput');
+  var searchResults = document.getElementById('searchResults');
+  var btnPrevChapter = document.getElementById('btnPrevChapter');
+  var btnNextChapter = document.getElementById('btnNextChapter');
+  var btnFooterNextChapter = document.getElementById('btnFooterNextChapter');
+  var fontSizeUp = document.getElementById('fontSizeUp');
+  var fontSizeDown = document.getElementById('fontSizeDown');
 
   function apiBase() {
     return typeof window.location.origin !== 'undefined' ? window.location.origin : '';
@@ -48,11 +55,12 @@
 
   log('Iniciado. Origin:', window.location.origin, '| API base:', apiBase());
 
-  function showState(showEmpty, showLoading, showError, showContent) {
+  function showState(showEmpty, showLoading, showError, showContent, showSearch) {
     emptyMsg.style.display = showEmpty ? 'block' : 'none';
     loadingMsg.style.display = showLoading ? 'block' : 'none';
     errorMsg.style.display = showError ? 'block' : 'none';
     readingContent.style.display = showContent ? 'block' : 'none';
+    searchResults.style.display = showSearch ? 'block' : 'none';
   }
 
   function setError(text) {
@@ -103,12 +111,12 @@
         translations = list;
         log('Traduções recebidas:', translations.length, '→', translations.length ? translations.map(function (t) { return t.id + ' (' + t.name + ')'; }) : 'array vazio []');
         if (translations.length === 0) {
-          warn('Nenhuma tradução na resposta. A API retornou array vazio. Verifique includeFiles no vercel.json e se os .sqlite estão no repo.');
+          warn('Nenhuma tradução na resposta.');
           fetch(apiBase() + '/api/translations?debug=1')
             .then(function (r) { return r.json(); })
             .then(function (debugData) {
               if (debugData && debugData.debug) {
-                log('Debug do servidor (por que não há traduções):', debugData.debug);
+                log('Debug do servidor:', debugData.debug);
               }
             })
             .catch(function () {});
@@ -117,7 +125,7 @@
         translations.forEach(function (t) { translationNames[t.id] = t.name; });
         translationsGroup.innerHTML = '';
         if (translations.length === 0) {
-          translationsEmptyMsg.textContent = 'Nenhuma tradução encontrada. Inclua arquivos .sqlite em assets/traducoes no repositório e faça um novo deploy na Vercel.';
+          translationsEmptyMsg.textContent = 'Nenhuma tradução encontrada. Inclua arquivos .sqlite em assets/traducoes.';
           translationsEmptyMsg.style.display = 'block';
           return;
         }
@@ -136,7 +144,7 @@
         err('Falha ao carregar traduções:', e.message);
         translationsGroup.innerHTML = '';
         translations = [];
-        translationsEmptyMsg.textContent = 'Não foi possível carregar as traduções. Verifique se os arquivos .sqlite estão em assets/traducoes e foram enviados ao repositório.';
+        translationsEmptyMsg.textContent = 'Não foi possível carregar as traduções.';
         translationsEmptyMsg.style.display = 'block';
       });
   }
@@ -176,49 +184,57 @@
     return b ? b.name : 'Livro ' + bookNumber;
   }
 
-  function loadVerses() {
-    var book = parseInt(bookSelect.value, 10);
-    var chapter = parseInt(chapterSelect.value, 10);
+  function loadVerses(book, chapter, verseNumber) {
+    var b = book != null ? book : parseInt(bookSelect.value, 10);
+    var ch = chapter != null ? chapter : parseInt(chapterSelect.value, 10);
     var trans = getSelectedTranslations();
-    var verse = verseInput && verseInput.value ? parseInt(verseInput.value, 10) : null;
-    log('Ler clicado → livro:', book, '| capítulo:', chapter, '| versículo:', verse || 'todo', '| traduções:', trans.length ? trans.length + ' selecionada(s)' : 'todas');
-    if (!book || !chapter) {
-      showState(true, false, false, false);
+    var v = verseNumber != null ? verseNumber : (verseInput && verseInput.value ? parseInt(verseInput.value, 10) : null);
+    log('Ler → livro:', b, '| capítulo:', ch, '| versículo:', v || 'todo', '| traduções:', trans.length);
+    if (!b || !ch) {
+      showState(true, false, false, false, false);
       setError('');
       return;
     }
     if (trans.length === 0) {
-      showState(true, false, false, false);
+      showState(true, false, false, false, false);
       setError('');
       return;
     }
-    showState(false, true, false, false);
+    showState(false, true, false, false, false);
     setError('');
-    var qs = '?book=' + encodeURIComponent(book) + '&chapter=' + encodeURIComponent(chapter) + '&translations=' + trans.map(encodeURIComponent).join(',');
-    if (verse && verse >= 1) qs += '&verse=' + encodeURIComponent(verse);
+    if (book == null) {
+      bookSelect.value = b;
+      updateChapters();
+    }
+    if (chapter == null) {
+      chapterSelect.value = ch;
+    } else {
+      chapterSelect.value = ch;
+    }
+    if (verseNumber != null && verseInput) verseInput.value = verseNumber;
+    var qs = '?book=' + encodeURIComponent(b) + '&chapter=' + encodeURIComponent(ch) + '&translations=' + trans.map(encodeURIComponent).join(',');
+    if (v && v >= 1) qs += '&verse=' + encodeURIComponent(v);
     var url = apiBase() + '/api/verses' + qs;
     log('GET versículos:', url);
     fetch(url)
-      .then(function (r) {
-        log('Resposta /api/verses → status:', r.status, r.statusText);
-        return r.json();
-      })
+      .then(function (r) { return r.json(); })
       .then(function (json) {
         if (json.error) {
-          err('API versículos retornou erro:', json.error, json.detail ? json.detail : '');
+          err('API versículos retornou erro:', json.error);
           setError(json.detail ? json.error + ': ' + json.detail : json.error);
-          showState(false, false, true, false);
+          showState(false, false, true, false, false);
           return;
         }
         var data = json.data || [];
-        log('Versículos recebidos:', data.length, 'tradução(ões)', data.length ? '→ ' + data.map(function (d) { return d.translationId + ': ' + (d.verses && d.verses.length) + ' versos'; }).join(', ') : '');
-        renderReading(book, chapter, verse, data);
-        showState(false, false, false, true);
+        currentBook = b;
+        currentChapter = ch;
+        renderReading(b, ch, v, data);
+        showState(false, false, false, true, false);
       })
       .catch(function (e) {
         err('Falha ao carregar versículos:', e.message);
-        setError('Falha ao carregar versículos. Verifique se as traduções estão em /assets/traducoes.');
-        showState(false, false, true, false);
+        setError('Falha ao carregar versículos.');
+        showState(false, false, true, false, false);
       });
   }
 
@@ -240,37 +256,6 @@
     });
 
     var verseNumbers = Object.keys(byVerse).map(Number).sort(function (a, b) { return a - b; });
-
-    var thead = versesTableHead;
-    thead.innerHTML = '';
-    var trHead = document.createElement('tr');
-    var thNum = document.createElement('th');
-    thNum.textContent = '#';
-    thNum.className = 'verse-num';
-    trHead.appendChild(thNum);
-    data.forEach(function (item) {
-      var th = document.createElement('th');
-      th.textContent = translationNames[item.translationId] || item.translationId;
-      trHead.appendChild(th);
-    });
-    thead.appendChild(trHead);
-
-    var tbody = versesTableBody;
-    tbody.innerHTML = '';
-    verseNumbers.forEach(function (num) {
-      var tr = document.createElement('tr');
-      var tdNum = document.createElement('td');
-      tdNum.className = 'verse-num';
-      tdNum.textContent = num;
-      tr.appendChild(tdNum);
-      data.forEach(function (item) {
-        var td = document.createElement('td');
-        td.className = 'verse-text';
-        td.textContent = (byVerse[num] && byVerse[num][item.translationId]) || '—';
-        tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
-    });
 
     versesStacked.innerHTML = '';
     verseNumbers.forEach(function (num) {
@@ -303,6 +288,79 @@
     });
   }
 
+  function doSearch() {
+    var q = (searchInput && searchInput.value || '').trim();
+    if (!q) return;
+    var trans = getSelectedTranslations();
+    if (trans.length === 0) {
+      setError('Selecione ao menos uma versão para pesquisar.');
+      showState(false, false, true, false, false);
+      return;
+    }
+    showState(false, true, false, false, false);
+    setError('');
+    var url = apiBase() + '/api/search?q=' + encodeURIComponent(q) + '&translations=' + trans.map(encodeURIComponent).join(',') + '&limit=80';
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        if (json.error) {
+          setError(json.detail || json.error);
+          showState(false, false, true, false, false);
+          return;
+        }
+        var results = json.results || [];
+        showState(false, false, false, false, true);
+        searchResults.innerHTML = '';
+        if (results.length === 0) {
+          searchResults.innerHTML = '<p class="empty-msg">Nenhum versículo encontrado para “‘ + q + '”.</p>';
+          return;
+        }
+        var title = document.createElement('h2');
+        title.className = 'reading-header';
+        title.textContent = 'Resultados para “‘ + q + '”';
+        searchResults.appendChild(title);
+        results.slice(0, 80).forEach(function (r) {
+          var div = document.createElement('div');
+          div.className = 'search-result-item';
+          var ref = r.bookName + ' ' + r.chapter + '.' + r.verse;
+          var transName = translationNames[r.translationId] || r.translationId;
+          div.innerHTML = '<span class="ref">' + ref + '</span> (' + transName + ') ' + (r.text || '').substring(0, 120) + (r.text && r.text.length > 120 ? '…' : '');
+          div.style.cursor = 'pointer';
+          div.addEventListener('click', function () {
+            loadVerses(r.book, r.chapter, r.verse);
+            showState(false, false, false, true, false);
+          });
+          searchResults.appendChild(div);
+        });
+      })
+      .catch(function (e) {
+        err('Falha na pesquisa:', e.message);
+        setError('Falha ao pesquisar.');
+        showState(false, false, true, false, false);
+      });
+  }
+
+  function goPrevChapter() {
+    if (currentBook == null || currentChapter == null) return;
+    if (currentChapter > 1) {
+      loadVerses(currentBook, currentChapter - 1, null);
+    } else if (currentBook > 1) {
+      var prevBook = currentBook - 1;
+      var maxCh = CHAPTER_COUNTS[prevBook - 1];
+      loadVerses(prevBook, maxCh, null);
+    }
+  }
+
+  function goNextChapter() {
+    if (currentBook == null || currentChapter == null) return;
+    var maxCh = CHAPTER_COUNTS[currentBook - 1];
+    if (currentChapter < maxCh) {
+      loadVerses(currentBook, currentChapter + 1, null);
+    } else if (currentBook < 66) {
+      loadVerses(currentBook + 1, 1, null);
+    }
+  }
+
   function initTheme() {
     var dark = localStorage.getItem('bibliasaas-dark') === '1';
     if (dark) document.body.classList.add('dark-mode');
@@ -314,11 +372,51 @@
     localStorage.setItem('bibliasaas-dark', document.body.classList.contains('dark-mode') ? '1' : '0');
   }
 
+  function getFontSize() {
+    var v = localStorage.getItem('bibliasaas-font-size');
+    return v ? parseInt(v, 10) : 100;
+  }
+
+  function setFontSize(percent) {
+    percent = Math.max(80, Math.min(140, percent));
+    localStorage.setItem('bibliasaas-font-size', String(percent));
+    document.documentElement.style.setProperty('--reading-font-size', (percent / 100) + 'rem');
+  }
+
+  function initFontSize() {
+    setFontSize(getFontSize());
+  }
+
   bookSelect.addEventListener('change', updateChapters);
-  btnRead.addEventListener('click', loadVerses);
+  btnRead.addEventListener('click', function () { loadVerses(null, null, null); });
   themeToggle.addEventListener('click', toggleTheme);
 
+  if (searchInput) {
+    searchInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        doSearch();
+      }
+    });
+  }
+
+  if (btnPrevChapter) btnPrevChapter.addEventListener('click', goPrevChapter);
+  if (btnNextChapter) btnNextChapter.addEventListener('click', goNextChapter);
+  if (btnFooterNextChapter) btnFooterNextChapter.addEventListener('click', goNextChapter);
+
+  if (fontSizeUp) {
+    fontSizeUp.addEventListener('click', function () {
+      setFontSize(getFontSize() + 10);
+    });
+  }
+  if (fontSizeDown) {
+    fontSizeDown.addEventListener('click', function () {
+      setFontSize(getFontSize() - 10);
+    });
+  }
+
   initTheme();
+  initFontSize();
   loadBooks().then(loadTranslations).then(function () {
     if (books.length && translations.length && bookSelect.value) updateChapters();
   });

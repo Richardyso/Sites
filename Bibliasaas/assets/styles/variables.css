@@ -10,6 +10,8 @@
   --table-header-bg: #f0f0f0;
   --verse-number-bg: #e8e8e8;
   --shadow: rgba(0, 0, 0, 0.06);
+  --footer-bg: #e8e8e8;
+  --reading-font-size: 1rem;
 }
 
 body.dark-mode {
@@ -24,4 +26,5 @@ body.dark-mode {
   --table-header-bg: #2a2a2a;
   --verse-number-bg: #2a2a2a;
   --shadow: rgba(0, 0, 0, 0.3);
+  --footer-bg: #1e1e1e;
 }

@@ -84,3 +84,57 @@ export async function queryVerses(translationId, bookNumber, chapter, verseNumbe
     db.close();
   }
 }
+
+/**
+ * Pesquisa uma palavra em uma tradução. Retorna { translationId, results: [{ book, chapter, verse, text }] }.
+ * limit: máximo de resultados por tradução (default 100).
+ */
+export async function querySearch(translationId, word, limit = 100) {
+  if (!word || String(word).trim().length === 0) {
+    return { translationId, results: [] };
+  }
+  const dbPath = path.join(ROOT, 'assets', 'traducoes', `${translationId}.sqlite`);
+  if (!fs.existsSync(dbPath)) {
+    return { translationId, results: [], error: 'Arquivo não encontrado' };
+  }
+  let Sql;
+  try {
+    Sql = await getSql();
+  } catch (e) {
+    throw new Error('sql.js init: ' + (e && e.message ? e.message : String(e)));
+  }
+  const buffer = fs.readFileSync(dbPath);
+  const db = new Sql.Database(buffer);
+  try {
+    const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND (name='verse' OR name='verses' OR name='versiculo')");
+    const tableName = tables.length ? tables[0].values[0][0] : 'verse';
+    const colsResult = db.exec(`PRAGMA table_info(${tableName})`);
+    if (!colsResult.length || !colsResult[0].values.length) {
+      db.close();
+      return { translationId, results: [] };
+    }
+    const colMap = {};
+    colsResult[0].values.forEach(([cid, name]) => { colMap[name.toLowerCase()] = name; });
+    const bookCol = colMap.book_id || colMap.book || colMap.livro || 'book';
+    const chapterCol = colMap.chapter || colMap.capitulo || 'chapter';
+    const verseCol = colMap.verse || colMap.versiculo || 'verse';
+    const textCol = colMap.text || colMap.texto || colMap.content || 'text';
+    const likeParam = '%' + String(word).trim().replace(/%/g, '\\%') + '%';
+    const stmt = db.prepare(
+      `SELECT ${bookCol}, ${chapterCol}, ${verseCol}, ${textCol} FROM ${tableName} WHERE ${textCol} LIKE ? LIMIT ?`
+    );
+    stmt.bind([likeParam, limit]);
+    const results = [];
+    while (stmt.step()) {
+      const row = stmt.get();
+      results.push({ book: row[0], chapter: row[1], verse: row[2], text: row[3] || '' });
+    }
+    stmt.free();
+    return { translationId, results };
+  } catch (e) {
+    const msg = e && e.message ? e.message : String(e);
+    throw new Error('querySearch(' + translationId + '): ' + msg);
+  } finally {
+    db.close();
+  }
+}

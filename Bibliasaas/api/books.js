@@ -2,7 +2,7 @@
  * Lista os 66 livros da Bíblia (ordem canônica).
  * book_number 1–66 para uso na API de versículos.
  */
-const BOOKS = [
+export const BOOKS = [
   { number: 1, name: 'Gênesis', abbreviation: 'Gn' },
   { number: 2, name: 'Êxodo', abbreviation: 'Êx' },
   { number: 3, name: 'Levítico', abbreviation: 'Lv' },
