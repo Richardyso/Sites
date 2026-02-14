@@ -9,6 +9,7 @@
   "functions": {
     "api/translations.js": { "includeFiles": "assets/traducoes/*.sqlite" },
     "api/verses.js": { "includeFiles": "assets/**" },
-    "api/search.js": { "includeFiles": "assets/**" }
+    "api/search.js": { "includeFiles": "assets/**" },
+    "api/chapter-verses.js": { "includeFiles": "assets/**" }
   }
 }

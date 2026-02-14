@@ -40,7 +40,7 @@
   var versesStacked = document.getElementById('versesStacked');
   var themeToggle = document.getElementById('themeToggle');
   var translationsEmptyMsg = document.getElementById('translationsEmptyMsg');
-  var verseInput = document.getElementById('verseInput');
+  var verseSelect = document.getElementById('verseSelect');
   var searchInput = document.getElementById('searchInput');
   var searchResults = document.getElementById('searchResults');
   var btnPrevChapter = document.getElementById('btnPrevChapter');
@@ -160,7 +160,7 @@
     chapterSelect.innerHTML = '';
     var opt = document.createElement('option');
     opt.value = '';
-    opt.textContent = 'Selecione o capítulo';
+    opt.textContent = 'Selecione o capítulo (opcional = livro inteiro)';
     chapterSelect.appendChild(opt);
     if (bookNum >= 1 && bookNum <= 66) {
       var max = CHAPTER_COUNTS[bookNum - 1];
@@ -171,6 +171,35 @@
         chapterSelect.appendChild(o);
       }
     }
+    updateVerses();
+  }
+
+  function updateVerses() {
+    if (!verseSelect) return Promise.resolve();
+    verseSelect.innerHTML = '';
+    var optEmpty = document.createElement('option');
+    optEmpty.value = '';
+    optEmpty.textContent = 'Opcional (todo o capítulo)';
+    verseSelect.appendChild(optEmpty);
+    var bookNum = parseInt(bookSelect.value, 10);
+    var ch = parseInt(chapterSelect.value, 10);
+    if (!bookNum || !ch || !Number.isInteger(ch)) return Promise.resolve();
+    var trans = getSelectedTranslations();
+    var firstTrans = (trans && trans[0]) ? trans[0] : (translations[0] && translations[0].id);
+    if (!firstTrans) return Promise.resolve();
+    var url = apiBase() + '/api/chapter-verses?book=' + encodeURIComponent(bookNum) + '&chapter=' + encodeURIComponent(ch) + '&translation=' + encodeURIComponent(firstTrans);
+    return fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        var list = json.verses || [];
+        list.forEach(function (v) {
+          var o = document.createElement('option');
+          o.value = v;
+          o.textContent = v;
+          verseSelect.appendChild(o);
+        });
+      })
+      .catch(function () {});
   }
 
   function getSelectedTranslations() {
@@ -192,11 +221,12 @@
 
   function loadVerses(book, chapter, verseNumber) {
     var b = book != null ? book : parseInt(bookSelect.value, 10);
-    var ch = chapter != null ? chapter : parseInt(chapterSelect.value, 10);
+    var chVal = chapterSelect.value;
+    var ch = chapter != null ? chapter : (chVal === '' ? null : parseInt(chVal, 10));
     var trans = getSelectedTranslations();
-    var v = verseNumber != null ? verseNumber : (verseInput && verseInput.value ? parseInt(verseInput.value, 10) : null);
-    log('Ler → livro:', b, '| capítulo:', ch, '| versículo:', v || 'todo', '| traduções:', trans.length);
-    if (!b || !ch) {
+    var v = verseNumber != null ? verseNumber : (verseSelect && verseSelect.value ? parseInt(verseSelect.value, 10) : null);
+    log('Ler → livro:', b, '| capítulo:', ch || 'livro inteiro', '| versículo:', v || 'todo', '| traduções:', trans.length);
+    if (!b) {
       showState(true, false, false, false, false);
       setError('');
       return;
@@ -208,21 +238,16 @@
     }
     showState(false, true, false, false, false);
     setError('');
-    if (book == null) {
-      bookSelect.value = b;
-      updateChapters();
-    }
-    if (chapter == null) {
-      chapterSelect.value = ch;
-    } else {
-      chapterSelect.value = ch;
-    }
-    if (verseNumber != null && verseInput) verseInput.value = verseNumber;
-    var qs = '?book=' + encodeURIComponent(b) + '&chapter=' + encodeURIComponent(ch) + '&translations=' + trans.map(encodeURIComponent).join(',');
-    if (v && v >= 1) qs += '&verse=' + encodeURIComponent(v);
-    var url = apiBase() + '/api/verses' + qs;
-    log('GET versículos:', url);
-    fetch(url)
+    if (book != null) bookSelect.value = b;
+    if (chapter != null) chapterSelect.value = String(chapter);
+    var doFetch = function () {
+      if (verseNumber != null && verseSelect) verseSelect.value = String(verseNumber);
+      var qs = '?book=' + encodeURIComponent(b) + '&translations=' + trans.map(encodeURIComponent).join(',');
+      if (ch != null) qs += '&chapter=' + encodeURIComponent(ch);
+      if (v && v >= 1) qs += '&verse=' + encodeURIComponent(v);
+      var url = apiBase() + '/api/verses' + qs;
+      log('GET versículos:', url);
+      fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (json) {
         if (json.error) {
@@ -242,12 +267,72 @@
         setError('Falha ao carregar versículos.');
         showState(false, false, true, false, false);
       });
+    };
+    if (ch != null && verseNumber != null && verseSelect) {
+      updateVerses().then(doFetch);
+    } else {
+      doFetch();
+    }
   }
 
   function renderReading(bookNumber, chapter, verseNumber, data) {
     var bookName = getBookName(bookNumber);
-    readingHeader.textContent = verseNumber ? bookName + ' ' + chapter + '.' + verseNumber : bookName + ' ' + chapter;
+    var isWholeBook = data.length > 0 && data[0].verses && data[0].verses[0] && data[0].verses[0].chapter != null;
 
+    if (isWholeBook) {
+      readingHeader.textContent = bookName + ' (livro inteiro)';
+      var byChapter = {};
+      data.forEach(function (item) {
+        var id = item.translationId;
+        (item.verses || []).forEach(function (v) {
+          var c = v.chapter;
+          if (!byChapter[c]) byChapter[c] = {};
+          if (!byChapter[c][v.verse]) byChapter[c][v.verse] = {};
+          byChapter[c][v.verse][id] = v.text;
+        });
+      });
+      var chapters = Object.keys(byChapter).map(Number).sort(function (a, b) { return a - b; });
+      versesStacked.innerHTML = '';
+      chapters.forEach(function (chNum) {
+        var chTitle = document.createElement('h3');
+        chTitle.className = 'reading-chapter-title';
+        chTitle.textContent = bookName + ' ' + chNum;
+        versesStacked.appendChild(chTitle);
+        var byVerse = byChapter[chNum];
+        var verseNumbers = Object.keys(byVerse).map(Number).sort(function (a, b) { return a - b; });
+        verseNumbers.forEach(function (num) {
+          var block = document.createElement('div');
+          block.className = 'verse-block';
+          var header = document.createElement('div');
+          header.className = 'verse-block-header';
+          var numSpan = document.createElement('span');
+          numSpan.className = 'verse-block-num';
+          numSpan.textContent = num;
+          header.appendChild(numSpan);
+          var transDiv = document.createElement('div');
+          transDiv.className = 'verse-translations';
+          data.forEach(function (item) {
+            var itemDiv = document.createElement('div');
+            itemDiv.className = 'verse-translation-item';
+            var label = document.createElement('div');
+            label.className = 'translation-label';
+            label.textContent = translationNames[item.translationId] || item.translationId;
+            var text = document.createElement('div');
+            text.className = 'translation-text';
+            text.textContent = (byVerse[num] && byVerse[num][item.translationId]) || '—';
+            itemDiv.appendChild(label);
+            itemDiv.appendChild(text);
+            transDiv.appendChild(itemDiv);
+          });
+          block.appendChild(header);
+          block.appendChild(transDiv);
+          versesStacked.appendChild(block);
+        });
+      });
+      return;
+    }
+
+    readingHeader.textContent = verseNumber ? bookName + ' ' + chapter + '.' + verseNumber : bookName + ' ' + chapter;
     var maxVerses = 0;
     var byVerse = {};
     data.forEach(function (item) {
@@ -397,6 +482,7 @@
   }
 
   bookSelect.addEventListener('change', updateChapters);
+  chapterSelect.addEventListener('change', updateVerses);
   btnRead.addEventListener('click', function () { loadVerses(null, null, null); });
   themeToggle.addEventListener('click', toggleTheme);
 

@@ -232,6 +232,19 @@ body {
   line-height: 1.5;
 }
 
+.reading-chapter-title {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.reading-chapter-title:first-child {
+  margin-top: 0;
+}
+
 .chapter-nav.reading-inline-nav {
   display: flex;
   justify-content: center;

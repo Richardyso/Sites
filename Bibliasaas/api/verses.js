@@ -12,7 +12,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método não permitido' });
   }
   const book = parseInt(req.query.book, 10);
-  const chapter = parseInt(req.query.chapter, 10);
+  const chapterParam = req.query.chapter;
+  const chapter = chapterParam !== undefined && chapterParam !== '' ? parseInt(chapterParam, 10) : null;
   const translationsParam = req.query.translations || '';
   const translationIds = translationsParam.split(',').map((s) => s.trim()).filter(Boolean);
   const verseOnly = req.query.verse ? parseInt(req.query.verse, 10) : null;
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
   if (!Number.isInteger(book) || book < 1 || book > 66) {
     return res.status(400).json({ error: 'Parâmetro book inválido (1-66)' });
   }
-  if (!Number.isInteger(chapter) || chapter < 1) {
+  if (chapter !== null && (!Number.isInteger(chapter) || chapter < 1)) {
     return res.status(400).json({ error: 'Parâmetro chapter inválido' });
   }
   if (translationIds.length === 0) {
@@ -28,6 +29,9 @@ export default async function handler(req, res) {
   }
   if (verseOnly !== null && (!Number.isInteger(verseOnly) || verseOnly < 1)) {
     return res.status(400).json({ error: 'Parâmetro verse inválido' });
+  }
+  if (chapter === null && verseOnly !== null) {
+    return res.status(400).json({ error: 'Versículo específico exige capítulo' });
   }
 
   try {
