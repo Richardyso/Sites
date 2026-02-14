@@ -318,13 +318,14 @@
         var results = json.results || [];
         showState(false, false, false, false, true);
         searchResults.innerHTML = '';
+        var qt = '"';
         if (results.length === 0) {
-          searchResults.innerHTML = '<p class="empty-msg">Nenhum versículo encontrado para "‘ + q + '".</p>';
+          searchResults.innerHTML = '<p class="empty-msg">Nenhum versículo encontrado para ' + qt + q + qt + '.</p>';
           return;
         }
         var title = document.createElement('h2');
         title.className = 'reading-header';
-        title.textContent = 'Resultados para "‘ + q + '"';
+        title.textContent = 'Resultados para ' + qt + q + qt;
         searchResults.appendChild(title);
         results.slice(0, 80).forEach(function (r) {
           var div = document.createElement('div');
