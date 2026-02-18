@@ -461,11 +461,11 @@ function detectInitialLanguage() {
 let currentLanguage = detectInitialLanguage();
 let isFromBrazil = false; // Variável global para armazenar se o acesso é do Brasil
 
-// ========== DETECÇÃO RÁPIDA DE LOCALIZAÇÃO ==========
-// Executar IMEDIATAMENTE ao carregar o script (antes mesmo do DOM)
+// ========== DETECÇÃO RÁPIDA DE LOCALIZAÇÃO (BRASIL) - COMENTADO ==========
+// Desativado: todos veem +351. Para reativar detecção de brasileiros (+55 21 997499808), descomente o bloco abaixo.
+/*
 (function quickBrazilDetection() {
     try {
-        // Detecção ultra-rápida por timezone
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const brazilTimezones = ['America/Sao_Paulo', 'America/Rio_de_Janeiro', 'America/Brasilia', 
                                 'America/Fortaleza', 'America/Bahia', 'America/Recife'];
@@ -477,17 +477,22 @@ let isFromBrazil = false; // Variável global para armazenar se o acesso é do B
         }
     } catch (e) {}
     
-    // Fallback: detecção por idioma
     const lang = navigator.language || navigator.userLanguage || '';
     if (lang.toLowerCase() === 'pt-br') {
         isFromBrazil = true;
         console.log('⚡ Brasil detectado instantaneamente por idioma');
     }
 })();
+*/
 
 // ========== GEOLOCATION DETECTION ==========
+// Desativado: todos veem +351. Para reativar detecção de brasileiros (+55 21 997499808), descomente o bloco abaixo.
 async function detectBrazilLocation() {
-    // Primeiro, usar detecção rápida por timezone (instantâneo)
+    // Sempre usar Portugal (+351) - detecção de Brasil desativada
+    isFromBrazil = false;
+    updateWhatsAppByLocation();
+    
+    /* --- DETECÇÃO BRASIL COMENTADA - Para reativar, descomente este bloco ---
     try {
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const brazilTimezones = ['America/Sao_Paulo', 'America/Rio_de_Janeiro', 'America/Brasilia', 
@@ -498,13 +503,12 @@ async function detectBrazilLocation() {
             isFromBrazil = true;
             console.log('🇧🇷 Acesso do Brasil detectado por timezone:', timezone);
             updateWhatsAppByLocation();
-            return; // Sair imediatamente se detectar Brasil
+            return;
         }
     } catch (e) {
         console.log('Erro ao detectar timezone');
     }
     
-    // Se não for Brasil por timezone, verificar idioma (também instantâneo)
     const userLang = navigator.language || navigator.userLanguage;
     if (userLang.toLowerCase() === 'pt-br') {
         isFromBrazil = true;
@@ -513,19 +517,16 @@ async function detectBrazilLocation() {
         return;
     }
     
-    // Por padrão, assumir que não é Brasil e atualizar imediatamente
     isFromBrazil = false;
     updateWhatsAppByLocation();
     
-    // Depois, fazer verificação por IP em background (sem bloquear)
     try {
         const response = await fetch('https://ipapi.co/json/', { 
-            signal: AbortSignal.timeout(3000) // timeout de 3 segundos
+            signal: AbortSignal.timeout(3000)
         });
         const data = await response.json();
         
         if (data && data.country_code === 'BR' && !isFromBrazil) {
-            // Só atualizar se a detecção rápida estava errada
             isFromBrazil = true;
             console.log('🇧🇷 Confirmado: Acesso do Brasil via IP');
             updateWhatsAppByLocation();
@@ -533,9 +534,9 @@ async function detectBrazilLocation() {
             console.log('✅ Detecção confirmada: Brasil');
         }
     } catch (error) {
-        // Ignorar erros de API - já temos uma decisão rápida
         console.log('API de geolocalização não disponível, usando detecção local');
     }
+    --- FIM DETECÇÃO BRASIL --- */
 }
 
 // ========== INITIALIZATION ==========
@@ -635,12 +636,16 @@ function updateLanguageDisplay(lang) {
 
 // Função para atualizar o número do WhatsApp baseado na localização
 function updateWhatsAppByLocation() {
-    // Definir números do WhatsApp
-    const brazilNumber = '+5521997499808';
+    // Sempre usar Portugal (+351) - Brasil desativado. Para reativar: use as linhas comentadas abaixo
     const portugalNumber = '+351915437587';
+    const number = portugalNumber;
+    const formattedNumber = '+351 915 437 587';
     
+    /* --- NÚMERO BRASIL (+55 21 997499808) COMENTADO - Para reativar, descomente e use no lugar das linhas acima ---
+    const brazilNumber = '+5521997499808';
     const number = isFromBrazil ? brazilNumber : portugalNumber;
     const formattedNumber = isFromBrazil ? '+55 21 99749-9808' : '+351 915 437 587';
+    --- */
     const cleanNumber = number.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
     
     // Atualizar número na seção de contato
