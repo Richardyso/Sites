@@ -51,11 +51,17 @@
               <option value="">Selecione o capítulo</option>
             </select>
           </div>
-          <div class="selector-group">
-            <label for="verseSelect">Versículo</label>
-            <select id="verseSelect" class="select" aria-label="Versículo opcional">
-              <option value="">Opcional (todo o capítulo)</option>
-            </select>
+          <div class="selector-group verse-range">
+            <label>Versículos</label>
+            <div class="verse-range-inputs">
+              <select id="verseFromSelect" class="select" aria-label="De versículo">
+                <option value="">De (opcional)</option>
+              </select>
+              <span class="verse-range-sep">até</span>
+              <select id="verseToSelect" class="select" aria-label="Até versículo">
+                <option value="">Até (opcional)</option>
+              </select>
+            </div>
           </div>
         </div>
         <fieldset class="sidebar-versions" id="translationsFieldset">
@@ -79,7 +85,7 @@
         </div>
 
         <section class="reading-section" id="readingSection" aria-live="polite">
-          <p class="empty-msg" id="emptyMsg">Selecione livro e capítulo e clique em Ler. Opcional: versículo e versões (nenhuma marcada = todas).</p>
+          <p class="empty-msg" id="emptyMsg">Selecione livro e capítulo e clique em Ler. Opcional: versículo ou faixa (De/Até) e versões (nenhuma marcada = todas).</p>
           <div id="loadingMsg" class="loading-msg" style="display: none;">Carregando…</div>
           <div id="errorMsg" class="error-msg" style="display: none;"></div>
           <div id="searchResults" class="search-results" style="display: none;"></div>

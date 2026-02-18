@@ -131,6 +131,28 @@ body:not(.dark-mode) .icon-moon {
   color: var(--text-secondary);
 }
 
+.verse-range {
+  flex: 1 1 100%;
+}
+
+.verse-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.verse-range-inputs .select {
+  flex: 1 1 80px;
+  min-width: 0;
+}
+
+.verse-range-sep {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
 /* Translations (versions) */
 .translations-legend {
   font-size: 0.85rem;

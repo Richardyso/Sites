@@ -33,9 +33,10 @@ async function getSql() {
 /**
  * Abre um .sqlite em assets/traducoes e executa query de versículos.
  * chapter: obrigatório para um capítulo; se null, retorna o livro inteiro (verses com chapter, verse, text).
- * verseNumber: opcional; se informado, retorna apenas esse versículo.
+ * verseNumber: opcional; se informado, retorna apenas esse versículo (ou faixa se verseTo também informado).
+ * verseTo: opcional; se informado junto com verseNumber, retorna versículos de verseNumber até verseTo (inclusive).
  */
-export async function queryVerses(translationId, bookNumber, chapter, verseNumber = null) {
+export async function queryVerses(translationId, bookNumber, chapter, verseNumber = null, verseTo = null) {
   const dbPath = path.join(ROOT, 'assets', 'traducoes', `${translationId}.sqlite`);
   if (!fs.existsSync(dbPath)) {
     return { translationId, verses: [], error: 'Arquivo não encontrado: ' + path.basename(dbPath) };
@@ -77,15 +78,19 @@ export async function queryVerses(translationId, bookNumber, chapter, verseNumbe
       return { translationId, verses };
     }
 
-    const whereVerse = verseNumber != null ? ` AND ${verseCol}=?` : '';
+    let whereVerse = '';
+    const bindParams = [bookNumber, chapter];
+    if (verseNumber != null && verseTo != null) {
+      whereVerse = ` AND ${verseCol}>=? AND ${verseCol}<=?`;
+      bindParams.push(verseNumber, verseTo);
+    } else if (verseNumber != null) {
+      whereVerse = ` AND ${verseCol}=?`;
+      bindParams.push(verseNumber);
+    }
     const stmt = db.prepare(
       `SELECT ${verseCol}, ${textCol} FROM ${tableName} WHERE ${bookCol}=? AND ${chapterCol}=?${whereVerse} ORDER BY ${verseCol}`
     );
-    if (verseNumber != null) {
-      stmt.bind([bookNumber, chapter, verseNumber]);
-    } else {
-      stmt.bind([bookNumber, chapter]);
-    }
+    stmt.bind(bindParams);
     const verses = [];
     while (stmt.step()) {
       const row = stmt.get();

@@ -40,7 +40,8 @@
   var versesStacked = document.getElementById('versesStacked');
   var themeToggle = document.getElementById('themeToggle');
   var translationsEmptyMsg = document.getElementById('translationsEmptyMsg');
-  var verseSelect = document.getElementById('verseSelect');
+  var verseFromSelect = document.getElementById('verseFromSelect');
+  var verseToSelect = document.getElementById('verseToSelect');
   var searchInput = document.getElementById('searchInput');
   var searchResults = document.getElementById('searchResults');
   var btnPrevChapter = document.getElementById('btnPrevChapter');
@@ -175,12 +176,17 @@
   }
 
   function updateVerses() {
-    if (!verseSelect) return Promise.resolve();
-    verseSelect.innerHTML = '';
-    var optEmpty = document.createElement('option');
-    optEmpty.value = '';
-    optEmpty.textContent = 'Opcional (todo o capítulo)';
-    verseSelect.appendChild(optEmpty);
+    if (!verseFromSelect || !verseToSelect) return Promise.resolve();
+    verseFromSelect.innerHTML = '';
+    verseToSelect.innerHTML = '';
+    var optEmptyFrom = document.createElement('option');
+    optEmptyFrom.value = '';
+    optEmptyFrom.textContent = 'De (opcional)';
+    verseFromSelect.appendChild(optEmptyFrom);
+    var optEmptyTo = document.createElement('option');
+    optEmptyTo.value = '';
+    optEmptyTo.textContent = 'Até (opcional)';
+    verseToSelect.appendChild(optEmptyTo);
     var bookNum = parseInt(bookSelect.value, 10);
     var ch = parseInt(chapterSelect.value, 10);
     if (!bookNum || !ch || !Number.isInteger(ch)) return Promise.resolve();
@@ -193,10 +199,14 @@
       .then(function (json) {
         var list = json.verses || [];
         list.forEach(function (v) {
-          var o = document.createElement('option');
-          o.value = v;
-          o.textContent = v;
-          verseSelect.appendChild(o);
+          var oFrom = document.createElement('option');
+          oFrom.value = v;
+          oFrom.textContent = v;
+          verseFromSelect.appendChild(oFrom);
+          var oTo = document.createElement('option');
+          oTo.value = v;
+          oTo.textContent = v;
+          verseToSelect.appendChild(oTo);
         });
       })
       .catch(function () {});
@@ -219,13 +229,14 @@
     return b ? b.name : 'Livro ' + bookNumber;
   }
 
-  function loadVerses(book, chapter, verseNumber) {
+  function loadVerses(book, chapter, verseFromParam, verseToParam) {
     var b = book != null ? book : parseInt(bookSelect.value, 10);
     var chVal = chapterSelect.value;
     var ch = chapter != null ? chapter : (chVal === '' ? null : parseInt(chVal, 10));
     var trans = getSelectedTranslations();
-    var v = verseNumber != null ? verseNumber : (verseSelect && verseSelect.value ? parseInt(verseSelect.value, 10) : null);
-    log('Ler → livro:', b, '| capítulo:', ch || 'livro inteiro', '| versículo:', v || 'todo', '| traduções:', trans.length);
+    var vFrom = verseFromParam != null ? verseFromParam : (verseFromSelect && verseFromSelect.value ? parseInt(verseFromSelect.value, 10) : null);
+    var vTo = verseToParam != null ? verseToParam : (verseToSelect && verseToSelect.value ? parseInt(verseToSelect.value, 10) : null);
+    log('Ler → livro:', b, '| capítulo:', ch || 'livro inteiro', '| versículos:', vFrom && vTo ? vFrom + '-' + vTo : (vFrom || 'todo'), '| traduções:', trans.length);
     if (!b) {
       showState(true, false, false, false, false);
       setError('');
@@ -241,10 +252,12 @@
     if (book != null) bookSelect.value = b;
     if (chapter != null) chapterSelect.value = String(chapter);
     var doFetch = function () {
-      if (verseNumber != null && verseSelect) verseSelect.value = String(verseNumber);
+      if (verseFromParam != null && verseFromSelect) verseFromSelect.value = String(verseFromParam);
+      if (verseToParam != null && verseToSelect) verseToSelect.value = String(verseToParam);
       var qs = '?book=' + encodeURIComponent(b) + '&translations=' + trans.map(encodeURIComponent).join(',');
       if (ch != null) qs += '&chapter=' + encodeURIComponent(ch);
-      if (v && v >= 1) qs += '&verse=' + encodeURIComponent(v);
+      if (vFrom && vFrom >= 1) qs += '&verse=' + encodeURIComponent(vFrom);
+      if (vTo && vTo >= 1) qs += '&verseTo=' + encodeURIComponent(vTo);
       var url = apiBase() + '/api/verses' + qs;
       log('GET versículos:', url);
       fetch(url)
@@ -259,7 +272,8 @@
         var data = json.data || [];
         currentBook = b;
         currentChapter = ch;
-        renderReading(b, ch, v, data);
+        var vDisplay = vFrom && vTo && vFrom !== vTo ? vFrom + '-' + vTo : (vFrom || null);
+        renderReading(b, ch, vDisplay, data);
         showState(false, false, false, true, false);
       })
       .catch(function (e) {
@@ -268,7 +282,7 @@
         showState(false, false, true, false, false);
       });
     };
-    if (ch != null && verseNumber != null && verseSelect) {
+    if (ch != null && (vFrom || vTo) && (verseFromSelect || verseToSelect)) {
       updateVerses().then(doFetch);
     } else {
       doFetch();
