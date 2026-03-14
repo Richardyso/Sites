@@ -1492,8 +1492,7 @@ function generateCV() {
     doc.text('YouTube: @minhavidateuvlog', 110, currentY);
     currentY += 5;
     
-    doc.text('TikTok: @minhavidateuvlog2', 20, currentY);
-    doc.text('Pinterest: Barbara', 110, currentY);
+    doc.text('Pinterest: Barbara', 20, currentY);
     currentY += 5;
     
     doc.text('Site: minhavidateuvlog.netlify.app', 20, currentY);
