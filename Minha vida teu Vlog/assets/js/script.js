@@ -60,9 +60,8 @@ const translations = {
     }
 };
 
-// Current language and location
+// Current language
 let currentLanguage = localStorage.getItem('language') || 'pt-pt';
-let isFromBrazil = false;
 
 // Change language function
 function changeLanguage(lang) {
@@ -410,7 +409,6 @@ async function detectLocationAndLanguage() {
         
         // Determine language based on country
         if (data.country_code === 'BR') {
-            isFromBrazil = true;
             // Se não houver idioma salvo, define como pt-br para Brasil
             if (!localStorage.getItem('language')) {
                 currentLanguage = 'pt-br';
@@ -459,15 +457,11 @@ async function detectLocationAndLanguage() {
             }
         }
         
-        // Atualizar WhatsApp baseado na localização
-        updateWhatsAppByLocation();
-        
     } catch (error) {
         console.log('❌ Erro ao detectar localização:', error);
         // Fallback: usar idioma do navegador
         const browserLang = navigator.language || navigator.userLanguage;
         if (browserLang.startsWith('pt-BR')) {
-            isFromBrazil = true;
             if (!localStorage.getItem('language')) {
                 currentLanguage = 'pt-br';
             }
@@ -480,32 +474,10 @@ async function detectLocationAndLanguage() {
                 currentLanguage = 'en';
             }
         }
-        updateWhatsAppByLocation();
     }
 }
 
-// Update WhatsApp number based on location
-function updateWhatsAppByLocation() {
-    const whatsappLink = document.querySelector('.whatsapp');
-    const whatsappFloat = document.querySelector('.whatsapp-float');
-    
-    if (isFromBrazil) {
-        // Número brasileiro
-        const brazilNumber = '5521997499808';
-        const formattedNumber = '+55 21 99749-9808';
-        const message = encodeURIComponent('Olá, gostaria de saber mais sobre seus serviços.');
-        
-        if (whatsappLink) {
-            whatsappLink.href = `https://wa.me/${brazilNumber}?text=${message}`;
-            whatsappLink.querySelector('span').textContent = formattedNumber;
-        }
-        
-        if (whatsappFloat) {
-            whatsappFloat.href = `https://wa.me/${brazilNumber}?text=${message}`;
-        }
-    }
-    // Se não for do Brasil, mantém o número de Portugal (já está no HTML)
-}
+// WhatsApp: sempre Portugal (+351 915 437 587) — definido no index.html
 
 // Initialize all functions when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
