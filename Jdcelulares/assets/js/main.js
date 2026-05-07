@@ -56,6 +56,30 @@
     });
   }
 
+  document.addEventListener("click", function (e) {
+    if (!navLinks || !navLinks.classList.contains("open")) return;
+    const target = e.target;
+    if (
+      navLinks.contains(target) ||
+      (navToggle && navToggle.contains(target))
+    ) {
+      return;
+    }
+    closeMenu();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && navLinks && navLinks.classList.contains("open")) {
+      closeMenu();
+    }
+  });
+
+  window.addEventListener("resize", function () {
+    if (window.innerWidth > 980 && navLinks && navLinks.classList.contains("open")) {
+      closeMenu();
+    }
+  });
+
   window.addEventListener("scroll", setHeaderState, { passive: true });
   setHeaderState();
 
