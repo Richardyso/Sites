@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /assets/js/
-Disallow: *.pdf
-
-Sitemap: https://babidesign.netlify.app/sitemap.xml
