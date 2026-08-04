@@ -318,7 +318,6 @@
   async function loadDefaultImage() {
     const img = await loadImageFromUrl(DEFAULT_IMAGE, DEFAULT_IMAGE);
     currentImage = img;
-    fileName.textContent = DEFAULT_IMAGE;
     drawTo(pctx, img);
   }
 
