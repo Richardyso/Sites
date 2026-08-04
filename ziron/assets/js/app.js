@@ -4,7 +4,7 @@
   const GRID = SIZE / BS;
   const BLOCKS = GRID * GRID;
   const REPS = 7;
-  const STRENGTH = 18;
+  const STRENGTH = 28;
   const MID = [
     [1, 2],
     [2, 1],
@@ -338,6 +338,19 @@
         alpha: false,
         colorSpace: "srgb",
       });
+
+      // 1) crop central 1:1 (preserva blocos 8x8 se a imagem foi letterboxada)
+      if (img.naturalWidth >= SIZE && img.naturalHeight >= SIZE) {
+        const sx = Math.floor((img.naturalWidth - SIZE) / 2);
+        const sy = Math.floor((img.naturalHeight - SIZE) / 2);
+        x.fillStyle = "#000";
+        x.fillRect(0, 0, SIZE, SIZE);
+        x.drawImage(img, sx, sy, SIZE, SIZE, 0, 0, SIZE, SIZE);
+        const tCrop = decodeFromImageData(x.getImageData(0, 0, SIZE, SIZE));
+        if (tCrop !== null) return tCrop;
+      }
+
+      // 2) stretch clássico
       drawTo(x, img);
       return decodeFromImageData(x.getImageData(0, 0, SIZE, SIZE));
     } finally {
@@ -366,13 +379,25 @@
     const t2 = await decodeBlobAsImage(png);
     if (t2 !== text) throw new Error("selftest PNG: " + JSON.stringify(t2));
 
+    // JPEG Instagram-size: letterbox (sem stretch) p/ não destruir alinhamento DCT
+    const IG = 1080;
     const c = document.createElement("canvas");
-    c.width = 1080;
-    c.height = 1080;
+    c.width = IG;
+    c.height = IG;
     const x = c.getContext("2d", { alpha: false, colorSpace: "srgb" });
-    x.drawImage(preview, 0, 0, 1080, 1080);
-    const jpeg = await toBlob(c, "image/jpeg", 0.7);
-    const t3 = await decodeBlobAsImage(jpeg);
+    x.fillStyle = "#000";
+    x.fillRect(0, 0, IG, IG);
+    const ox = Math.floor((IG - SIZE) / 2);
+    const oy = Math.floor((IG - SIZE) / 2);
+    x.drawImage(preview, ox, oy);
+
+    let t3 = null;
+    const qualities = [0.95, 0.92, 0.88];
+    for (const q of qualities) {
+      const jpeg = await toBlob(c, "image/jpeg", q);
+      t3 = await decodeBlobAsImage(jpeg);
+      if (t3 === text) break;
+    }
     if (t3 !== text) {
       throw new Error("selftest JPEG: encurte a msg. got=" + JSON.stringify(t3));
     }
@@ -398,6 +423,17 @@
       alpha: false,
       colorSpace: "srgb",
     });
+
+    if (img.naturalWidth >= SIZE && img.naturalHeight >= SIZE) {
+      const sx = Math.floor((img.naturalWidth - SIZE) / 2);
+      const sy = Math.floor((img.naturalHeight - SIZE) / 2);
+      x.fillStyle = "#000";
+      x.fillRect(0, 0, SIZE, SIZE);
+      x.drawImage(img, sx, sy, SIZE, SIZE, 0, 0, SIZE, SIZE);
+      let t = decodeFromImageData(x.getImageData(0, 0, SIZE, SIZE));
+      if (t !== null) return t;
+    }
+
     drawTo(x, img);
     let t = decodeFromImageData(x.getImageData(0, 0, SIZE, SIZE));
     if (t !== null) return t;
@@ -431,7 +467,7 @@
       const { blob } = await encodeFlow();
       downloadBlob(blob, "kovil_stego_dct.png");
       msgArea.value = "";
-      setStatus("message extracted", "success");
+      setStatus("PNG salvo (selftest canvas/PNG/JPEG OK)", "success");
     } catch (err) {
       setStatus("error: " + err.message + "\nPNG NÃO salvo.", "error");
     }
