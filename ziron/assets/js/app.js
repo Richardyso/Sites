@@ -20,7 +20,6 @@
   const DEFAULT_IMAGE = "assets/kovil.jpg";
 
   const fileInput = document.getElementById("fileInput");
-  const fileName = document.getElementById("fileName");
   const msgArea = document.getElementById("msgArea");
   const encodeBtn = document.getElementById("encodeBtn");
   const decodeBtn = document.getElementById("decodeBtn");
@@ -311,14 +310,12 @@
     const { img, url } = await loadImageFromBlob(file);
     currentObjectUrl = url;
     currentImage = img;
-    fileName.textContent = file.name;
     drawTo(pctx, img);
   }
 
   async function loadDefaultImage() {
     const img = await loadImageFromUrl(DEFAULT_IMAGE, DEFAULT_IMAGE);
     currentImage = img;
-    fileName.textContent = DEFAULT_IMAGE;
     drawTo(pctx, img);
   }
 

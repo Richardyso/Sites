@@ -119,16 +119,6 @@ button.primary {
   cursor: pointer;
 }
 
-#fileName {
-  color: var(--muted);
-  font-size: 0.72rem;
-  max-width: 100%;
-  flex: 1 1 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 #msgArea {
   width: 100%;
   min-height: 100px;
