@@ -1,17 +1,23 @@
 (() => {
-  // Dual engines:
-  // 1) Ztegonography (zr0n) — 8×8 mean QIM, JPEG-resistant
-  // 2) StegOnline-style LSB + strings (Ge0rg3/StegOnline ExtractDataService)
-  // Encode keeps Ztegonography only (LSB would fight QIM on the same pixels).
-
+  const SIZE = 1024;
   const BS = 8;
-  const REPEAT = 7;
-  const Q_STEP = 4;
-  const ENCODE_W = 1024;
-  const ENCODE_H = 1024;
+  const GRID = SIZE / BS;
+  const BLOCKS = GRID * GRID;
+  const REPS = 7;
+  const STRENGTH = 28;
+  const MID = [
+    [1, 2],
+    [2, 1],
+    [2, 2],
+    [1, 3],
+    [3, 1],
+    [2, 3],
+    [3, 2],
+  ];
+  const MAGIC = [0x5a, 0x52, 0x4e, 0x34]; // ZRN4
+  const CAP_BITS = Math.floor(BLOCKS / REPS);
+  const STRIDE = Math.floor(BLOCKS / REPS);
   const DEFAULT_IMAGE = "assets/kovil.jpg";
-  const LSB_MIN_STRING = 8;
-  const LSB_MAX_SCAN_BYTES = 64 * 1024;
 
   const fileInput = document.getElementById("fileInput");
   const fileName = document.getElementById("fileName");
@@ -28,411 +34,254 @@
 
   let currentImage = null;
   let currentObjectUrl = null;
-  let currentFileBytes = null;
+  const te = new TextEncoder();
+  const td = new TextDecoder("utf-8", { fatal: false });
+
+  const C = new Float64Array(BS * BS);
+  {
+    const s0 = Math.sqrt(1 / BS);
+    const s = Math.sqrt(2 / BS);
+    for (let u = 0; u < BS; u++) {
+      const su = u === 0 ? s0 : s;
+      for (let x = 0; x < BS; x++) {
+        C[u * BS + x] = su * Math.cos(((2 * x + 1) * u * Math.PI) / (2 * BS));
+      }
+    }
+  }
+
+  function dct2(block) {
+    const tmp = new Float64Array(BS * BS);
+    const out = new Float64Array(BS * BS);
+    for (let u = 0; u < BS; u++) {
+      for (let x = 0; x < BS; x++) {
+        let s = 0;
+        for (let i = 0; i < BS; i++) s += C[u * BS + i] * block[i * BS + x];
+        tmp[u * BS + x] = s;
+      }
+    }
+    for (let u = 0; u < BS; u++) {
+      for (let v = 0; v < BS; v++) {
+        let s = 0;
+        for (let x = 0; x < BS; x++) s += tmp[u * BS + x] * C[v * BS + x];
+        out[u * BS + v] = s;
+      }
+    }
+    return out;
+  }
+
+  function idct2(coeff) {
+    const tmp = new Float64Array(BS * BS);
+    const out = new Float64Array(BS * BS);
+    for (let i = 0; i < BS; i++) {
+      for (let v = 0; v < BS; v++) {
+        let s = 0;
+        for (let u = 0; u < BS; u++) s += C[u * BS + i] * coeff[u * BS + v];
+        tmp[i * BS + v] = s;
+      }
+    }
+    for (let i = 0; i < BS; i++) {
+      for (let j = 0; j < BS; j++) {
+        let s = 0;
+        for (let v = 0; v < BS; v++) s += tmp[i * BS + v] * C[v * BS + j];
+        out[i * BS + j] = s;
+      }
+    }
+    return out;
+  }
 
   function setStatus(msg, kind = "") {
     statusEl.textContent = msg;
     statusEl.className = kind;
   }
 
-  /* ---------- Ztegonography ---------- */
-
-  function textToBits(text) {
-    const encoder = new TextEncoder();
-    const bytes = encoder.encode(text);
-    const bits = [];
-    const len = bytes.length;
-    for (let i = 15; i >= 0; i--) bits.push((len >> i) & 1);
-    for (const b of bytes) {
-      for (let i = 7; i >= 0; i--) bits.push((b >> i) & 1);
+  function crc32(buf) {
+    let c = 0xffffffff;
+    for (let i = 0; i < buf.length; i++) {
+      c ^= buf[i];
+      for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1));
     }
-    let crc = 0;
-    for (const b of bytes) crc ^= b;
-    for (let i = 7; i >= 0; i--) bits.push((crc >> i) & 1);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+
+  function maxBody() {
+    return Math.floor(CAP_BITS / 8) - 10;
+  }
+
+  function buildPayload(text) {
+    const body = te.encode(text);
+    if (body.length > maxBody()) {
+      throw new Error("mensagem longa demais (máx " + maxBody() + " bytes)");
+    }
+    const out = new Uint8Array(10 + body.length);
+    out.set(MAGIC, 0);
+    out[4] = (body.length >> 8) & 0xff;
+    out[5] = body.length & 0xff;
+    out.set(body, 6);
+    const c = crc32(out.subarray(0, 6 + body.length));
+    const o = 6 + body.length;
+    out[o] = (c >>> 24) & 0xff;
+    out[o + 1] = (c >>> 16) & 0xff;
+    out[o + 2] = (c >>> 8) & 0xff;
+    out[o + 3] = c & 0xff;
+    return out;
+  }
+
+  function parsePayload(bytes) {
+    if (!bytes || bytes.length < 10) return null;
+    for (let i = 0; i < 4; i++) if (bytes[i] !== MAGIC[i]) return null;
+    const len = (bytes[4] << 8) | bytes[5];
+    if (len < 0 || 6 + len + 4 > bytes.length) return null;
+    const expect =
+      ((bytes[6 + len] << 24) |
+        (bytes[7 + len] << 16) |
+        (bytes[8 + len] << 8) |
+        bytes[9 + len]) >>>
+      0;
+    if (crc32(bytes.subarray(0, 6 + len)) !== expect) return null;
+    return td.decode(bytes.subarray(6, 6 + len));
+  }
+
+  function bytesToBits(bytes) {
+    const bits = [];
+    for (let i = 0; i < bytes.length; i++)
+      for (let b = 7; b >= 0; b--) bits.push((bytes[i] >> b) & 1);
     return bits;
   }
 
-  function bitsToText(votedBits) {
-    if (votedBits.length < 16) return null;
-    let len = 0;
-    for (let i = 0; i < 16; i++) len = (len << 1) | votedBits[i];
-    if (len < 0 || len > 2048 || 16 + len * 8 + 8 > votedBits.length) return null;
-    const bytes = [];
-    for (let i = 16; i < 16 + len * 8; i += 8) {
-      let b = 0;
-      for (let j = 0; j < 8; j++) b = (b << 1) | votedBits[i + j];
-      bytes.push(b);
+  function bitsToBytes(bits) {
+    const n = bits.length >> 3;
+    const out = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      let v = 0;
+      for (let b = 0; b < 8; b++) v = (v << 1) | (bits[i * 8 + b] & 1);
+      out[i] = v;
     }
-    let crc = 0;
-    for (const b of bytes) crc ^= b;
-    let recvCrc = 0;
-    for (let i = 16 + len * 8; i < 16 + len * 8 + 8; i++) {
-      recvCrc = (recvCrc << 1) | votedBits[i];
-    }
-    if (crc !== recvCrc) return null;
-    return new TextDecoder().decode(new Uint8Array(bytes));
+    return out;
   }
 
-  function applyBlur(data, W, H) {
-    const temp = new Uint8ClampedArray(data);
-    const kernel = [1, 2, 1, 2, 4, 2, 1, 2, 1];
-    const norm = 16;
-    for (let y = 1; y < H - 1; y++) {
-      for (let x = 1; x < W - 1; x++) {
-        const idx = (y * W + x) * 4;
-        let r = 0;
-        let g = 0;
-        let b = 0;
-        let kpos = 0;
-        for (let dy = -1; dy <= 1; dy++) {
-          for (let dx = -1; dx <= 1; dx++) {
-            const s = ((y + dy) * W + (x + dx)) * 4;
-            const weight = kernel[kpos++];
-            r += temp[s] * weight;
-            g += temp[s + 1] * weight;
-            b += temp[s + 2] * weight;
-          }
+  function blocksForBit(k) {
+    const out = [];
+    for (let r = 0; r < REPS; r++) out.push((k + r * STRIDE) % BLOCKS);
+    return out;
+  }
+
+  function getBlockY(data, bi) {
+    const by = (bi / GRID) | 0;
+    const bx = bi % GRID;
+    const block = new Float64Array(BS * BS);
+    for (let y = 0; y < BS; y++) {
+      for (let x = 0; x < BS; x++) {
+        const p = ((by * BS + y) * SIZE + (bx * BS + x)) * 4;
+        block[y * BS + x] =
+          0.299 * data[p] + 0.587 * data[p + 1] + 0.114 * data[p + 2] - 128;
+      }
+    }
+    return { block, by, bx };
+  }
+
+  function putBlockY(data, by, bx, spatial) {
+    for (let y = 0; y < BS; y++) {
+      for (let x = 0; x < BS; x++) {
+        const p = ((by * BS + y) * SIZE + (bx * BS + x)) * 4;
+        const oldY = 0.299 * data[p] + 0.587 * data[p + 1] + 0.114 * data[p + 2];
+        let newY = spatial[y * BS + x] + 128;
+        if (newY < 0) newY = 0;
+        if (newY > 255) newY = 255;
+        const d = newY - oldY;
+        for (let c = 0; c < 3; c++) {
+          let v = data[p + c] + d;
+          data[p + c] = v < 0 ? 0 : v > 255 ? 255 : (v + 0.5) | 0;
         }
-        data[idx] = r / norm;
-        data[idx + 1] = g / norm;
-        data[idx + 2] = b / norm;
       }
     }
   }
 
-  function embedBitsIntoImage(imageData, repeatedBits, W, H) {
+  function xorParity(coeff) {
+    let bit = 0;
+    for (const [u, v] of MID) {
+      bit ^= coeff[u * BS + v] >= 0 ? 1 : 0;
+    }
+    return bit;
+  }
+
+  function forceXorParity(coeff, bit) {
+    const cur = xorParity(coeff);
+    if (cur === bit) {
+      for (const [u, v] of MID) {
+        const i = u * BS + v;
+        if (Math.abs(coeff[i]) < STRENGTH) {
+          coeff[i] = coeff[i] >= 0 ? STRENGTH : -STRENGTH;
+        }
+      }
+      return;
+    }
+    let best = 0;
+    let bestAbs = Infinity;
+    for (let i = 0; i < MID.length; i++) {
+      const [u, v] = MID[i];
+      const a = Math.abs(coeff[u * BS + v]);
+      if (a < bestAbs) {
+        bestAbs = a;
+        best = i;
+      }
+    }
+    const [u, v] = MID[best];
+    const i = u * BS + v;
+    const sign = coeff[i] >= 0 ? 1 : -1;
+    coeff[i] = -sign * Math.max(STRENGTH, bestAbs || STRENGTH);
+    for (const [uu, vv] of MID) {
+      const j = uu * BS + vv;
+      if (j === i) continue;
+      if (Math.abs(coeff[j]) < STRENGTH * 0.5) {
+        coeff[j] = coeff[j] >= 0 ? STRENGTH : -STRENGTH;
+      }
+    }
+  }
+
+  function embedBits(imageData, payloadBits) {
     const data = imageData.data;
-    const blocksX = W / BS;
-    const blocksY = H / BS;
-    let bitIdx = 0;
-    for (let by = 0; by < blocksY; by++) {
-      for (let bx = 0; bx < blocksX; bx++) {
-        if (bitIdx >= repeatedBits.length) break;
-        const bit = repeatedBits[bitIdx];
-        let sumY = 0;
-        for (let py = by * BS; py < (by + 1) * BS; py++) {
-          for (let px = bx * BS; px < (bx + 1) * BS; px++) {
-            const idx = (py * W + px) * 4;
-            sumY += 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
-          }
-        }
-        const meanY = sumY / (BS * BS);
-        let k = Math.round(meanY / Q_STEP);
-        if ((k & 1) !== bit) {
-          k = meanY >= k * Q_STEP ? k + 1 : k - 1;
-        }
-        const targetY = k * Q_STEP;
-        const delta = targetY - meanY;
-        for (let py = by * BS; py < (by + 1) * BS; py++) {
-          for (let px = bx * BS; px < (bx + 1) * BS; px++) {
-            const idx = (py * W + px) * 4;
-            data[idx] = Math.min(255, Math.max(0, data[idx] + delta));
-            data[idx + 1] = Math.min(255, Math.max(0, data[idx + 1] + delta));
-            data[idx + 2] = Math.min(255, Math.max(0, data[idx + 2] + delta));
-          }
-        }
-        bitIdx++;
+    const bits = new Array(CAP_BITS);
+    for (let i = 0; i < CAP_BITS; i++) bits[i] = i < payloadBits.length ? payloadBits[i] : 0;
+
+    for (let k = 0; k < CAP_BITS; k++) {
+      const bit = bits[k];
+      for (const bi of blocksForBit(k)) {
+        const { block, by, bx } = getBlockY(data, bi);
+        const coeff = dct2(block);
+        forceXorParity(coeff, bit);
+        const spatial = idct2(coeff);
+        putBlockY(data, by, bx, spatial);
       }
-      if (bitIdx >= repeatedBits.length) break;
     }
-    applyBlur(data, W, H);
     return imageData;
   }
 
-  function extractRawBits(imageData, W, H, totalBits) {
+  function extractBits(imageData) {
     const data = imageData.data;
-    const blocksX = W / BS;
-    const blocksY = H / BS;
-    const bits = [];
-    let bitIdx = 0;
-    for (let by = 0; by < blocksY; by++) {
-      for (let bx = 0; bx < blocksX; bx++) {
-        if (bitIdx >= totalBits) break;
-        let sumY = 0;
-        for (let py = by * BS; py < (by + 1) * BS; py++) {
-          for (let px = bx * BS; px < (bx + 1) * BS; px++) {
-            const idx = (py * W + px) * 4;
-            sumY += 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
-          }
-        }
-        const meanY = sumY / (BS * BS);
-        const k = Math.round(meanY / Q_STEP);
-        bits.push(k & 1);
-        bitIdx++;
+    const bits = new Array(CAP_BITS);
+    for (let k = 0; k < CAP_BITS; k++) {
+      let z = 0;
+      let o = 0;
+      for (const bi of blocksForBit(k)) {
+        const { block } = getBlockY(data, bi);
+        const coeff = dct2(block);
+        const bit = xorParity(coeff);
+        if (bit) o++;
+        else z++;
       }
-      if (bitIdx >= totalBits) break;
+      bits[k] = o >= z ? 1 : 0;
     }
     return bits;
   }
 
-  function encodeImage(source, message, W = ENCODE_W, H = ENCODE_H) {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement("canvas");
-      canvas.width = W;
-      canvas.height = H;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true, alpha: false, colorSpace: "srgb" });
-      ctx.drawImage(source, 0, 0, W, H);
-      const imageData = ctx.getImageData(0, 0, W, H);
-      const bits = textToBits(message);
-      const repeatedBits = [];
-      for (const b of bits) {
-        for (let i = 0; i < REPEAT; i++) repeatedBits.push(b);
-      }
-      const totalBlocks = (W / BS) * (H / BS);
-      if (repeatedBits.length > totalBlocks) {
-        reject(new Error("message too large"));
-        return;
-      }
-      embedBitsIntoImage(imageData, repeatedBits, W, H);
-      ctx.putImageData(imageData, 0, 0);
-      pctx.putImageData(imageData, 0, 0);
-      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("toBlob failed"))), "image/png");
-    });
+  function decodeFromImageData(imageData) {
+    return parsePayload(bitsToBytes(extractBits(imageData)));
   }
-
-  function decodeZtegonography(source, W = ENCODE_W, H = ENCODE_H) {
-    return new Promise((resolve) => {
-      const canvas = document.createElement("canvas");
-      canvas.width = W;
-      canvas.height = H;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true, alpha: false, colorSpace: "srgb" });
-      ctx.drawImage(source, 0, 0, W, H);
-      const imageData = ctx.getImageData(0, 0, W, H);
-      const totalBlocks = (W / BS) * (H / BS);
-      const rawBits = extractRawBits(imageData, W, H, totalBlocks);
-      const totalRepeated = Math.floor(rawBits.length / REPEAT) * REPEAT;
-      const votedBits = [];
-      for (let i = 0; i < totalRepeated; i += REPEAT) {
-        let sum = 0;
-        for (let j = 0; j < REPEAT; j++) sum += rawBits[i + j];
-        votedBits.push(sum > REPEAT / 2 ? 1 : 0);
-      }
-      resolve(bitsToText(votedBits));
-    });
-  }
-
-  /* ---------- StegOnline-style LSB (ExtractDataService) ---------- */
-
-  function intToBin8(n) {
-    return (n & 255).toString(2).padStart(8, "0");
-  }
-
-  function splitChannels(imageData) {
-    const d = imageData.data;
-    const n = d.length / 4;
-    const r = new Uint8Array(n);
-    const g = new Uint8Array(n);
-    const b = new Uint8Array(n);
-    const a = new Uint8Array(n);
-    for (let i = 0, p = 0; i < n; i++, p += 4) {
-      r[i] = d[p];
-      g[i] = d[p + 1];
-      b[i] = d[p + 2];
-      a[i] = d[p + 3];
-    }
-    return { r, g, b, a, rgba: d, width: imageData.width, height: imageData.height };
-  }
-
-  /**
-   * Port of Ge0rg3/StegOnline ExtractDataService.extract
-   * Returns Uint8Array of extracted bytes (trim trailing zeros optional).
-   */
-  function extractLsbBytes(ch, selectedBits, pixelOrder, bitOrder, bitPlaneOrder, trimBits) {
-    const cleaned = {};
-    for (const c of ["r", "g", "b", "a"]) {
-      if (selectedBits[c] && selectedBits[c].length) cleaned[c] = selectedBits[c];
-    }
-    const colourArrays = { r: ch.r, g: ch.g, b: ch.b, a: ch.a };
-    const rgbaChars = "rgba";
-    const bitsOut = [];
-
-    function pushBitsFromColour(colour, pixelVal) {
-      const pixelBinary = intToBin8(pixelVal).split("");
-      let extracted = pixelBinary.filter((_, index) => cleaned[colour].indexOf(7 - index) !== -1);
-      if (bitOrder === "LSB") extracted = extracted.reverse();
-      for (const bit of extracted) bitsOut.push(bit === "1" ? 1 : 0);
-    }
-
-    if (pixelOrder === "Row") {
-      for (let i = 0; i < ch.r.length; i++) {
-        for (const colour of bitPlaneOrder) {
-          if (!cleaned[colour]) continue;
-          pushBitsFromColour(colour, colourArrays[colour][i]);
-        }
-      }
-    } else {
-      for (let c = 0; c < ch.width; c++) {
-        for (let r = 0; r < ch.height; r++) {
-          const index = (r * ch.width + c) * 4;
-          for (const colour of bitPlaneOrder) {
-            if (!cleaned[colour]) continue;
-            const colourIndex = rgbaChars.indexOf(colour);
-            pushBitsFromColour(colour, ch.rgba[index + colourIndex]);
-          }
-        }
-      }
-    }
-
-    const bytes = [];
-    for (let i = 0; i + 7 < bitsOut.length; i += 8) {
-      let b = 0;
-      for (let j = 0; j < 8; j++) b = (b << 1) | bitsOut[i + j];
-      bytes.push(b);
-    }
-    if (trimBits) {
-      while (bytes.length && bytes[bytes.length - 1] === 0) bytes.pop();
-    }
-    return new Uint8Array(bytes);
-  }
-
-  function findPrintableStrings(bytes, minLen = LSB_MIN_STRING) {
-    const texts = [];
-    let buf = "";
-    const flush = () => {
-      if (buf.length >= minLen) texts.push(buf);
-      buf = "";
-    };
-    const limit = Math.min(bytes.length, LSB_MAX_SCAN_BYTES);
-    for (let i = 0; i < limit; i++) {
-      const c = bytes[i];
-      if (c >= 32 && c <= 126) buf += String.fromCharCode(c);
-      else flush();
-    }
-    flush();
-    texts.sort((a, b) => b.length - a.length || a.localeCompare(b));
-    return texts;
-  }
-
-  function scoreCandidate(text) {
-    if (!text) return -1;
-    const letters = (text.match(/[A-Za-zÀ-ÿ0-9]/g) || []).length;
-    const spaces = (text.match(/\s/g) || []).length;
-    return letters * 2 + spaces + Math.min(text.length, 80);
-  }
-
-  function nullTerminatedUtf8(bytes) {
-    let end = bytes.indexOf(0);
-    if (end < 0) end = Math.min(bytes.length, 512);
-    if (end < LSB_MIN_STRING) return null;
-    const slice = bytes.subarray(0, end);
-    if (![...slice].every((c) => (c >= 32 && c <= 126) || c === 9 || c === 10 || c === 13)) {
-      return null;
-    }
-    return new TextDecoder().decode(slice);
-  }
-
-  function imageDataFromSource(source, W, H) {
-    const canvas = document.createElement("canvas");
-    canvas.width = W;
-    canvas.height = H;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true, alpha: true, colorSpace: "srgb" });
-    ctx.drawImage(source, 0, 0, W, H);
-    return ctx.getImageData(0, 0, W, H);
-  }
-
-  // Common CTF paths (StegOnline defaults: Row, MSB, r→g→b→a)
-  const LSB_PATHS = [
-    { name: "R0 row", selected: { r: [0], g: [], b: [], a: [] }, order: "Row" },
-    { name: "G0 row", selected: { r: [], g: [0], b: [], a: [] }, order: "Row" },
-    { name: "B0 row", selected: { r: [], g: [], b: [0], a: [] }, order: "Row" },
-    { name: "RGB0 row", selected: { r: [0], g: [0], b: [0], a: [] }, order: "Row" },
-    { name: "BGR0 row", selected: { r: [0], g: [0], b: [0], a: [] }, order: "Row", planes: ["b", "g", "r", "a"] },
-    { name: "RGB0 col", selected: { r: [0], g: [0], b: [0], a: [] }, order: "Column" },
-    { name: "RGBA0 row", selected: { r: [0], g: [0], b: [0], a: [0] }, order: "Row" },
-  ];
-
-  function decodeStegOnlineLsb(source) {
-    const W = source.naturalWidth || source.width;
-    const H = source.naturalHeight || source.height;
-    if (!W || !H) return [];
-
-    const imageData = imageDataFromSource(source, W, H);
-    const ch = splitChannels(imageData);
-    const hits = [];
-    const seen = new Set();
-
-    for (const path of LSB_PATHS) {
-      const planes = path.planes || ["r", "g", "b", "a"];
-      const bytes = extractLsbBytes(ch, path.selected, path.order, "MSB", planes, true);
-      const nt = nullTerminatedUtf8(bytes);
-      if (nt && !seen.has(nt)) {
-        seen.add(nt);
-        hits.push({ engine: "stegonline-lsb", path: path.name, text: nt, score: scoreCandidate(nt) + 20 });
-      }
-      for (const s of findPrintableStrings(bytes).slice(0, 3)) {
-        if (seen.has(s)) continue;
-        seen.add(s);
-        hits.push({ engine: "stegonline-lsb", path: path.name, text: s, score: scoreCandidate(s) });
-      }
-    }
-
-    // Also try same paths on 1024 stretch (some tools dump then resize)
-    if (W !== ENCODE_W || H !== ENCODE_H) {
-      const scaled = imageDataFromSource(source, ENCODE_W, ENCODE_H);
-      const ch2 = splitChannels(scaled);
-      for (const path of LSB_PATHS.slice(0, 4)) {
-        const planes = path.planes || ["r", "g", "b", "a"];
-        const bytes = extractLsbBytes(ch2, path.selected, path.order, "MSB", planes, true);
-        for (const s of findPrintableStrings(bytes).slice(0, 2)) {
-          if (seen.has(s)) continue;
-          seen.add(s);
-          hits.push({
-            engine: "stegonline-lsb",
-            path: path.name + " @1024",
-            text: s,
-            score: scoreCandidate(s) - 5,
-          });
-        }
-      }
-    }
-
-    hits.sort((a, b) => b.score - a.score);
-    return hits;
-  }
-
-  function decodeFileStrings(bytes) {
-    if (!bytes || !bytes.length) return [];
-    const hits = [];
-    const seen = new Set();
-    for (const s of findPrintableStrings(bytes, 5).slice(0, 8)) {
-      if (seen.has(s)) continue;
-      seen.add(s);
-      hits.push({
-        engine: "stegonline-strings",
-        path: "file bytes",
-        text: s,
-        score: scoreCandidate(s) - 10,
-      });
-    }
-    return hits;
-  }
-
-  async function decodeAll(source) {
-    const results = [];
-
-    const z = await decodeZtegonography(source);
-    if (z) {
-      results.push({
-        engine: "ztegonography",
-        path: "8×8 QIM",
-        text: z,
-        score: 10_000,
-      });
-    }
-
-    results.push(...decodeStegOnlineLsb(source));
-    results.push(...decodeFileStrings(currentFileBytes));
-
-    results.sort((a, b) => b.score - a.score);
-    return results;
-  }
-
-  /* ---------- UI helpers ---------- */
 
   function drawTo(ctx, img) {
     ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, ENCODE_W, ENCODE_H);
-    ctx.drawImage(img, 0, 0, ENCODE_W, ENCODE_H);
+    ctx.fillRect(0, 0, SIZE, SIZE);
+    ctx.drawImage(img, 0, 0, SIZE, SIZE);
   }
 
   function loadImageFromBlob(blob) {
@@ -459,7 +308,6 @@
 
   async function loadFile(file) {
     if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
-    currentFileBytes = new Uint8Array(await file.arrayBuffer());
     const { img, url } = await loadImageFromBlob(file);
     currentObjectUrl = url;
     currentImage = img;
@@ -470,15 +318,91 @@
   async function loadDefaultImage() {
     const img = await loadImageFromUrl(DEFAULT_IMAGE, DEFAULT_IMAGE);
     currentImage = img;
-    currentFileBytes = null;
-    try {
-      const res = await fetch(DEFAULT_IMAGE);
-      if (res.ok) currentFileBytes = new Uint8Array(await res.arrayBuffer());
-    } catch (_) {
-      /* ignore */
-    }
-    fileName.textContent = DEFAULT_IMAGE;
     drawTo(pctx, img);
+  }
+
+  function toBlob(canvas, type, quality) {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob falhou"))), type, quality);
+    });
+  }
+
+  async function decodeBlobAsImage(blob) {
+    const { img, url } = await loadImageFromBlob(blob);
+    try {
+      const c = document.createElement("canvas");
+      c.width = SIZE;
+      c.height = SIZE;
+      const x = c.getContext("2d", {
+        willReadFrequently: true,
+        alpha: false,
+        colorSpace: "srgb",
+      });
+
+      // 1) crop central 1:1 (preserva blocos 8x8 se a imagem foi letterboxada)
+      if (img.naturalWidth >= SIZE && img.naturalHeight >= SIZE) {
+        const sx = Math.floor((img.naturalWidth - SIZE) / 2);
+        const sy = Math.floor((img.naturalHeight - SIZE) / 2);
+        x.fillStyle = "#000";
+        x.fillRect(0, 0, SIZE, SIZE);
+        x.drawImage(img, sx, sy, SIZE, SIZE, 0, 0, SIZE, SIZE);
+        const tCrop = decodeFromImageData(x.getImageData(0, 0, SIZE, SIZE));
+        if (tCrop !== null) return tCrop;
+      }
+
+      // 2) stretch clássico
+      drawTo(x, img);
+      return decodeFromImageData(x.getImageData(0, 0, SIZE, SIZE));
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  async function encodeFlow() {
+    if (!currentImage) throw new Error("no image selected");
+    const text = msgArea.value;
+    if (!text) throw new Error("empty message");
+
+    setStatus("encoding DCT+XOR (pode levar alguns segundos)…", "");
+    await new Promise((r) => setTimeout(r, 20));
+
+    drawTo(pctx, currentImage);
+    let id = pctx.getImageData(0, 0, SIZE, SIZE);
+    const payload = buildPayload(text);
+    id = embedBits(id, bytesToBits(payload));
+    pctx.putImageData(id, 0, 0);
+
+    const t1 = decodeFromImageData(pctx.getImageData(0, 0, SIZE, SIZE));
+    if (t1 !== text) throw new Error("selftest canvas: " + JSON.stringify(t1));
+
+    const png = await toBlob(preview, "image/png");
+    const t2 = await decodeBlobAsImage(png);
+    if (t2 !== text) throw new Error("selftest PNG: " + JSON.stringify(t2));
+
+    // JPEG Instagram-size: letterbox (sem stretch) p/ não destruir alinhamento DCT
+    const IG = 1080;
+    const c = document.createElement("canvas");
+    c.width = IG;
+    c.height = IG;
+    const x = c.getContext("2d", { alpha: false, colorSpace: "srgb" });
+    x.fillStyle = "#000";
+    x.fillRect(0, 0, IG, IG);
+    const ox = Math.floor((IG - SIZE) / 2);
+    const oy = Math.floor((IG - SIZE) / 2);
+    x.drawImage(preview, ox, oy);
+
+    let t3 = null;
+    const qualities = [0.95, 0.92, 0.88];
+    for (const q of qualities) {
+      const jpeg = await toBlob(c, "image/jpeg", q);
+      t3 = await decodeBlobAsImage(jpeg);
+      if (t3 === text) break;
+    }
+    if (t3 !== text) {
+      throw new Error("selftest JPEG: encurte a msg. got=" + JSON.stringify(t3));
+    }
+
+    return { blob: png, bytes: payload.length };
   }
 
   function downloadBlob(blob, name) {
@@ -488,6 +412,39 @@
     a.download = name;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
+  async function decodeFlow(img) {
+    const c = document.createElement("canvas");
+    c.width = SIZE;
+    c.height = SIZE;
+    const x = c.getContext("2d", {
+      willReadFrequently: true,
+      alpha: false,
+      colorSpace: "srgb",
+    });
+
+    if (img.naturalWidth >= SIZE && img.naturalHeight >= SIZE) {
+      const sx = Math.floor((img.naturalWidth - SIZE) / 2);
+      const sy = Math.floor((img.naturalHeight - SIZE) / 2);
+      x.fillStyle = "#000";
+      x.fillRect(0, 0, SIZE, SIZE);
+      x.drawImage(img, sx, sy, SIZE, SIZE, 0, 0, SIZE, SIZE);
+      let t = decodeFromImageData(x.getImageData(0, 0, SIZE, SIZE));
+      if (t !== null) return t;
+    }
+
+    drawTo(x, img);
+    let t = decodeFromImageData(x.getImageData(0, 0, SIZE, SIZE));
+    if (t !== null) return t;
+
+    x.fillStyle = "#000";
+    x.fillRect(0, 0, SIZE, SIZE);
+    const r = Math.max(SIZE / img.naturalWidth, SIZE / img.naturalHeight);
+    const dw = img.naturalWidth * r;
+    const dh = img.naturalHeight * r;
+    x.drawImage(img, (SIZE - dw) / 2, (SIZE - dh) / 2, dw, dh);
+    return decodeFromImageData(x.getImageData(0, 0, SIZE, SIZE));
   }
 
   fileInput.addEventListener("change", async () => {
@@ -505,20 +462,14 @@
       setStatus("no image selected", "error");
       return;
     }
-    const msg = msgArea.value;
-    if (!msg.trim()) {
-      setStatus("enter message", "error");
-      return;
-    }
     encodeBtn.disabled = true;
-    setStatus("encoding (ztegonography)...", "");
     try {
-      const blob = await encodeImage(currentImage, msg);
-      downloadBlob(blob, "stego.png");
+      const { blob } = await encodeFlow();
+      downloadBlob(blob, "kovil_stego_dct.png");
       msgArea.value = "";
-      setStatus("encoded · ztegonography · png", "success");
+      setStatus("PNG salvo (selftest canvas/PNG/JPEG OK)", "success");
     } catch (err) {
-      setStatus("error: " + err.message, "error");
+      setStatus("error: " + err.message + "\nPNG NÃO salvo.", "error");
     }
     encodeBtn.disabled = false;
   });
@@ -529,16 +480,13 @@
       return;
     }
     decodeBtn.disabled = true;
-    setStatus("decoding (ztegonography → stegonline)...", "");
+    setStatus("decoding DCT+XOR…", "");
     try {
-      const hits = await decodeAll(currentImage);
-      if (!hits.length) {
-        setStatus("no message found or corrupted", "error");
-      } else {
-        const best = hits[0];
-        msgArea.value = best.text;
-        const alt = hits.length > 1 ? ` · +${hits.length - 1} alt` : "";
-        setStatus(`message extracted · ${best.engine}${best.path ? " / " + best.path : ""}${alt}`, "success");
+      const text = await decodeFlow(currentImage);
+      if (text === null || text === "") setStatus("no message found or corrupted", "error");
+      else {
+        msgArea.value = text;
+        setStatus("message extracted", "success");
       }
     } catch (err) {
       setStatus("error: " + err.message, "error");
