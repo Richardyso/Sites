@@ -1,0 +1,265 @@
+:root {
+  --bg: #0a0c0a;
+  --panel: #0e120e;
+  --green: #39ff14;
+  --glow: rgba(57, 255, 20, 0.35);
+  --muted: #6a9a5a;
+  --err: #ff4d4d;
+  --font: "Cascadia Code", "Fira Code", "Consolas", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: radial-gradient(ellipse at 20% 0%, #122010, transparent 50%), var(--bg);
+  color: var(--green);
+  font-family: var(--font);
+}
+
+body {
+  display: grid;
+  place-items: start center;
+  padding: 24px 12px 48px;
+  min-height: 100dvh;
+}
+
+.frame {
+  width: min(420px, 100%);
+  border: 2px solid var(--green);
+  background: var(--panel);
+  box-shadow: 0 0 24px var(--glow);
+  padding: 16px;
+}
+
+.hero {
+  display: block;
+  width: min(240px, 70%);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  margin: 0 auto 16px;
+  border: 1px solid #1f3d1a;
+  background: #050805;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.ver {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+}
+
+button,
+.file-btn {
+  appearance: none;
+  border: 1.5px solid var(--green);
+  background: transparent;
+  color: var(--green);
+  font-family: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  padding: 8px 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+button:hover:not(:disabled),
+.file-btn:hover {
+  background: rgba(57, 255, 20, 0.12);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button.primary {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  font-weight: 700;
+}
+
+.file-btn {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+
+.file-btn input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+#fileName {
+  color: var(--muted);
+  font-size: 0.72rem;
+  max-width: 100%;
+  flex: 1 1 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#msgArea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  background: #050805;
+  border: 1.5px solid var(--green);
+  color: var(--green);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 10px;
+  margin-bottom: 12px;
+  outline: none;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+#status {
+  font-size: 0.78rem;
+  min-height: 1.3em;
+  color: var(--muted);
+  margin-bottom: 4px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+#status.error {
+  color: var(--err);
+}
+
+#status.success {
+  color: var(--green);
+}
+
+.social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed #1f3d1a;
+  justify-content: center;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--green);
+  text-decoration: none;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+
+.social-link img {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.social-link:hover {
+  text-shadow: 0 0 8px var(--glow);
+}
+
+/* canvas só para encode/decode — não aparece na UI */
+#preview {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 12px 8px 32px;
+    place-items: start stretch;
+  }
+
+  .frame {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .hero {
+    width: min(180px, 55%);
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: 0.95rem;
+  }
+
+  .ver {
+    font-size: 0.6rem;
+  }
+
+  .row {
+    gap: 8px;
+  }
+
+  .label {
+    font-size: 0.75rem;
+  }
+
+  button,
+  .file-btn {
+    font-size: 0.72rem;
+    padding: 10px 12px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  button.primary {
+    width: 100%;
+  }
+
+  #msgArea {
+    min-height: 88px;
+    font-size: 0.9rem;
+  }
+
+  .social {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
