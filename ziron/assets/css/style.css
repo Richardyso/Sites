@@ -129,6 +129,35 @@ button.primary {
   white-space: nowrap;
 }
 
+.algo-row {
+  margin-bottom: 12px;
+}
+
+.algo-group {
+  display: flex;
+  gap: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.algo-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  border-right-width: 0;
+}
+
+.algo-btn:last-child {
+  border-right-width: 1.5px;
+}
+
+.algo-btn.active {
+  background: rgba(57, 255, 20, 0.18);
+  box-shadow: inset 0 0 0 1px var(--green);
+}
+
 #msgArea {
   width: 100%;
   min-height: 100px;

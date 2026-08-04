@@ -38,7 +38,7 @@
   <div class="frame">
     <img class="hero" src="assets/kovil.jpg" alt="K0v1l" />
     <h1>STEGO DO K0V1L</h1>
-    <div class="ver">DCT mid-band + XOR</div>
+    <div class="ver">DCT mid-band + XOR · ZTEG brightness</div>
 
     <div class="row">
       <span class="label">IMAGE</span>
@@ -47,6 +47,14 @@
         <input type="file" id="fileInput" accept="image/*" />
       </label>
       <span id="fileName"></span>
+    </div>
+
+    <div class="row algo-row">
+      <span class="label">ENCODE</span>
+      <div class="algo-group" role="group" aria-label="Algoritmo de encode">
+        <button type="button" class="algo-btn active" data-algo="dct" aria-pressed="true">DCT+XOR</button>
+        <button type="button" class="algo-btn" data-algo="zteg" aria-pressed="false">ZTEG</button>
+      </div>
     </div>
 
     <textarea id="msgArea" spellcheck="false" placeholder="mensagem…"></textarea>
