@@ -247,19 +247,6 @@ body.mode-readonly .entry-readonly textarea {
   width: 100%;
 }
 
-.readonly-badge {
-  margin: 0.4rem 0 0;
-  display: inline-block;
-  padding: 0.25rem 0.65rem;
-  border-radius: 999px;
-  background: var(--blue-soft);
-  color: var(--blue-deep);
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 /* —— Home —— */
 .brand-hero {
   text-align: center;
@@ -323,6 +310,10 @@ body.mode-readonly .entry-readonly textarea {
 .btn-pill:disabled {
   opacity: 0.7;
   cursor: wait;
+}
+
+.btn-pill[hidden] {
+  display: none !important;
 }
 
 .btn-pill.save {

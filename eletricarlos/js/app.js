@@ -46,7 +46,6 @@ const filterClearEl = $("#filter-clear");
 const filterMetaEl = $("#filter-meta");
 const filterEmptyEl = $("#filter-empty");
 const formActionsEl = $("#form-actions");
-const readonlyBadgeEl = $("#readonly-badge");
 const loginForm = $("#login-form");
 const loginError = $("#login-error");
 const loginSubmit = $("#login-submit");
@@ -169,7 +168,6 @@ function applyModeChrome() {
   const ro = isReadonly();
   document.body.classList.toggle("mode-readonly", ro);
   formActionsEl.hidden = ro;
-  readonlyBadgeEl.hidden = !ro;
   $$("#screen-home [data-local]").forEach((btn) => {
     const allowed = canAccessLocal(state.user, btn.dataset.local);
     btn.hidden = !allowed;

