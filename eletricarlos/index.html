@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#B71C1C" />
+  <meta name="theme-color" content="#B73631" />
   <title>ELETRICARLOS — Livro de Anotações</title>
   <meta name="description" content="Livro de anotações de manutenção — ELETRICARLOS." />
 
@@ -31,6 +31,11 @@
 <body class="locked">
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
+  <header id="session-bar" class="session-bar" hidden>
+    <p class="session-welcome">Bem-vindo, <strong id="session-user"></strong></p>
+    <button type="button" id="btn-logout" class="btn-logout">Sair</button>
+  </header>
+
   <!-- LOGIN -->
   <section id="screen-login" class="screen active" aria-label="Login" aria-hidden="false">
     <header class="brand-hero login-hero">
@@ -56,10 +61,6 @@
     <header class="brand-hero">
       <img src="assets/logo.png" alt="ELETRICARLOS" class="logo" width="1024" height="664" decoding="async" />
       <p class="subtitle">Livro de Anotações</p>
-      <p class="session-line">
-        <span id="session-user"></span>
-        <button type="button" id="btn-logout" class="btn-logout">Sair</button>
-      </p>
     </header>
     <nav class="menu" aria-label="Estabelecimentos">
       <button type="button" class="btn-pill" data-local="Pousada Paraíso">Pousada Paraíso</button>
@@ -96,7 +97,6 @@
     <div class="filter-bar" role="search" aria-label="Filtrar anotações">
       <div class="filter-modes" role="group" aria-label="Tipo de filtro">
         <button type="button" class="filter-mode active" data-mode="ano" aria-pressed="true">Ano</button>
-        <button type="button" class="filter-mode" data-mode="data" aria-pressed="false">Data</button>
         <button type="button" class="filter-mode" data-mode="numero" aria-pressed="false">Nº</button>
       </div>
       <div class="filter-row">

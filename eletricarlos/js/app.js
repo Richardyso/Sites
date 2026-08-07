@@ -51,10 +51,10 @@ const loginForm = $("#login-form");
 const loginError = $("#login-error");
 const loginSubmit = $("#login-submit");
 const sessionUserEl = $("#session-user");
+const sessionBarEl = $("#session-bar");
 
 const FILTER_PLACEHOLDERS = {
   ano: "Ex.: 2024",
-  data: "Ex.: 30/09/2024",
   numero: "Ex.: 66",
 };
 
@@ -121,14 +121,9 @@ function entryMatches(entry, mode, query) {
     return numero.includes(q.replace(/\s/g, ""));
   }
 
-  if (mode === "ano") {
-    const year = data.match(/(\d{4})$/)?.[1] || data.match(/\b(19|20)\d{2}\b/)?.[0] || "";
-    return year.includes(q) || data.includes(q);
-  }
-
-  const compactQ = q.replace(/\s/g, "");
-  const compactData = data.replace(/\s/g, "");
-  return compactData.includes(compactQ);
+  // ano
+  const year = data.match(/(\d{4})$/)?.[1] || data.match(/\b(19|20)\d{2}\b/)?.[0] || "";
+  return year.includes(q) || data.includes(q);
 }
 
 function getVisibleIndexes() {
@@ -185,6 +180,7 @@ function enterApp(user) {
   state.user = user;
   document.body.classList.remove("locked");
   sessionUserEl.textContent = user.label;
+  sessionBarEl.hidden = false;
   applyModeChrome();
   showScreen("home");
 }
@@ -197,6 +193,8 @@ function logout() {
   state.entries = [];
   document.body.classList.add("locked");
   document.body.classList.remove("mode-readonly");
+  sessionBarEl.hidden = true;
+  sessionUserEl.textContent = "";
   $("#login-user").value = "";
   $("#login-pass").value = "";
   loginError.hidden = true;
