@@ -216,6 +216,107 @@ textarea {
   color: var(--muted);
 }
 
+/* —— Filter —— */
+.filter-bar {
+  margin: 0 0 1rem;
+  padding: 0.85rem;
+  background: var(--entry);
+  border-radius: var(--radius);
+  border: 1px solid rgba(183, 28, 28, 0.12);
+}
+
+.filter-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+
+.filter-mode {
+  appearance: none;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.5rem;
+  background: var(--white);
+  color: var(--red-deep);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background var(--ease), color var(--ease), border-color var(--ease);
+}
+
+.filter-mode.active {
+  background: var(--red);
+  color: var(--white);
+  border-color: var(--red-deep);
+}
+
+.filter-mode:focus-visible {
+  outline: 3px solid var(--red);
+  outline-offset: 2px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.filter-input {
+  flex: 1;
+  min-width: 0;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem 0.85rem;
+  outline: none;
+}
+
+.filter-input:focus {
+  border-color: var(--red);
+}
+
+.filter-clear {
+  appearance: none;
+  border: none;
+  border-radius: 12px;
+  padding: 0 0.9rem;
+  background: var(--red-soft);
+  color: var(--red-deep);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+
+.filter-clear:focus-visible {
+  outline: 3px solid var(--red);
+  outline-offset: 2px;
+}
+
+.filter-meta {
+  margin: 0.55rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.filter-empty {
+  margin: 0.5rem 0 1rem;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: var(--radius);
+}
+
 /* —— Form —— */
 .form-header-labels {
   display: none;
@@ -527,6 +628,14 @@ textarea {
   }
 
   .btn-back:hover {
+    background: #f4c0c0;
+  }
+
+  .filter-mode:hover:not(.active) {
+    background: #ffe8e8;
+  }
+
+  .filter-clear:hover {
     background: #f4c0c0;
   }
 }

@@ -13,6 +13,9 @@ const db = getFirestore(app);
 const state = {
   localName: "",
   type: "",
+  entries: [],
+  filterMode: "ano",
+  filterQuery: "",
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -28,6 +31,16 @@ const entriesEl = $("#entries");
 const loadingEl = $("#loading");
 const toastEl = $("#toast");
 const btnSave = $("#btn-save");
+const filterQueryEl = $("#filter-query");
+const filterClearEl = $("#filter-clear");
+const filterMetaEl = $("#filter-meta");
+const filterEmptyEl = $("#filter-empty");
+
+const FILTER_PLACEHOLDERS = {
+  ano: "Ex.: 2024",
+  data: "Ex.: 30/09/2024",
+  numero: "Ex.: 66",
+};
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, el]) => {
@@ -60,9 +73,88 @@ function todayBR() {
   return `${dd}/${mm}/${yyyy}`;
 }
 
-function createEntryRow(entry = { numero: "", data: "", observacao: "" }) {
+function escapeAttr(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;");
+}
+
+function escapeText(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;");
+}
+
+function normalizeQuery(q) {
+  return String(q || "").trim().toLowerCase();
+}
+
+function entryMatches(entry, mode, query) {
+  const q = normalizeQuery(query);
+  if (!q) return true;
+
+  const numero = String(entry.numero ?? "").trim().toLowerCase();
+  const data = String(entry.data ?? "").trim().toLowerCase();
+
+  if (mode === "numero") {
+    return numero.includes(q.replace(/\s/g, ""));
+  }
+
+  if (mode === "ano") {
+    const year = data.match(/(\d{4})$/)?.[1] || data.match(/\b(19|20)\d{2}\b/)?.[0] || "";
+    return year.includes(q) || data.includes(q);
+  }
+
+  // data: aceita parcial (30, 30/09, 30/09/2024)
+  const compactQ = q.replace(/\s/g, "");
+  const compactData = data.replace(/\s/g, "");
+  return compactData.includes(compactQ);
+}
+
+function getVisibleIndexes() {
+  const q = state.filterQuery;
+  if (!normalizeQuery(q)) {
+    return state.entries.map((_, i) => i);
+  }
+  return state.entries
+    .map((entry, i) => (entryMatches(entry, state.filterMode, q) ? i : -1))
+    .filter((i) => i >= 0);
+}
+
+function syncVisibleFromDom() {
+  $$("#entries .entry").forEach((row) => {
+    const idx = Number(row.dataset.idx);
+    if (Number.isNaN(idx) || !state.entries[idx]) return;
+    state.entries[idx] = {
+      numero: row.querySelector(".field-numero").value.trim(),
+      data: row.querySelector(".field-data").value.trim(),
+      observacao: row.querySelector(".field-obs").value,
+    };
+  });
+}
+
+function updateFilterChrome() {
+  const q = normalizeQuery(state.filterQuery);
+  filterClearEl.hidden = !q;
+  filterQueryEl.placeholder = FILTER_PLACEHOLDERS[state.filterMode] || "Filtrar…";
+
+  if (!q) {
+    filterMetaEl.hidden = true;
+    filterEmptyEl.hidden = true;
+    return;
+  }
+
+  const visible = getVisibleIndexes().length;
+  const total = state.entries.length;
+  filterMetaEl.hidden = false;
+  filterMetaEl.textContent = `${visible} de ${total}`;
+}
+
+function createEntryRow(entry, idx) {
   const row = document.createElement("article");
   row.className = "entry";
+  row.dataset.idx = String(idx);
   row.innerHTML = `
     <label>
       Nº
@@ -81,28 +173,21 @@ function createEntryRow(entry = { numero: "", data: "", observacao: "" }) {
   const num = row.querySelector(".field-numero");
   num.addEventListener("input", () => {
     num.value = num.value.replace(/\D/g, "");
+    state.entries[idx].numero = num.value.trim();
   });
 
   const data = row.querySelector(".field-data");
-  data.addEventListener("click", () => openDatePicker(data));
+  data.addEventListener("click", () => openDatePicker(data, idx));
+
+  const obs = row.querySelector(".field-obs");
+  obs.addEventListener("input", () => {
+    state.entries[idx].observacao = obs.value;
+  });
 
   return row;
 }
 
-function escapeAttr(str) {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;");
-}
-
-function escapeText(str) {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;");
-}
-
-function openDatePicker(input) {
+function openDatePicker(input, idx) {
   const hidden = document.createElement("input");
   hidden.type = "date";
   hidden.style.position = "fixed";
@@ -124,8 +209,10 @@ function openDatePicker(input) {
       if (hidden.value) {
         const [y, m, d] = hidden.value.split("-");
         input.value = `${d}/${m}/${y}`;
+        if (state.entries[idx]) state.entries[idx].data = input.value;
       }
       hidden.remove();
+      applyFilterView();
     },
     { once: true }
   );
@@ -142,23 +229,58 @@ function openDatePicker(input) {
   hidden.click();
 }
 
-function readEntriesFromDom() {
-  return $$("#entries .entry").map((row) => ({
-    numero: row.querySelector(".field-numero").value.trim(),
-    data: row.querySelector(".field-data").value.trim(),
-    observacao: row.querySelector(".field-obs").value,
-  }));
+function applyFilterView() {
+  syncVisibleFromDom();
+  const indexes = getVisibleIndexes();
+  entriesEl.innerHTML = "";
+
+  if (!state.entries.length) {
+    state.entries = [{ numero: "", data: "", observacao: "" }];
+    entriesEl.appendChild(createEntryRow(state.entries[0], 0));
+    filterEmptyEl.hidden = true;
+    updateFilterChrome();
+    return;
+  }
+
+  if (!indexes.length) {
+    filterEmptyEl.hidden = false;
+    updateFilterChrome();
+    return;
+  }
+
+  filterEmptyEl.hidden = true;
+  indexes.forEach((i) => entriesEl.appendChild(createEntryRow(state.entries[i], i)));
+  updateFilterChrome();
+}
+
+function resetFilter() {
+  state.filterMode = "ano";
+  state.filterQuery = "";
+  filterQueryEl.value = "";
+  $$(".filter-mode").forEach((btn) => {
+    const on = btn.dataset.mode === "ano";
+    btn.classList.toggle("active", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+  updateFilterChrome();
 }
 
 function renderEntries(list) {
-  entriesEl.innerHTML = "";
-  const items = list?.length ? list : [{ numero: "", data: "", observacao: "" }];
-  items.forEach((e) => entriesEl.appendChild(createEntryRow(e)));
+  state.entries = Array.isArray(list) && list.length
+    ? list.map((e) => ({
+        numero: e?.numero ?? "",
+        data: e?.data ?? "",
+        observacao: e?.observacao ?? "",
+      }))
+    : [{ numero: "", data: "", observacao: "" }];
+  applyFilterView();
 }
 
 async function loadForm() {
   loadingEl.hidden = false;
   entriesEl.innerHTML = "";
+  filterEmptyEl.hidden = true;
+  resetFilter();
   try {
     const ref = doc(db, COLLECTION, docId(state.localName, state.type));
     const snap = await getDoc(ref);
@@ -178,12 +300,18 @@ async function loadForm() {
 }
 
 async function saveForm() {
-  const entries = readEntriesFromDom();
+  syncVisibleFromDom();
+  const entries = state.entries.map((e) => ({
+    numero: String(e.numero ?? "").trim(),
+    data: String(e.data ?? "").trim(),
+    observacao: String(e.observacao ?? ""),
+  }));
   btnSave.disabled = true;
   btnSave.textContent = "Salvando…";
   try {
     const ref = doc(db, COLLECTION, docId(state.localName, state.type));
     await setDoc(ref, { entries });
+    state.entries = entries;
     toast("Salvo no Firebase!");
   } catch (err) {
     console.error(err);
@@ -218,19 +346,64 @@ $("#btn-back-home").addEventListener("click", () => showScreen("home"));
 $("#btn-back-local").addEventListener("click", () => showScreen("local"));
 
 $("#btn-add").addEventListener("click", () => {
-  const row = createEntryRow({ numero: "", data: todayBR(), observacao: "" });
-  entriesEl.appendChild(row);
-  row.querySelector(".field-obs").focus();
-  row.scrollIntoView({ behavior: "smooth", block: "center" });
+  syncVisibleFromDom();
+  state.entries.push({ numero: "", data: todayBR(), observacao: "" });
+  const idx = state.entries.length - 1;
+  // limpa filtro para a nova linha aparecer
+  if (normalizeQuery(state.filterQuery)) {
+    state.filterQuery = "";
+    filterQueryEl.value = "";
+  }
+  applyFilterView();
+  const row = entriesEl.querySelector(`[data-idx="${idx}"]`);
+  row?.querySelector(".field-obs")?.focus();
+  row?.scrollIntoView({ behavior: "smooth", block: "center" });
 });
 
 $("#btn-remove").addEventListener("click", () => {
-  const rows = $$("#entries .entry");
-  if (rows.length <= 1) {
+  syncVisibleFromDom();
+  if (state.entries.length <= 1) {
     toast("Deve haver pelo menos uma linha", true);
     return;
   }
-  rows[rows.length - 1].remove();
+
+  const visible = getVisibleIndexes();
+  if (!visible.length) {
+    toast("Nada para remover neste filtro", true);
+    return;
+  }
+
+  const removeIdx = visible[visible.length - 1];
+  state.entries.splice(removeIdx, 1);
+  applyFilterView();
 });
 
 $("#btn-save").addEventListener("click", saveForm);
+
+$$(".filter-mode").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    syncVisibleFromDom();
+    state.filterMode = btn.dataset.mode;
+    $$(".filter-mode").forEach((b) => {
+      const on = b === btn;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    applyFilterView();
+    filterQueryEl.focus();
+  });
+});
+
+filterQueryEl.addEventListener("input", () => {
+  syncVisibleFromDom();
+  state.filterQuery = filterQueryEl.value;
+  applyFilterView();
+});
+
+filterClearEl.addEventListener("click", () => {
+  syncVisibleFromDom();
+  state.filterQuery = "";
+  filterQueryEl.value = "";
+  applyFilterView();
+  filterQueryEl.focus();
+});

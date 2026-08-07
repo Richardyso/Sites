@@ -4,21 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#B71C1C" />
-  <title>ELÉTRICARLOS — Livro de Anotações</title>
-  <meta name="description" content="Livro de anotações de manutenção — ELÉTRICARLOS." />
+  <title>ELETRICARLOS — Livro de Anotações</title>
+  <meta name="description" content="Livro de anotações de manutenção — ELETRICARLOS." />
+
+  <link rel="icon" href="assets/logo.png" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/logo.png" />
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://eletricarlos.netlify.app/" />
-  <meta property="og:title" content="ELÉTRICARLOS — Livro de Anotações" />
-  <meta property="og:description" content="Livro de anotações de manutenção — ELÉTRICARLOS." />
+  <meta property="og:title" content="ELETRICARLOS — Livro de Anotações" />
+  <meta property="og:description" content="Livro de anotações de manutenção — ELETRICARLOS." />
   <meta property="og:image" content="https://eletricarlos.netlify.app/assets/logo.png" />
-  <meta property="og:image:alt" content="Logo ELÉTRICARLOS" />
+  <meta property="og:image:alt" content="Logo ELETRICARLOS" />
   <meta property="og:locale" content="pt_BR" />
-  <meta property="og:site_name" content="ELÉTRICARLOS" />
+  <meta property="og:site_name" content="ELETRICARLOS" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="ELÉTRICARLOS — Livro de Anotações" />
-  <meta name="twitter:description" content="Livro de anotações de manutenção — ELÉTRICARLOS." />
+  <meta name="twitter:title" content="ELETRICARLOS — Livro de Anotações" />
+  <meta name="twitter:description" content="Livro de anotações de manutenção — ELETRICARLOS." />
   <meta name="twitter:image" content="https://eletricarlos.netlify.app/assets/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -31,7 +34,7 @@
   <!-- HOME -->
   <section id="screen-home" class="screen active" aria-label="Início" aria-hidden="false">
     <header class="brand-hero">
-      <img src="assets/logo.png" alt="ELÉTRICARLOS" class="logo" width="1024" height="664" decoding="async" />
+      <img src="assets/logo.png" alt="ELETRICARLOS" class="logo" width="1024" height="664" decoding="async" />
       <p class="subtitle">Livro de Anotações</p>
     </header>
     <nav class="menu" aria-label="Estabelecimentos">
@@ -65,6 +68,27 @@
       </div>
     </header>
 
+    <div class="filter-bar" role="search" aria-label="Filtrar anotações">
+      <div class="filter-modes" role="group" aria-label="Tipo de filtro">
+        <button type="button" class="filter-mode active" data-mode="ano" aria-pressed="true">Ano</button>
+        <button type="button" class="filter-mode" data-mode="data" aria-pressed="false">Data</button>
+        <button type="button" class="filter-mode" data-mode="numero" aria-pressed="false">Nº</button>
+      </div>
+      <div class="filter-row">
+        <input
+          type="search"
+          id="filter-query"
+          class="filter-input"
+          placeholder="Ex.: 2024"
+          autocomplete="off"
+          inputmode="numeric"
+          enterkeyhint="search"
+        />
+        <button type="button" id="filter-clear" class="filter-clear" hidden>Limpar</button>
+      </div>
+      <p id="filter-meta" class="filter-meta" hidden></p>
+    </div>
+
     <div id="loading" class="loading" hidden>Carregando…</div>
 
     <div class="form-header-labels" aria-hidden="true">
@@ -74,6 +98,7 @@
     </div>
 
     <div id="entries" class="entries"></div>
+    <p id="filter-empty" class="filter-empty" hidden>Nenhuma anotação com esse filtro.</p>
 
     <div class="actions" role="toolbar" aria-label="Ações do formulário">
       <button type="button" id="btn-remove" class="btn-pill action" aria-label="Remover última linha">−</button>
