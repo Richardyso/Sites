@@ -30,8 +30,11 @@ const toastEl = $("#toast");
 const btnSave = $("#btn-save");
 
 function showScreen(name) {
-  Object.values(screens).forEach((el) => el.classList.remove("active"));
-  screens[name].classList.add("active");
+  Object.entries(screens).forEach(([key, el]) => {
+    const on = key === name;
+    el.classList.toggle("active", on);
+    el.setAttribute("aria-hidden", on ? "false" : "true");
+  });
   window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
 }
 

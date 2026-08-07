@@ -5,18 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#B71C1C" />
   <title>ELÉTRICARLOS — Livro de Anotações</title>
+  <meta name="description" content="Livro de anotações de manutenção — ELÉTRICARLOS." />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://eletricarlos.netlify.app/" />
+  <meta property="og:title" content="ELÉTRICARLOS — Livro de Anotações" />
+  <meta property="og:description" content="Livro de anotações de manutenção — ELÉTRICARLOS." />
+  <meta property="og:image" content="https://eletricarlos.netlify.app/assets/logo.png" />
+  <meta property="og:image:alt" content="Logo ELÉTRICARLOS" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:site_name" content="ELÉTRICARLOS" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="ELÉTRICARLOS — Livro de Anotações" />
+  <meta name="twitter:description" content="Livro de anotações de manutenção — ELÉTRICARLOS." />
+  <meta name="twitter:image" content="https://eletricarlos.netlify.app/assets/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <div id="toast" class="toast" hidden></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
   <!-- HOME -->
-  <section id="screen-home" class="screen active">
+  <section id="screen-home" class="screen active" aria-label="Início" aria-hidden="false">
     <header class="brand-hero">
-      <img src="assets/logo.png" alt="ELÉTRICARLOS" class="logo" />
+      <img src="assets/logo.png" alt="ELÉTRICARLOS" class="logo" width="1024" height="664" decoding="async" />
       <p class="subtitle">Livro de Anotações</p>
     </header>
     <nav class="menu" aria-label="Estabelecimentos">
@@ -28,9 +43,9 @@
   </section>
 
   <!-- LOCAL -->
-  <section id="screen-local" class="screen">
+  <section id="screen-local" class="screen" aria-label="Tipos de manutenção" aria-hidden="true">
     <header class="top-bar">
-      <button type="button" class="btn-back" id="btn-back-home" aria-label="Voltar">←</button>
+      <button type="button" class="btn-back" id="btn-back-home" aria-label="Voltar ao início">←</button>
       <h1 id="local-title" class="page-title"></h1>
     </header>
     <nav class="menu" aria-label="Tipos">
@@ -41,9 +56,9 @@
   </section>
 
   <!-- FORM -->
-  <section id="screen-form" class="screen">
+  <section id="screen-form" class="screen" aria-label="Anotações" aria-hidden="true">
     <header class="top-bar">
-      <button type="button" class="btn-back" id="btn-back-local" aria-label="Voltar">←</button>
+      <button type="button" class="btn-back" id="btn-back-local" aria-label="Voltar aos tipos">←</button>
       <div class="page-title-wrap">
         <h1 id="form-local" class="page-title sm"></h1>
         <p id="form-type" class="page-caption"></p>
@@ -60,9 +75,9 @@
 
     <div id="entries" class="entries"></div>
 
-    <div class="actions">
-      <button type="button" id="btn-remove" class="btn-pill action">−</button>
-      <button type="button" id="btn-add" class="btn-pill action">+</button>
+    <div class="actions" role="toolbar" aria-label="Ações do formulário">
+      <button type="button" id="btn-remove" class="btn-pill action" aria-label="Remover última linha">−</button>
+      <button type="button" id="btn-add" class="btn-pill action" aria-label="Adicionar linha">+</button>
       <button type="button" id="btn-save" class="btn-pill action save">Salvar</button>
     </div>
   </section>
