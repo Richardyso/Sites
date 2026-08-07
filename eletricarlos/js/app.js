@@ -23,7 +23,7 @@ const state = {
   localName: "",
   type: "",
   entries: [],
-  filterMode: "ano",
+  filterMode: "numero",
   filterQuery: "",
 };
 
@@ -53,8 +53,8 @@ const sessionUserEl = $("#session-user");
 const sessionBarEl = $("#session-bar");
 
 const FILTER_PLACEHOLDERS = {
-  ano: "Ex.: 2024",
   numero: "Ex.: 66",
+  ano: "Ex.: 2024",
 };
 
 function isReadonly() {
@@ -207,7 +207,7 @@ function createEntryRow(entry, idx) {
   row.dataset.idx = String(idx);
   row.innerHTML = `
     <label>
-      Nº
+      Aparelho
       <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="field-numero" placeholder="00" value="${escapeAttr(entry.numero ?? "")}" ${ro ? "readonly" : ""} />
     </label>
     <label>
@@ -318,11 +318,11 @@ function applyFilterView() {
 }
 
 function resetFilter() {
-  state.filterMode = "ano";
+  state.filterMode = "numero";
   state.filterQuery = "";
   filterQueryEl.value = "";
   $$(".filter-mode").forEach((btn) => {
-    const on = btn.dataset.mode === "ano";
+    const on = btn.dataset.mode === "numero";
     btn.classList.toggle("active", on);
     btn.setAttribute("aria-pressed", on ? "true" : "false");
   });
