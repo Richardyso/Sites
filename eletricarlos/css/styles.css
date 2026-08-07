@@ -74,10 +74,129 @@ textarea {
 }
 
 #screen-home.active,
-#screen-local.active {
+#screen-local.active,
+#screen-login.active {
   display: flex;
   flex-direction: column;
   padding-bottom: max(2rem, calc(1rem + var(--safe-bottom)));
+}
+
+#screen-login.active {
+  justify-content: center;
+}
+
+body.mode-readonly #screen-form.screen {
+  padding-bottom: max(2rem, calc(1rem + var(--safe-bottom)));
+}
+
+body.mode-readonly .field-data {
+  cursor: default;
+}
+
+body.mode-readonly .entry-readonly input,
+body.mode-readonly .entry-readonly textarea {
+  background: #fff5f5;
+  color: var(--ink);
+  opacity: 1;
+}
+
+/* —— Login —— */
+.login-hero {
+  padding-bottom: 0;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+  padding: 0 0.15rem;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--red-deep);
+}
+
+.login-field input {
+  width: 100%;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 0.95rem 1rem;
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(183, 28, 28, 0.12);
+}
+
+.login-field input:focus {
+  border-color: var(--red);
+}
+
+.login-error {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  background: #4a0e0e;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.login-submit {
+  margin-top: 0.35rem;
+  width: 100%;
+}
+
+.session-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  margin: 0.85rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.btn-logout {
+  appearance: none;
+  border: none;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  background: var(--red-soft);
+  color: var(--red-deep);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.btn-logout:focus-visible {
+  outline: 3px solid var(--red);
+  outline-offset: 2px;
+}
+
+.readonly-badge {
+  margin: 0.35rem 0 0;
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--red-soft);
+  color: var(--red-deep);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 /* —— Home —— */
@@ -603,7 +722,8 @@ textarea {
   }
 
   #screen-home.active,
-  #screen-local.active {
+  #screen-local.active,
+  #screen-login.active {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -636,6 +756,10 @@ textarea {
   }
 
   .filter-clear:hover {
+    background: #f4c0c0;
+  }
+
+  .btn-logout:hover {
     background: #f4c0c0;
   }
 }

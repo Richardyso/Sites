@@ -6,11 +6,20 @@ import {
   setDoc,
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 import { firebaseConfig, COLLECTION } from "./firebase-config.js";
+import {
+  verifyLogin,
+  saveSession,
+  clearSession,
+  readSession,
+  canAccessLocal,
+  canEdit,
+} from "./auth.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const state = {
+  user: null,
   localName: "",
   type: "",
   entries: [],
@@ -22,6 +31,7 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => [...document.querySelectorAll(sel)];
 
 const screens = {
+  login: $("#screen-login"),
   home: $("#screen-home"),
   local: $("#screen-local"),
   form: $("#screen-form"),
@@ -35,12 +45,22 @@ const filterQueryEl = $("#filter-query");
 const filterClearEl = $("#filter-clear");
 const filterMetaEl = $("#filter-meta");
 const filterEmptyEl = $("#filter-empty");
+const formActionsEl = $("#form-actions");
+const readonlyBadgeEl = $("#readonly-badge");
+const loginForm = $("#login-form");
+const loginError = $("#login-error");
+const loginSubmit = $("#login-submit");
+const sessionUserEl = $("#session-user");
 
 const FILTER_PLACEHOLDERS = {
   ano: "Ex.: 2024",
   data: "Ex.: 30/09/2024",
   numero: "Ex.: 66",
 };
+
+function isReadonly() {
+  return !canEdit(state.user);
+}
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, el]) => {
@@ -106,7 +126,6 @@ function entryMatches(entry, mode, query) {
     return year.includes(q) || data.includes(q);
   }
 
-  // data: aceita parcial (30, 30/09, 30/09/2024)
   const compactQ = q.replace(/\s/g, "");
   const compactData = data.replace(/\s/g, "");
   return compactData.includes(compactQ);
@@ -123,6 +142,7 @@ function getVisibleIndexes() {
 }
 
 function syncVisibleFromDom() {
+  if (isReadonly()) return;
   $$("#entries .entry").forEach((row) => {
     const idx = Number(row.dataset.idx);
     if (Number.isNaN(idx) || !state.entries[idx]) return;
@@ -141,7 +161,6 @@ function updateFilterChrome() {
 
   if (!q) {
     filterMetaEl.hidden = true;
-    filterEmptyEl.hidden = true;
     return;
   }
 
@@ -151,14 +170,49 @@ function updateFilterChrome() {
   filterMetaEl.textContent = `${visible} de ${total}`;
 }
 
+function applyModeChrome() {
+  const ro = isReadonly();
+  document.body.classList.toggle("mode-readonly", ro);
+  formActionsEl.hidden = ro;
+  readonlyBadgeEl.hidden = !ro;
+  $$("#screen-home [data-local]").forEach((btn) => {
+    const allowed = canAccessLocal(state.user, btn.dataset.local);
+    btn.hidden = !allowed;
+  });
+}
+
+function enterApp(user) {
+  state.user = user;
+  document.body.classList.remove("locked");
+  sessionUserEl.textContent = user.label;
+  applyModeChrome();
+  showScreen("home");
+}
+
+function logout() {
+  clearSession();
+  state.user = null;
+  state.localName = "";
+  state.type = "";
+  state.entries = [];
+  document.body.classList.add("locked");
+  document.body.classList.remove("mode-readonly");
+  $("#login-user").value = "";
+  $("#login-pass").value = "";
+  loginError.hidden = true;
+  showScreen("login");
+  $("#login-user").focus();
+}
+
 function createEntryRow(entry, idx) {
+  const ro = isReadonly();
   const row = document.createElement("article");
   row.className = "entry";
   row.dataset.idx = String(idx);
   row.innerHTML = `
     <label>
       Nº
-      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="field-numero" placeholder="00" value="${escapeAttr(entry.numero ?? "")}" />
+      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="field-numero" placeholder="00" value="${escapeAttr(entry.numero ?? "")}" ${ro ? "readonly" : ""} />
     </label>
     <label>
       Data
@@ -166,9 +220,14 @@ function createEntryRow(entry, idx) {
     </label>
     <label class="anotacao">
       Anotação
-      <textarea class="field-obs" rows="3" placeholder="Escreva aqui…">${escapeText(entry.observacao ?? "")}</textarea>
+      <textarea class="field-obs" rows="3" placeholder="${ro ? "" : "Escreva aqui…"}" ${ro ? "readonly" : ""}>${escapeText(entry.observacao ?? "")}</textarea>
     </label>
   `;
+
+  if (ro) {
+    row.classList.add("entry-readonly");
+    return row;
+  }
 
   const num = row.querySelector(".field-numero");
   num.addEventListener("input", () => {
@@ -188,6 +247,8 @@ function createEntryRow(entry, idx) {
 }
 
 function openDatePicker(input, idx) {
+  if (isReadonly()) return;
+
   const hidden = document.createElement("input");
   hidden.type = "date";
   hidden.style.position = "fixed";
@@ -230,11 +291,17 @@ function openDatePicker(input, idx) {
 }
 
 function applyFilterView() {
-  syncVisibleFromDom();
+  if (!isReadonly()) syncVisibleFromDom();
   const indexes = getVisibleIndexes();
   entriesEl.innerHTML = "";
 
   if (!state.entries.length) {
+    if (isReadonly()) {
+      filterEmptyEl.hidden = false;
+      filterEmptyEl.textContent = "Nenhuma anotação cadastrada.";
+      updateFilterChrome();
+      return;
+    }
     state.entries = [{ numero: "", data: "", observacao: "" }];
     entriesEl.appendChild(createEntryRow(state.entries[0], 0));
     filterEmptyEl.hidden = true;
@@ -244,6 +311,7 @@ function applyFilterView() {
 
   if (!indexes.length) {
     filterEmptyEl.hidden = false;
+    filterEmptyEl.textContent = "Nenhuma anotação com esse filtro.";
     updateFilterChrome();
     return;
   }
@@ -266,13 +334,19 @@ function resetFilter() {
 }
 
 function renderEntries(list) {
-  state.entries = Array.isArray(list) && list.length
+  const has = Array.isArray(list) && list.length;
+  state.entries = has
     ? list.map((e) => ({
         numero: e?.numero ?? "",
         data: e?.data ?? "",
         observacao: e?.observacao ?? "",
       }))
-    : [{ numero: "", data: "", observacao: "" }];
+    : [];
+
+  if (!has && !isReadonly()) {
+    state.entries = [{ numero: "", data: "", observacao: "" }];
+  }
+
   applyFilterView();
 }
 
@@ -281,6 +355,7 @@ async function loadForm() {
   entriesEl.innerHTML = "";
   filterEmptyEl.hidden = true;
   resetFilter();
+  applyModeChrome();
   try {
     const ref = doc(db, COLLECTION, docId(state.localName, state.type));
     const snap = await getDoc(ref);
@@ -300,6 +375,10 @@ async function loadForm() {
 }
 
 async function saveForm() {
+  if (isReadonly()) {
+    toast("Sem permissão para salvar.", true);
+    return;
+  }
   syncVisibleFromDom();
   const entries = state.entries.map((e) => ({
     numero: String(e.numero ?? "").trim(),
@@ -322,18 +401,58 @@ async function saveForm() {
   }
 }
 
-// Home → local
+function requireAuth() {
+  if (!state.user) {
+    showScreen("login");
+    return false;
+  }
+  return true;
+}
+
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  loginError.hidden = true;
+  loginSubmit.disabled = true;
+  loginSubmit.textContent = "Entrando…";
+  try {
+    const user = await verifyLogin($("#login-user").value, $("#login-pass").value);
+    if (!user) {
+      loginError.hidden = false;
+      $("#login-pass").value = "";
+      $("#login-pass").focus();
+      return;
+    }
+    saveSession(user);
+    enterApp(user);
+  } finally {
+    loginSubmit.disabled = false;
+    loginSubmit.textContent = "Entrar";
+  }
+});
+
+$("#btn-logout").addEventListener("click", logout);
+
 $$("#screen-home [data-local]").forEach((btn) => {
   btn.addEventListener("click", () => {
+    if (!requireAuth()) return;
+    if (!canAccessLocal(state.user, btn.dataset.local)) {
+      toast("Sem acesso a este estabelecimento.", true);
+      return;
+    }
     state.localName = btn.dataset.local;
     $("#local-title").textContent = state.localName;
     showScreen("local");
   });
 });
 
-// Local → form
 $$("#screen-local [data-type]").forEach((btn) => {
   btn.addEventListener("click", () => {
+    if (!requireAuth()) return;
+    if (!canAccessLocal(state.user, state.localName)) {
+      toast("Sem acesso a este estabelecimento.", true);
+      showScreen("home");
+      return;
+    }
     state.type = btn.dataset.type;
     $("#form-local").textContent = state.localName;
     $("#form-type").textContent = btn.textContent.trim();
@@ -342,14 +461,24 @@ $$("#screen-local [data-type]").forEach((btn) => {
   });
 });
 
-$("#btn-back-home").addEventListener("click", () => showScreen("home"));
-$("#btn-back-local").addEventListener("click", () => showScreen("local"));
+$("#btn-back-home").addEventListener("click", () => {
+  if (!requireAuth()) return;
+  showScreen("home");
+});
+
+$("#btn-back-local").addEventListener("click", () => {
+  if (!requireAuth()) return;
+  showScreen("local");
+});
 
 $("#btn-add").addEventListener("click", () => {
+  if (isReadonly()) {
+    toast("Sem permissão para adicionar.", true);
+    return;
+  }
   syncVisibleFromDom();
   state.entries.push({ numero: "", data: todayBR(), observacao: "" });
   const idx = state.entries.length - 1;
-  // limpa filtro para a nova linha aparecer
   if (normalizeQuery(state.filterQuery)) {
     state.filterQuery = "";
     filterQueryEl.value = "";
@@ -361,6 +490,10 @@ $("#btn-add").addEventListener("click", () => {
 });
 
 $("#btn-remove").addEventListener("click", () => {
+  if (isReadonly()) {
+    toast("Sem permissão para remover.", true);
+    return;
+  }
   syncVisibleFromDom();
   if (state.entries.length <= 1) {
     toast("Deve haver pelo menos uma linha", true);
@@ -382,7 +515,7 @@ $("#btn-save").addEventListener("click", saveForm);
 
 $$(".filter-mode").forEach((btn) => {
   btn.addEventListener("click", () => {
-    syncVisibleFromDom();
+    if (!isReadonly()) syncVisibleFromDom();
     state.filterMode = btn.dataset.mode;
     $$(".filter-mode").forEach((b) => {
       const on = b === btn;
@@ -395,15 +528,24 @@ $$(".filter-mode").forEach((btn) => {
 });
 
 filterQueryEl.addEventListener("input", () => {
-  syncVisibleFromDom();
+  if (!isReadonly()) syncVisibleFromDom();
   state.filterQuery = filterQueryEl.value;
   applyFilterView();
 });
 
 filterClearEl.addEventListener("click", () => {
-  syncVisibleFromDom();
+  if (!isReadonly()) syncVisibleFromDom();
   state.filterQuery = "";
   filterQueryEl.value = "";
   applyFilterView();
   filterQueryEl.focus();
 });
+
+// Sessão ativa
+const existing = readSession();
+if (existing) {
+  enterApp(existing);
+} else {
+  showScreen("login");
+  $("#login-user").focus();
+}

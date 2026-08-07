@@ -28,14 +28,38 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
+<body class="locked">
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
+  <!-- LOGIN -->
+  <section id="screen-login" class="screen active" aria-label="Login" aria-hidden="false">
+    <header class="brand-hero login-hero">
+      <img src="assets/logo.png" alt="ELETRICARLOS" class="logo" width="1024" height="664" decoding="async" />
+      <p class="subtitle">Acesso</p>
+    </header>
+    <form id="login-form" class="login-form" autocomplete="on">
+      <label class="login-field">
+        Usuário
+        <input type="text" id="login-user" name="username" required autocomplete="username" autocapitalize="off" spellcheck="false" />
+      </label>
+      <label class="login-field">
+        Senha
+        <input type="password" id="login-pass" name="password" required autocomplete="current-password" />
+      </label>
+      <p id="login-error" class="login-error" hidden>Usuário ou senha inválidos.</p>
+      <button type="submit" id="login-submit" class="btn-pill save login-submit">Entrar</button>
+    </form>
+  </section>
+
   <!-- HOME -->
-  <section id="screen-home" class="screen active" aria-label="Início" aria-hidden="false">
+  <section id="screen-home" class="screen" aria-label="Início" aria-hidden="true">
     <header class="brand-hero">
       <img src="assets/logo.png" alt="ELETRICARLOS" class="logo" width="1024" height="664" decoding="async" />
       <p class="subtitle">Livro de Anotações</p>
+      <p class="session-line">
+        <span id="session-user"></span>
+        <button type="button" id="btn-logout" class="btn-logout">Sair</button>
+      </p>
     </header>
     <nav class="menu" aria-label="Estabelecimentos">
       <button type="button" class="btn-pill" data-local="Pousada Paraíso">Pousada Paraíso</button>
@@ -65,6 +89,7 @@
       <div class="page-title-wrap">
         <h1 id="form-local" class="page-title sm"></h1>
         <p id="form-type" class="page-caption"></p>
+        <p id="readonly-badge" class="readonly-badge" hidden>Somente leitura</p>
       </div>
     </header>
 
@@ -100,7 +125,7 @@
     <div id="entries" class="entries"></div>
     <p id="filter-empty" class="filter-empty" hidden>Nenhuma anotação com esse filtro.</p>
 
-    <div class="actions" role="toolbar" aria-label="Ações do formulário">
+    <div class="actions" id="form-actions" role="toolbar" aria-label="Ações do formulário">
       <button type="button" id="btn-remove" class="btn-pill action" aria-label="Remover última linha">−</button>
       <button type="button" id="btn-add" class="btn-pill action" aria-label="Adicionar linha">+</button>
       <button type="button" id="btn-save" class="btn-pill action save">Salvar</button>
