@@ -566,6 +566,28 @@ body.mode-readonly .entry-readonly textarea {
   cursor: pointer;
 }
 
+.date-shell {
+  position: relative;
+  display: block;
+}
+
+.field-data-native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0.011;
+  cursor: pointer;
+  z-index: 2;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  color: transparent;
+}
+
 /* —— Actions bar —— */
 .actions {
   position: fixed;

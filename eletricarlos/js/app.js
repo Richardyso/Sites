@@ -205,14 +205,21 @@ function createEntryRow(entry, idx) {
   const row = document.createElement("article");
   row.className = "entry";
   row.dataset.idx = String(idx);
+
+  const dataBr = String(entry.data ?? "");
+  const dataIso = brToIso(dataBr);
+
   row.innerHTML = `
     <label>
       Aparelho
       <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="field-numero" placeholder="00" value="${escapeAttr(entry.numero ?? "")}" ${ro ? "readonly" : ""} />
     </label>
-    <label>
+    <label class="date-field">
       Data
-      <input type="text" class="field-data" placeholder="DD/MM/AAAA" readonly value="${escapeAttr(entry.data ?? "")}" />
+      <span class="date-shell">
+        <input type="text" class="field-data" placeholder="DD/MM/AAAA" readonly tabindex="-1" value="${escapeAttr(dataBr)}" />
+        ${ro ? "" : `<input type="date" class="field-data-native" value="${escapeAttr(dataIso)}" aria-label="Escolher data" />`}
+      </span>
     </label>
     <label class="anotacao">
       Anotação
@@ -231,8 +238,20 @@ function createEntryRow(entry, idx) {
     state.entries[idx].numero = num.value.trim();
   });
 
-  const data = row.querySelector(".field-data");
-  data.addEventListener("click", () => openDatePicker(data, idx));
+  const display = row.querySelector(".field-data");
+  const native = row.querySelector(".field-data-native");
+  native.addEventListener("change", () => {
+    if (!native.value) return;
+    const br = isoToBr(native.value);
+    display.value = br;
+    if (state.entries[idx]) state.entries[idx].data = br;
+  });
+  native.addEventListener("input", () => {
+    if (!native.value) return;
+    const br = isoToBr(native.value);
+    display.value = br;
+    if (state.entries[idx]) state.entries[idx].data = br;
+  });
 
   const obs = row.querySelector(".field-obs");
   obs.addEventListener("input", () => {
@@ -242,48 +261,14 @@ function createEntryRow(entry, idx) {
   return row;
 }
 
-function openDatePicker(input, idx) {
-  if (isReadonly()) return;
+function brToIso(br) {
+  const parts = String(br || "").match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  return parts ? `${parts[3]}-${parts[2]}-${parts[1]}` : "";
+}
 
-  const hidden = document.createElement("input");
-  hidden.type = "date";
-  hidden.style.position = "fixed";
-  hidden.style.opacity = "0";
-  hidden.style.pointerEvents = "none";
-  document.body.appendChild(hidden);
-
-  const parts = String(input.value || "").match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (parts) {
-    hidden.value = `${parts[3]}-${parts[2]}-${parts[1]}`;
-  } else {
-    const n = new Date();
-    hidden.value = n.toISOString().slice(0, 10);
-  }
-
-  hidden.addEventListener(
-    "change",
-    () => {
-      if (hidden.value) {
-        const [y, m, d] = hidden.value.split("-");
-        input.value = `${d}/${m}/${y}`;
-        if (state.entries[idx]) state.entries[idx].data = input.value;
-      }
-      hidden.remove();
-      applyFilterView();
-    },
-    { once: true }
-  );
-
-  hidden.addEventListener(
-    "blur",
-    () => {
-      setTimeout(() => hidden.remove(), 300);
-    },
-    { once: true }
-  );
-
-  hidden.showPicker?.();
-  hidden.click();
+function isoToBr(iso) {
+  const parts = String(iso || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return parts ? `${parts[3]}/${parts[2]}/${parts[1]}` : "";
 }
 
 function applyFilterView() {
